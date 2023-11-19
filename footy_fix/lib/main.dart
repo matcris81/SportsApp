@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:footy_fix/screens/home.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 void main() => runApp(const MyApp());
 
@@ -9,26 +10,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: Stack(
         children: [
-          // Background image
-          Positioned.fill(
-            child: Image.asset(
-              '/Users/matcris/workspace/Footy_Fix/FootyFIxApp/footy_fix/pitch.jpeg', // Replace with your image asset path
-              fit: BoxFit.cover, // Ensures the image covers the whole screen
-            ),
-          ),
-          // Scaffold with transparent AppBar
-          const Scaffold(
+          Scaffold(
             backgroundColor:
                 Colors.transparent, // Makes Scaffold background transparent
-            // appBar: AppBar(
-            //   backgroundColor: Colors.transparent, // Makes AppBar transparent
-            //   elevation: 0, // Removes shadow from AppBar
-            //   title: const Text('Football Fix Login'),
-            // ),
-            body: const Login(),
+            body: Login(),
           ),
         ],
       ),
@@ -60,7 +48,7 @@ class Login extends StatelessWidget {
                     decoration: const BoxDecoration(
                       image: DecorationImage(
                         image:
-                            AssetImage('assets/pitch.jpeg'), // Your asset path
+                            AssetImage('assets/sewi.jpeg'), // Your asset path
                         fit: BoxFit
                             .cover, // Ensures the image covers the whole screen
                       ),
@@ -75,24 +63,30 @@ class Login extends StatelessWidget {
                           SizedBox(
                             width: 350.0,
                             child: TextFormField(
+                              style: const TextStyle(color: Colors.white),
                               decoration: const InputDecoration(
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                      color: Colors.white), // White border
+                                      color: Colors.white,
+                                      width: 3.0), // White border
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                      color: Colors
-                                          .white), // White border for enabled state
+                                      color: Colors.white,
+                                      width:
+                                          3.0), // White border for enabled state
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                      color: Colors
-                                          .white), // White border for focused state
+                                      color: Colors.white,
+                                      width:
+                                          3.0), // White border for focused state
                                 ),
                                 labelText: 'Username',
                                 labelStyle: TextStyle(
-                                    color: Colors.white), // White label text
+                                    color: Colors.white,
+                                    fontWeight:
+                                        FontWeight.bold), // White label text
                               ),
                             ),
                           ),
@@ -100,6 +94,7 @@ class Login extends StatelessWidget {
                           SizedBox(
                             width: 350.0,
                             child: TextFormField(
+                              style: const TextStyle(color: Colors.white),
                               decoration: const InputDecoration(
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide(
@@ -107,17 +102,21 @@ class Login extends StatelessWidget {
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                      color: Colors
-                                          .white), // White border for enabled state
+                                      color: Colors.white,
+                                      width:
+                                          3.0), // White border for enabled state
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                      color: Colors
-                                          .white), // White border for focused state
+                                      color: Colors.white,
+                                      width:
+                                          3.0), // White border for focused state
                                 ),
                                 labelText: 'Password',
                                 labelStyle: TextStyle(
-                                    color: Colors.white), // White label text
+                                    color: Colors.white,
+                                    fontWeight:
+                                        FontWeight.bold), // White label text
                               ),
                             ),
                           ),
@@ -141,6 +140,106 @@ class Login extends StatelessWidget {
                                   // ... your button action
                                 },
                                 child: const Text('Register'),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 100.0),
+                          const Text(
+                            "Or sign in with",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 20.0),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              InkWell(
+                                onTap: () async {
+                                  try {
+                                    final credential = await SignInWithApple
+                                        .getAppleIDCredential(
+                                      scopes: [
+                                        AppleIDAuthorizationScopes.email,
+                                        AppleIDAuthorizationScopes.fullName,
+                                      ],
+                                    );
+
+                                    // Use credential to sign in to your app's backend
+                                    // final signInWithAppleResult =
+                                    //     await myBackendSignInFunction(
+                                    //         credential);
+
+                                    // Handle the result
+                                    // if (signInWithAppleResult) {
+                                    //   print(
+                                    //       'Signed in with Apple successfully!');
+                                    // } else {
+                                    //   print('Failed to sign in with Apple.');
+                                    // }
+                                  } catch (error) {
+                                    // Handle the error
+                                    print('Sign in with Apple failed: $error');
+                                  }
+                                },
+                                child: Container(
+                                  width: 56.0,
+                                  height: 56.0,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Center(
+                                    child: Image.asset(
+                                      'assets/icons/apple.png',
+                                      width: 40.0,
+                                      height: 40.0,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  print('Custom icon button pressed!');
+                                },
+                                child: Container(
+                                  width: 56.0,
+                                  height: 56.0,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Center(
+                                    child: Image.asset(
+                                      'assets/icons/google.png',
+                                      width: 56.0,
+                                      height: 56.0,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  print('Custom icon button pressed!');
+                                },
+                                child: Container(
+                                  width: 56.0,
+                                  height: 56.0,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.blue,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Center(
+                                    child: Image.asset(
+                                      'assets/icons/facebook.png',
+                                      width: 56.0,
+                                      height: 56.0,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ],
                           ),
