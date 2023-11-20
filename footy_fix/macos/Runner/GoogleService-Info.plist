@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>955778873823-tq1vcot1l02fgqnts86d05nls6c50k02.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.955778873823-tq1vcot1l02fgqnts86d05nls6c50k02</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>955778873823-a82asu6781g0iaqoh1keh57pek2a9l60.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyB-2xH1BItUWeaZYe8x9rWSqDa5yItq4iA</string>
+	<key>GCM_SENDER_ID</key>
+	<string>955778873823</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.footyFix.RunnerTests</string>
+	<key>PROJECT_ID</key>
+	<string>fitfeat-bf285</string>
+	<key>STORAGE_BUCKET</key>
+	<string>fitfeat-bf285.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:955778873823:ios:a756f228cad35d2341ec6a</string>
+</dict>
+</plist>
