@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "955778873823",
+    "project_id": "fitfeat-bf285",
+    "storage_bucket": "fitfeat-bf285.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955778873823:android:2b90c5cdce45af7d41ec6a",
+        "android_client_info": {
+          "package_name": "com.example.footy_fix"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "955778873823-a82asu6781g0iaqoh1keh57pek2a9l60.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.footy_fix",
+            "certificate_hash": "1934d6cd8054855365223caa54ff698b1e3ca111"
+          }
+        },
+        {
+          "client_id": "955778873823-ale24pa3hvjg0h3f7bi48h2gi3g6kp56.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2RUByYt57hT8HeinrhS2AXu2F9pXnB5g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "955778873823-ale24pa3hvjg0h3f7bi48h2gi3g6kp56.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "955778873823-e7hkg44t0sk3euiijgsti38ogtverqo2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.21e8.footyFix"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
