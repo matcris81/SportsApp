@@ -37,13 +37,13 @@ class AuthService {
     }
   }
 
-  signInWithFacebook() async {
-    FacebookAuth.instance
-        .login(permissions: ["public_profile", "email"]).then((value) {
-      FacebookAuth.instance.getUserData().then((userData) {
-        print("Facebook Sign-In Email: ${userData["email"]}");
-        print("Facebook Sign-In Name: ${userData["name"]}");
-      });
-    });
-  }
+  // signInWithFacebook() async {
+  //   FacebookAuth.instance
+  //       .login(permissions: ["public_profile", "email"]).then((value) {
+  //     FacebookAuth.instance.getUserData().then((userData) {
+  //       print("Facebook Sign-In Email: ${userData["email"]}");
+  //       print("Facebook Sign-In Name: ${userData["name"]}");
+  //     });
+  //   });
+  // }
 }
