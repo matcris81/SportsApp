@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:footy_fix/mongodb.dart';
+import 'package:footy_fix/screens/home.dart';
+import 'package:footy_fix/services/auth_service.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:footy_fix/screens/auth_page.dart';
@@ -8,6 +13,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  WidgetsFlutterBinding.ensureInitialized();
+  await MongoDatabse.connect();
   runApp(const MyApp());
 }
 
