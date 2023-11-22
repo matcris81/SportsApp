@@ -26,24 +26,34 @@ class AuthService {
 
   signInWithApple() async {
     try {
-      return await SignInWithApple.getAppleIDCredential(
+      var still = await SignInWithApple.getAppleIDCredential(
         scopes: [
           AppleIDAuthorizationScopes.email,
           AppleIDAuthorizationScopes.fullName,
         ],
       );
+      print(still);
+      print(AppleIDAuthorizationScopes.fullName);
     } catch (error) {
       print("Error signing in with Apple: $error");
     }
   }
 
-  // signInWithFacebook() async {
-  //   FacebookAuth.instance
-  //       .login(permissions: ["public_profile", "email"]).then((value) {
-  //     FacebookAuth.instance.getUserData().then((userData) {
-  //       print("Facebook Sign-In Email: ${userData["email"]}");
-  //       print("Facebook Sign-In Name: ${userData["name"]}");
-  //     });
-  //   });
-  // }
+  signInWithFacebook() async {
+    try {
+      final LoginResult result = await FacebookAuth.instance.login(
+        permissions: ["public_profile", "email"],
+      );
+
+      if (result.status == LoginStatus.success) {
+        final userData = await FacebookAuth.instance.getUserData();
+        print("Facebook Sign-In Email: ${userData["email"]}");
+        print("Facebook Sign-In Name: ${userData["name"]}");
+      } else {
+        print("Facebook Sign-In Failed: ${result.status}");
+      }
+    } catch (e) {
+      print("Error during Facebook Sign-In: $e");
+    }
+  }
 }

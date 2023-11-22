@@ -210,8 +210,7 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(width: 25),
 
                   SquareTile(
-                      onTap: () => /*AuthService().signInWithFacebook()*/
-                          print("This does not work lol, it crashes the app"),
+                      onTap: () => AuthService().signInWithFacebook(),
                       imagePath: 'assets/icons/facebook.png'),
                 ],
               ),
