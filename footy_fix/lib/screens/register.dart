@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:footy_fix/components/my_button.dart';
@@ -12,13 +11,13 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  // text editing controllers
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
+  final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController lastNameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
 
-  // register user method
   void registerUser() async {
-    // show loading circle
     showDialog(
       context: context,
       builder: (context) {
@@ -28,22 +27,16 @@ class _RegisterPageState extends State<RegisterPage> {
       },
     );
 
-    // try register
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text,
         password: passwordController.text,
       );
-      // pop the loading circle
       Navigator.pop(context);
 
-      // You can navigate to another page after successful registration
-      // For example, navigate to the home page:
-      // Navigator.pushReplacementNamed(context, '/home');
+ 
     } on FirebaseAuthException catch (e) {
-      // pop the loading circle
       Navigator.pop(context);
-      // Handle registration errors
       print('Error during registration: ${e.message}');
     }
   }
@@ -54,37 +47,131 @@ class _RegisterPageState extends State<RegisterPage> {
       backgroundColor: Colors.grey[300],
       body: SafeArea(
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 50),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 50),
 
-              // registration form (reuse MyTextField widget)
-              MyTextField(
-                controller: emailController,
-                hintText: 'Email',
-                obscureText: false,
-              ),
+                const Icon(
+                  Icons.lock,
+                  size: 100,
+                ),
 
-              const SizedBox(height: 10),
+                const SizedBox(height: 25),
 
-              MyTextField(
-                controller: passwordController,
-                hintText: 'Password',
-                obscureText: true,
-              ),
+                MyTextField(
+                  controller: firstNameController,
+                  hintText: 'First Name',
+                  obscureText: false,
+                ),
 
-              const SizedBox(height: 25),
+                const SizedBox(height: 10),
 
-              // register button (reuse MyButton widget)
-              MyButton(
-                onTap: registerUser,
-              ),
+                MyTextField(
+                  controller: lastNameController,
+                  hintText: 'Last Name',
+                  obscureText: false,
+                ),
 
-              const SizedBox(height: 25),
+                const SizedBox(height: 10),
 
-              // You can customize the registration page further with additional widgets
-            ],
+                MyTextField(
+                  controller: emailController,
+                  hintText: 'Email',
+                  obscureText: false,
+                ),
+
+                const SizedBox(height: 10),
+
+                MyTextField(
+                  controller: passwordController,
+                  hintText: 'Password',
+                  obscureText: true,
+                ),
+
+                const SizedBox(height: 10),
+
+                MyTextField(
+                  controller: confirmPasswordController,
+                  hintText: 'Confirm Password',
+                  obscureText: true,
+                ),
+
+                const SizedBox(height: 25),
+
+                MyButton(
+                  onTap: registerUser,
+                ),
+
+                const SizedBox(height: 25),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Divider(
+                          thickness: 0.5,
+                          color: Colors.grey[400],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Text(
+                          'Or continue with',
+                          style: TextStyle(color: Colors.grey[700]),
+                        ),
+                      ),
+                      Expanded(
+                        child: Divider(
+                          thickness: 0.5,
+                          color: Colors.grey[400],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 25),
+
+                // Google, Apple, Facebook sign-in buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SquareTile(
+                        onTap: () => AuthService().signInWithGoogle(),
+                        imagePath: 'assets/icons/google.png'),
+
+                    const SizedBox(width: 25),
+
+                    SquareTile(
+                        onTap: () => AuthService().signInWithApple(),
+                        imagePath: 'assets/icons/apple.png'),
+
+                    const SizedBox(width: 25),
+
+                    SquareTile(
+                        onTap: () => AuthService().signInWithFacebook(),
+                        imagePath: 'assets/icons/facebook.png'),
+                  ],
+                ),
+
+                const SizedBox(height: 40),
+
+                Positioned(
+                  left: 16,
+                  top: 16,
+                  child: IconButton(
+                    icon: Icon(Icons.arrow_back),
+                    onPressed: () {
+                      Navigator.pop(context); 
+                    },
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),
