@@ -4,7 +4,9 @@ import 'package:footy_fix/components/my_button.dart';
 import 'package:footy_fix/components/my_textfield.dart';
 import 'package:footy_fix/components/square_tile.dart';
 import 'package:footy_fix/services/auth_service.dart';
+import 'package:footy_fix/screens/register.dart';
 import 'package:footy_fix/screens/home.dart';
+
 
 class LoginPage extends StatefulWidget {
   LoginPage({super.key});
@@ -17,6 +19,13 @@ class _LoginPageState extends State<LoginPage> {
   // text editing controllers
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
+  void navigateToRegisterPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => RegisterPage()),
+    );
+  }
 
   // sign user in method
   void signUserIn() async {
@@ -276,6 +285,7 @@ class _LoginPageState extends State<LoginPage> {
                     style: TextStyle(color: Colors.grey[700]),
                   ),
                   const SizedBox(width: 4),
+                  /*
                   const Text(
                     'Register now',
                     style: TextStyle(
@@ -283,9 +293,20 @@ class _LoginPageState extends State<LoginPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  */
+                  TextButton(
+                    onPressed: navigateToRegisterPage, // Change this line
+                    child: Text(
+                      'Register now',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ],
               ),
-              // const SizedBox(width: 25),
+              const SizedBox(height: 0),
             ],
           ),
         ),
