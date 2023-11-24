@@ -5,6 +5,8 @@ import 'package:footy_fix/components/my_textfield.dart';
 import 'package:footy_fix/components/square_tile.dart';
 import 'package:footy_fix/services/auth_service.dart';
 import 'package:footy_fix/screens/register.dart';
+import 'package:footy_fix/screens/home.dart';
+
 
 class LoginPage extends StatefulWidget {
   LoginPage({super.key});
@@ -205,20 +207,50 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   // google button
                   SquareTile(
-                      onTap: () => AuthService().signInWithGoogle(),
+                      onTap: () async {
+                        var credential = AuthService().signInWithGoogle();
+                        if (credential != null) {
+                          // If sign-in is successful, navigate to the HomeScreen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HomeScreen()),
+                          );
+                        }
+                      },
                       imagePath: 'assets/icons/google.png'),
 
                   const SizedBox(width: 25),
 
                   // apple button
                   SquareTile(
-                      onTap: () => AuthService().signInWithApple(),
+                      onTap: () async {
+                        var credential = AuthService().signInWithApple();
+                        if (credential != null) {
+                          // If sign-in is successful, navigate to the HomeScreen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HomeScreen()),
+                          );
+                        }
+                      },
                       imagePath: 'assets/icons/apple.png'),
 
                   const SizedBox(width: 25),
 
                   SquareTile(
-                      onTap: () => AuthService().signInWithFacebook(),
+                      onTap: () async {
+                        var credential = AuthService().signInWithFacebook();
+                        if (credential != null) {
+                          // If sign-in is successful, navigate to the HomeScreen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HomeScreen()),
+                          );
+                        }
+                      },
                       imagePath: 'assets/icons/facebook.png'),
                 ],
               ),

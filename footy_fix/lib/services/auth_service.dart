@@ -26,14 +26,13 @@ class AuthService {
 
   signInWithApple() async {
     try {
-      var still = await SignInWithApple.getAppleIDCredential(
+      final credential = await SignInWithApple.getAppleIDCredential(
         scopes: [
           AppleIDAuthorizationScopes.email,
           AppleIDAuthorizationScopes.fullName,
         ],
       );
-      print(still);
-      print(AppleIDAuthorizationScopes.fullName);
+      print(credential);
     } catch (error) {
       print("Error signing in with Apple: $error");
     }
