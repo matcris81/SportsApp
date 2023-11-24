@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:footy_fix/components/my_button.dart';
 import 'package:footy_fix/components/my_textfield.dart';
+import 'package:footy_fix/components/register_button.dart';
 import 'package:footy_fix/components/square_tile.dart';
 import 'package:footy_fix/services/auth_service.dart';
 
@@ -44,6 +44,17 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); 
+          },
+        ),
+        //title: Text('Register'),
+        backgroundColor: Colors.grey[300], // Adjust the color as needed
+        elevation: 0, // Remove shadow if desired
+      ),
       backgroundColor: Colors.grey[300],
       body: SafeArea(
         child: Center(
@@ -52,7 +63,7 @@ class _RegisterPageState extends State<RegisterPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 50),
+                const SizedBox(height: 10),
 
                 const Icon(
                   Icons.lock,
@@ -69,6 +80,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 const SizedBox(height: 10),
 
+                /*
                 MyTextField(
                   controller: lastNameController,
                   hintText: 'Last Name',
@@ -76,6 +88,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
 
                 const SizedBox(height: 10),
+                */
 
                 MyTextField(
                   controller: emailController,
@@ -101,7 +114,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 const SizedBox(height: 25),
 
-                MyButton(
+                // Register button
+                RegButton(
                   onTap: registerUser,
                 ),
 
@@ -159,17 +173,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
 
                 const SizedBox(height: 40),
-
-                Positioned(
-                  left: 16,
-                  top: 16,
-                  child: IconButton(
-                    icon: Icon(Icons.arrow_back),
-                    onPressed: () {
-                      Navigator.pop(context); 
-                    },
-                  ),
-                )
               ],
             ),
           ),
