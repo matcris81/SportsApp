@@ -208,14 +208,20 @@ class _LoginPageState extends State<LoginPage> {
                   // google button
                   SquareTile(
                       onTap: () async {
-                        var credential = AuthService().signInWithGoogle();
+                        var credential = await AuthService().signInWithGoogle();
+
+                        // Check if the widget is still in the widget tree
+                        if (!mounted) return;
+
                         if (credential != null) {
-                          // If sign-in is successful, navigate to the HomeScreen
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => HomeScreen()),
+                                builder: (context) => const HomeScreen()),
                           );
+                        } else {
+                          // Handle the case where sign-in was not successful
+                          // For example, show an error message
                         }
                       },
                       imagePath: 'assets/icons/google.png'),
@@ -225,14 +231,20 @@ class _LoginPageState extends State<LoginPage> {
                   // apple button
                   SquareTile(
                       onTap: () async {
-                        var credential = AuthService().signInWithApple();
+                        var credential = await AuthService().signInWithApple();
+
+                        // Check if the widget is still in the widget tree
+                        if (!mounted) return;
+
                         if (credential != null) {
-                          // If sign-in is successful, navigate to the HomeScreen
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => HomeScreen()),
+                                builder: (context) => const HomeScreen()),
                           );
+                        } else {
+                          // Handle the case where sign-in was not successful
+                          // For example, show an error message
                         }
                       },
                       imagePath: 'assets/icons/apple.png'),
@@ -241,14 +253,21 @@ class _LoginPageState extends State<LoginPage> {
 
                   SquareTile(
                       onTap: () async {
-                        var credential = AuthService().signInWithFacebook();
+                        var credential =
+                            await AuthService().signInWithFacebook();
+
+                        // Check if the widget is still in the widget tree
+                        if (!mounted) return;
+
                         if (credential != null) {
-                          // If sign-in is successful, navigate to the HomeScreen
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => HomeScreen()),
+                                builder: (context) => const HomeScreen()),
                           );
+                        } else {
+                          // Handle the case where sign-in was not successful
+                          // For example, show an error message
                         }
                       },
                       imagePath: 'assets/icons/facebook.png'),

@@ -43,8 +43,8 @@ dependencies:
   google_nav_bar: ^5.0.6
   line_icons: ^2.0.3
   get: ^4.6.6
-  curved_navigation_bar: ^1.0.3
-
+  firebase_database: ^10.3.5
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:

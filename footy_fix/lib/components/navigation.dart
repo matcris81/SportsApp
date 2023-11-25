@@ -1,11 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/screens/login_page.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:line_icons/line_icons.dart';
 import 'package:footy_fix/screens/account_page.dart';
-// import 'package:footy_fix/screens/home.dart';
-// import 'package:footy_fix/screens/search_page.dart';
-// import 'package:footy_fix/screens/profile_page.dart';
 
 class NavBar extends StatefulWidget {
   const NavBar({Key? key}) : super(key: key);
@@ -199,6 +196,7 @@ class ProfileScreen extends StatelessWidget {
                 leading: const Icon(Icons.logout),
                 title: const Text('Sign out'),
                 onTap: () {
+                  FirebaseAuth.instance.signOut();
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => LoginPage()),
