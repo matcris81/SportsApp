@@ -7,7 +7,6 @@ import 'package:footy_fix/services/auth_service.dart';
 import 'package:footy_fix/screens/register.dart';
 import 'package:footy_fix/screens/home.dart';
 
-
 class LoginPage extends StatefulWidget {
   LoginPage({super.key});
 
@@ -296,7 +295,7 @@ class _LoginPageState extends State<LoginPage> {
                   */
                   TextButton(
                     onPressed: navigateToRegisterPage, // Change this line
-                    child: Text(
+                    child: const Text(
                       'Register now',
                       style: TextStyle(
                         color: Colors.blue,
