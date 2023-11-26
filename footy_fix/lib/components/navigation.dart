@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:footy_fix/screens/login_page.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:footy_fix/screens/account_page.dart';
+import 'package:footy_fix/db/database_service.dart';
 
 class NavBar extends StatefulWidget {
   const NavBar({Key? key}) : super(key: key);
@@ -13,9 +14,6 @@ class NavBar extends StatefulWidget {
 
 class _NavBarState extends State<NavBar> {
   int _selectedIndex = 0;
-
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.w600);
 
   static final List<Widget> _widgetOptions = <Widget>[
     HomeScreen(),
@@ -45,7 +43,6 @@ class _NavBarState extends State<NavBar> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8),
             child: GNav(
-              // rippleColor: Colors.grey[300]!,
               hoverColor: Colors.black,
               gap: 8,
               activeColor: Colors.white,
@@ -101,9 +98,11 @@ class GamesScreen extends StatelessWidget {
         title: const Text('Games'),
         centerTitle: true,
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(60), // Adjust the height as needed
+          preferredSize:
+              const Size.fromHeight(60), // Adjust the height as needed
           child: Container(
-            padding: EdgeInsets.only(bottom: 10), // Adjust the bottom padding
+            padding:
+                const EdgeInsets.only(bottom: 10), // Adjust the bottom padding
             alignment: Alignment.bottomCenter,
             child: Text(
               'Games',
@@ -114,8 +113,7 @@ class GamesScreen extends StatelessWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          // API request to the backend to get the games
-          print('API request sent to get the games');
+          DatabaseServices().getUserPreferences();
         },
         child: ListView(
           padding: const EdgeInsets.only(top: 20),

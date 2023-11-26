@@ -2,20 +2,21 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:footy_fix/shared_preferences.dart';
 
 class AuthService {
-  // for all sign in techniques/ registration there needs to be a userID created and stored locally using shared preferences
-
   Future<UserCredential> registerWithEmailPassword(
       String email, String password) async {
-    FirebaseAuth _auth = FirebaseAuth.instance;
+    FirebaseAuth auth = FirebaseAuth.instance;
 
     try {
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+
+      PreferencesService().saveUserId(userCredential.user!.uid);
+
       return userCredential;
     } on FirebaseAuthException catch (e) {
       // Handle error
@@ -48,7 +49,8 @@ class AuthService {
           await FirebaseAuth.instance.signInWithCredential(credential);
       print('Google Sign-In successful, User UID: ${userCredential.user?.uid}');
 
-      // USE SHARED PREFERENCES TO STORE USER ID
+      // store userID locally
+      PreferencesService().saveUserId(userCredential.user!.uid);
 
       return userCredential;
     } catch (e) {
@@ -67,7 +69,6 @@ class AuthService {
         ],
       );
 
-      // Create a new credential
       final OAuthCredential credential = OAuthProvider("apple.com").credential(
         idToken: appleCredential.identityToken,
         accessToken: appleCredential.authorizationCode,
@@ -76,9 +77,8 @@ class AuthService {
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
 
-      // USE SHARED PREFERENCES TO STORE USER ID
+      PreferencesService().saveUserId(userCredential.user!.uid);
 
-      // Sign in to Firebase with the Apple credential
       return userCredential;
     } catch (error) {
       print("Error signing in with Apple: $error");
@@ -92,16 +92,14 @@ class AuthService {
       );
 
       if (result.status == LoginStatus.success) {
-        // Create a credential from the access token
         final AuthCredential credential =
             FacebookAuthProvider.credential(result.accessToken!.token);
-
-        // USE SHARED PREFERENCES TO STORE USER ID
 
         UserCredential userCredential =
             await FirebaseAuth.instance.signInWithCredential(credential);
 
-        // Sign in to Firebase with the Facebook credential
+        PreferencesService().saveUserId(userCredential.user!.uid);
+
         return userCredential;
       } else {
         print("Facebook Sign-In Failed: ${result.status}");
