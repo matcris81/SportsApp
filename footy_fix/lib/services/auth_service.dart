@@ -1,8 +1,10 @@
+import 'package:footy_fix/services/database_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'package:footy_fix/shared_preferences.dart';
+import 'package:footy_fix/services/sharedPreferences_service.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class AuthService {
   Future<UserCredential> registerWithEmailPassword(
@@ -17,10 +19,31 @@ class AuthService {
 
       PreferencesService().saveUserId(userCredential.user!.uid);
 
+      DatabaseServices().createUser(userCredential, email);
+
       return userCredential;
     } on FirebaseAuthException catch (e) {
       // Handle error
       throw e;
+    }
+  }
+
+  Future<UserCredential?> signInWithEmailPassword(
+      String email, String password) async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+
+    try {
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      PreferencesService().saveUserId(userCredential.user!.uid);
+
+      return userCredential;
+    } catch (e) {
+      // Handle error
+      return null;
     }
   }
 
@@ -60,7 +83,7 @@ class AuthService {
   }
 
   // may need to check if apple sign in is available appleSignInAvailable() type shi
-  signInWithApple() async {
+  Future<UserCredential?> signInWithApple() async {
     try {
       final appleCredential = await SignInWithApple.getAppleIDCredential(
         scopes: [
@@ -82,30 +105,28 @@ class AuthService {
       return userCredential;
     } catch (error) {
       print("Error signing in with Apple: $error");
+      return null;
     }
   }
 
-  signInWithFacebook() async {
+  Future<UserCredential?> signInWithFacebook() async {
     try {
       final LoginResult result = await FacebookAuth.instance.login(
         permissions: ["public_profile", "email"],
       );
 
-      if (result.status == LoginStatus.success) {
-        final AuthCredential credential =
-            FacebookAuthProvider.credential(result.accessToken!.token);
+      final AuthCredential credential =
+          FacebookAuthProvider.credential(result.accessToken!.token);
 
-        UserCredential userCredential =
-            await FirebaseAuth.instance.signInWithCredential(credential);
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
 
-        PreferencesService().saveUserId(userCredential.user!.uid);
+      PreferencesService().saveUserId(userCredential.user!.uid);
 
-        return userCredential;
-      } else {
-        print("Facebook Sign-In Failed: ${result.status}");
-      }
+      return userCredential;
     } catch (e) {
       print("Error during Facebook Sign-In: $e");
+      return null;
     }
   }
 }

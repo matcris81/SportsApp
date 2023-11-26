@@ -6,9 +6,11 @@ import 'package:footy_fix/components/square_tile.dart';
 import 'package:footy_fix/services/auth_service.dart';
 import 'package:footy_fix/screens/register.dart';
 import 'package:footy_fix/screens/home.dart';
+import 'package:footy_fix/services/database_service.dart';
+import 'package:footy_fix/screens/filter_screen.dart';
 
 class LoginPage extends StatefulWidget {
-  LoginPage({super.key});
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -40,14 +42,32 @@ class _LoginPageState extends State<LoginPage> {
 
     // try sign in
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
-      );
+      var credential = await AuthService().signInWithEmailPassword(
+          emailController.text, passwordController.text);
+
+      if (!mounted) return;
+
       // pop the loading circle
       Navigator.pop(context);
+      // navigate to home screen
+      if (credential != null) {
+        var firstTime = await DatabaseServices().getUserPreferences();
+
+        if (!mounted) return;
+
+        if (firstTime != null && firstTime == false) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const FilterScreen()),
+          );
+        }
+      }
     } on FirebaseAuthException catch (e) {
-      // pop the loading circle
       Navigator.pop(context);
       // WRONG EMAIL
       if (e.code == 'user-not-found') {
