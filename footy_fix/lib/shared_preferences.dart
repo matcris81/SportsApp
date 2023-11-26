@@ -8,7 +8,12 @@ class PreferencesService {
 
   Future<String?> getUserId() async {
     final prefs = await SharedPreferences.getInstance();
-    // print(prefs.getString('userId'));
+    print(prefs.getString('userId'));
     return prefs.getString('userId');
+  }
+
+  Future<void> clearUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('userId');
   }
 }
