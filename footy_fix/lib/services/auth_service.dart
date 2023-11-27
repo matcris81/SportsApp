@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:footy_fix/services/sharedPreferences_service.dart';
-import 'package:firebase_database/firebase_database.dart';
 
 class AuthService {
   Future<UserCredential> registerWithEmailPassword(
@@ -17,6 +16,7 @@ class AuthService {
         password: password,
       );
 
+      print('User ${userCredential.user?.uid} registered');
       PreferencesService().saveUserId(userCredential.user!.uid);
 
       DatabaseServices().createUser(userCredential, email);
@@ -39,6 +39,8 @@ class AuthService {
       );
 
       PreferencesService().saveUserId(userCredential.user!.uid);
+
+      await auth.currentUser!.getIdToken(true);
 
       return userCredential;
     } catch (e) {

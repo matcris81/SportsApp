@@ -53,6 +53,8 @@ class _LoginPageState extends State<LoginPage> {
       if (credential != null) {
         var firstTime = await DatabaseServices().getUserPreferences();
 
+        print(firstTime);
+
         if (!mounted) return;
 
         if (firstTime != null && firstTime == false) {
@@ -233,11 +235,26 @@ class _LoginPageState extends State<LoginPage> {
                         if (!mounted) return;
 
                         if (credential != null) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const HomeScreen()),
-                          );
+                          var firstTime =
+                              await DatabaseServices().getUserPreferences();
+
+                          print(firstTime);
+
+                          if (!mounted) return;
+
+                          if (firstTime != null && firstTime == false) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const HomeScreen()),
+                            );
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const FilterScreen()),
+                            );
+                          }
                         } else {
                           // Handle the case where sign-in was not successful
                           // For example, show an error message
@@ -256,11 +273,26 @@ class _LoginPageState extends State<LoginPage> {
                         if (!mounted) return;
 
                         if (credential != null) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const HomeScreen()),
-                          );
+                          var firstTime =
+                              await DatabaseServices().getUserPreferences();
+
+                          print(firstTime);
+
+                          if (!mounted) return;
+
+                          if (firstTime != null && firstTime == false) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const HomeScreen()),
+                            );
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const FilterScreen()),
+                            );
+                          }
                         } else {
                           // Handle the case where sign-in was not successful
                           // For example, show an error message
@@ -279,11 +311,26 @@ class _LoginPageState extends State<LoginPage> {
                         if (!mounted) return;
 
                         if (credential != null) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const HomeScreen()),
-                          );
+                          var firstTime =
+                              await DatabaseServices().getUserPreferences();
+
+                          print(firstTime);
+
+                          if (!mounted) return;
+
+                          if (firstTime != null && firstTime == false) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const HomeScreen()),
+                            );
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const FilterScreen()),
+                            );
+                          }
                         } else {
                           // Handle the case where sign-in was not successful
                           // For example, show an error message

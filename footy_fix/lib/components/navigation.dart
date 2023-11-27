@@ -16,19 +16,32 @@ class NavBar extends StatefulWidget {
 class _NavBarState extends State<NavBar> {
   int _selectedIndex = 0;
 
-  static final List<Widget> _widgetOptions = <Widget>[
-    HomeScreen(),
-    GamesScreen(),
-    SearchScreen(),
-    ProfileScreen(),
-  ];
+  void signOutUser() async {
+    await FirebaseAuth.instance.signOut();
+    await PreferencesService().clearUserId();
+
+    if (!mounted) return; // Check if the widget is still in the tree
+
+    // Navigate to the login page
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> widgetOptions = <Widget>[
+      HomeScreen(),
+      GamesScreen(),
+      SearchScreen(),
+      ProfileScreen(
+        onSignOut: signOutUser,
+      ),
+    ];
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
+        child: widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -135,6 +148,10 @@ class SearchScreen extends StatelessWidget {
 }
 
 class ProfileScreen extends StatelessWidget {
+  final VoidCallback onSignOut;
+
+  ProfileScreen({Key? key, required this.onSignOut}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -192,16 +209,10 @@ class ProfileScreen extends StatelessWidget {
                   );
                 }),
             ListTile(
-                leading: const Icon(Icons.logout),
-                title: const Text('Sign out'),
-                onTap: () {
-                  FirebaseAuth.instance.signOut();
-                  PreferencesService().clearUserId();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                  );
-                }),
+              leading: const Icon(Icons.logout),
+              title: const Text('Sign out'),
+              onTap: onSignOut,
+            ),
             ListTile(
                 leading: const Icon(Icons.delete_forever_sharp),
                 title: const Text('Delete account'),
