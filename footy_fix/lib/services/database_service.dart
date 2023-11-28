@@ -58,22 +58,12 @@ class DatabaseServices {
     }
   }
 
-  Future<List<String>> retrieveMultiple(String path) async {
+  Future<Object?> retrieveMultiple(String path) async {
     try {
       DataSnapshot snapshot = await ref.child(path).get();
-      print(snapshot.value);
-      List<String> values = [];
 
-      if (snapshot.exists && snapshot.value is List) {
-        List rawDataList = snapshot.value as List;
-
-        for (var item in rawDataList) {
-          if (item != null && item is String) {
-            values.add(item);
-          }
-        }
-
-        return values;
+      if (snapshot.exists) {
+        return snapshot.value;
       } else {
         print('No data available at the specified path.');
         return [];

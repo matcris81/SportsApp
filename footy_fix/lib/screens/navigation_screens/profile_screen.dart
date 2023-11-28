@@ -40,28 +40,28 @@ class ProfileScreen extends StatelessWidget {
                 leading: const Icon(Icons.photo_album),
                 title: const Text('Wallet'),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                  );
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => LoginPage()),
+                  // );
                 }),
             ListTile(
                 leading: const Icon(Icons.settings),
                 title: const Text('Settings'),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                  );
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => LoginPage()),
+                  // );
                 }),
             ListTile(
                 leading: const Icon(Icons.info_outline),
                 title: const Text('About'),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                  );
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => LoginPage()),
+                  // );
                 }),
             ListTile(
               leading: const Icon(Icons.logout),
@@ -72,11 +72,11 @@ class ProfileScreen extends StatelessWidget {
                 leading: const Icon(Icons.delete_forever_sharp),
                 title: const Text('Delete account'),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const AccountScreen()),
-                  );
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //       builder: (context) => const AccountScreen()),
+                  // );
                 }),
           ],
         ),

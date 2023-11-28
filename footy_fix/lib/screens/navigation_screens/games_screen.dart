@@ -8,7 +8,6 @@ class GamesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Games'),
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(50), // Adjust as needed
