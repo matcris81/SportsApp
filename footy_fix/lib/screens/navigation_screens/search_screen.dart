@@ -8,6 +8,7 @@ class SearchScreen extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Locations'),
           centerTitle: true,
+          automaticallyImplyLeading: false,
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(50), // Adjust as needed
             child: Container(

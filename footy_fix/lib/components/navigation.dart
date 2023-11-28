@@ -7,7 +7,6 @@ import 'package:footy_fix/screens/navigation_screens/home_screen.dart';
 import 'package:footy_fix/screens/navigation_screens/games_screen.dart';
 import 'package:footy_fix/screens/navigation_screens/search_screen.dart';
 import 'package:footy_fix/screens/navigation_screens/profile_screen.dart';
-// Add any other imports needed for NavBar
 
 class NavBar extends StatefulWidget {
   const NavBar({Key? key}) : super(key: key);
