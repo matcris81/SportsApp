@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:footy_fix/components/my_textfield.dart';
 import 'package:footy_fix/components/register_button.dart';
 import 'package:footy_fix/components/square_tile.dart';
+import 'package:footy_fix/screens/login_screen.dart';
 import 'package:footy_fix/services/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -15,7 +16,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   void registerUser() async {
     showDialog(
@@ -28,13 +30,16 @@ class _RegisterPageState extends State<RegisterPage> {
     );
 
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
-      );
+      await AuthService().registerWithEmailPassword(
+          emailController.text, passwordController.text);
+
+      if (!mounted) return;
       Navigator.pop(context);
 
- 
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
       print('Error during registration: ${e.message}');
@@ -48,7 +53,7 @@ class _RegisterPageState extends State<RegisterPage> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context); 
+            Navigator.pop(context);
           },
         ),
         //title: Text('Register'),
@@ -157,15 +162,11 @@ class _RegisterPageState extends State<RegisterPage> {
                     SquareTile(
                         onTap: () => AuthService().signInWithGoogle(),
                         imagePath: 'assets/icons/google.png'),
-
                     const SizedBox(width: 25),
-
                     SquareTile(
                         onTap: () => AuthService().signInWithApple(),
                         imagePath: 'assets/icons/apple.png'),
-
                     const SizedBox(width: 25),
-
                     SquareTile(
                         onTap: () => AuthService().signInWithFacebook(),
                         imagePath: 'assets/icons/facebook.png'),

@@ -45,6 +45,7 @@ dependencies:
   get: ^4.6.6
   firebase_database: ^10.3.5
   shared_preferences: ^2.2.2
+  geolocator: ^10.1.0
 
 dev_dependencies:
   flutter_test:
