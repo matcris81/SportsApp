@@ -1,10 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:footy_fix/screens/login_page.dart';
+import 'package:footy_fix/screens/login_screen.dart';
 import 'package:footy_fix/services/sharedPreferences_service.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:footy_fix/screens/account_page.dart';
-import 'package:footy_fix/services/database_service.dart';
+import 'package:footy_fix/screens/navigation_screens/home_screen.dart';
+import 'package:footy_fix/screens/navigation_screens/games_screen.dart';
+import 'package:footy_fix/screens/navigation_screens/search_screen.dart';
+import 'package:footy_fix/screens/navigation_screens/profile_screen.dart';
+// Add any other imports needed for NavBar
 
 class NavBar extends StatefulWidget {
   const NavBar({Key? key}) : super(key: key);
@@ -91,171 +94,6 @@ class _NavBarState extends State<NavBar> {
               },
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(child: Text('Home Page'));
-  }
-}
-
-class GamesScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Games'),
-        centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize:
-              const Size.fromHeight(60), // Adjust the height as needed
-          child: Container(
-            padding:
-                const EdgeInsets.only(bottom: 10), // Adjust the bottom padding
-            alignment: Alignment.bottomCenter,
-            child: Text(
-              'Games',
-              style: Theme.of(context).textTheme.headline6,
-            ),
-          ),
-        ),
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          var userID = await PreferencesService().getUserId();
-          var preferences =
-              await DatabaseServices().retrieveFromDatabase('users/$userID');
-
-          if (preferences != null) {
-            print(preferences);
-          } else {
-            print('No data found');
-          }
-        },
-        child: ListView(
-          padding: const EdgeInsets.only(top: 20),
-          children: const <Widget>[
-            Center(child: Text('Games Page')),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class SearchScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(title: const Text('Games Available')),
-        body: FutureBuilder<List<String>>(
-            future: DatabaseServices().retrieveMultiple('Games'),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              }
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text('No data found'));
-              }
-
-              List<String> games = snapshot.data!;
-              return ListView.builder(
-                itemCount: games.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(games[index]),
-                  );
-                },
-              );
-            }));
-  }
-}
-
-class ProfileScreen extends StatelessWidget {
-  final VoidCallback onSignOut;
-
-  ProfileScreen({Key? key, required this.onSignOut}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: ListView(
-          padding: const EdgeInsets.only(top: 50), // Add padding at the top
-          children: <Widget>[
-            const ListTile(
-              title: Center(
-                // Wrap the Text widget with Center
-                child: Text(
-                  'name',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold, // Make text bold
-                  ),
-                  textAlign: TextAlign.center, // Center align the text
-                ),
-              ),
-            ),
-            ListTile(
-                leading: const Icon(Icons.account_circle_outlined),
-                title: const Text('Account'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const AccountScreen()),
-                  );
-                }),
-            ListTile(
-                leading: const Icon(Icons.photo_album),
-                title: const Text('Wallet'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                  );
-                }),
-            ListTile(
-                leading: const Icon(Icons.settings),
-                title: const Text('Settings'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                  );
-                }),
-            ListTile(
-                leading: const Icon(Icons.info_outline),
-                title: const Text('About'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginPage()),
-                  );
-                }),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Sign out'),
-              onTap: onSignOut,
-            ),
-            ListTile(
-                leading: const Icon(Icons.delete_forever_sharp),
-                title: const Text('Delete account'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const AccountScreen()),
-                  );
-                }),
-          ],
         ),
       ),
     );
