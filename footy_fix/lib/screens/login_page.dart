@@ -51,13 +51,14 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pop(context);
       // navigate to home screen
       if (credential != null) {
-        var firstTime = await DatabaseServices().getUserPreferences();
+        var firstTime = await DatabaseServices()
+            .retrieveFromDatabase('users/${credential.user!.uid}');
 
         print(firstTime);
 
         if (!mounted) return;
 
-        if (firstTime != null && firstTime == false) {
+        if (firstTime != null) {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -235,14 +236,15 @@ class _LoginPageState extends State<LoginPage> {
                         if (!mounted) return;
 
                         if (credential != null) {
-                          var firstTime =
-                              await DatabaseServices().getUserPreferences();
+                          var firstTime = await DatabaseServices()
+                              .retrieveFromDatabase(
+                                  'users/${credential.user!.uid}');
 
                           print(firstTime);
 
                           if (!mounted) return;
 
-                          if (firstTime != null && firstTime == false) {
+                          if (firstTime != null) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -273,14 +275,15 @@ class _LoginPageState extends State<LoginPage> {
                         if (!mounted) return;
 
                         if (credential != null) {
-                          var firstTime =
-                              await DatabaseServices().getUserPreferences();
+                          var firstTime = await DatabaseServices()
+                              .retrieveFromDatabase(
+                                  'users/${credential.user!.uid}');
 
                           print(firstTime);
 
                           if (!mounted) return;
 
-                          if (firstTime != null && firstTime == false) {
+                          if (firstTime != null) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -311,14 +314,15 @@ class _LoginPageState extends State<LoginPage> {
                         if (!mounted) return;
 
                         if (credential != null) {
-                          var firstTime =
-                              await DatabaseServices().getUserPreferences();
+                          var firstTime = await DatabaseServices()
+                              .retrieveFromDatabase(
+                                  'users/${credential.user!.uid}');
 
                           print(firstTime);
 
                           if (!mounted) return;
 
-                          if (firstTime != null && firstTime == false) {
+                          if (firstTime != null) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(

@@ -18,18 +18,14 @@ class DatabaseServices {
     });
   }
 
-  Future<bool?> getUserPreferences() async {
+  Future<Object?> retrieveFromDatabase(String path) async {
     var userID = await PreferencesService().getUserId();
 
     try {
-      DataSnapshot snapshot = await ref.child('users/$userID').get();
+      DataSnapshot snapshot = await ref.child(path).get();
 
       if (snapshot.exists) {
-        if (snapshot.value == true) {
-          return true;
-        } else {
-          return false;
-        }
+        return snapshot.value;
       } else {
         print('No data available at the specified path.');
         return null;
@@ -45,17 +41,46 @@ class DatabaseServices {
     }
   }
 
-  Future<void> updateDatabase(String uid, String key, dynamic value) async {
-    DatabaseReference userPrefRef = FirebaseDatabase.instance.ref('users/$uid');
+  Future<void> updateDatabase(String path, String key, dynamic value) async {
+    DatabaseReference userPrefRef = FirebaseDatabase.instance.ref(path);
 
     print(userPrefRef);
 
     return await userPrefRef.update({key: value});
   }
 
-  Future<void> addFilter(String path, dynamic value) async {
-    // print(userPrefRef);
+  Future<void> addToDataBase(String path, dynamic value) async {
+    try {
+      await ref.child(path).push().set(value);
+      print('Data successfully added');
+    } catch (e) {
+      print('Error adding data: $e');
+    }
+  }
 
-    return await ref.child(path).push().set(value);
+  Future<List<String>> retrieveMultiple(String path) async {
+    try {
+      DataSnapshot snapshot = await ref.child(path).get();
+      print(snapshot.value);
+      List<String> values = [];
+
+      if (snapshot.exists && snapshot.value is List) {
+        List rawDataList = snapshot.value as List;
+
+        for (var item in rawDataList) {
+          if (item != null && item is String) {
+            values.add(item);
+          }
+        }
+
+        return values;
+      } else {
+        print('No data available at the specified path.');
+        return [];
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+      return [];
+    }
   }
 }

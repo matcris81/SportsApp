@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:footy_fix/components/square_tile.dart';
-import 'package:footy_fix/screens/login_page.dart';
 import 'package:footy_fix/components/my_textfield.dart';
 import 'package:footy_fix/services/database_service.dart';
+import 'package:footy_fix/screens/home.dart';
 
 class FilterScreen extends StatefulWidget {
   const FilterScreen({Key? key}) : super(key: key);
@@ -37,44 +36,38 @@ class _FilterScreenState extends State<FilterScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 10),
-
                 const SizedBox(height: 25),
-
                 MyTextField(
                   controller: filter,
                   obscureText: false,
                   hintText: 'Email',
                 ),
-
                 const SizedBox(height: 25),
-
                 ElevatedButton(
                   onPressed: () async {
-                    await DatabaseServices().addFilter('filter', filter.text);
+                    await DatabaseServices()
+                        .addToDataBase('filter', filter.text);
                   },
                   child: const Text('Add'),
                 ),
-
                 const SizedBox(height: 10),
-
                 const SizedBox(height: 25),
-
                 const SizedBox(height: 25),
-
-                // Google, Apple, Facebook sign-in buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SquareTile(
-                        onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const LoginPage()),
-                            ),
-                        imagePath: 'assets/icons/google.png'),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const HomeScreen()),
+                        );
+                      },
+                      child: const Text('Done'),
+                    ),
                   ],
                 ),
-
                 const SizedBox(height: 40),
               ],
             ),

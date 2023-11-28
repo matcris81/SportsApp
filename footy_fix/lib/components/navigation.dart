@@ -127,7 +127,15 @@ class GamesScreen extends StatelessWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          DatabaseServices().getUserPreferences();
+          var userID = await PreferencesService().getUserId();
+          var preferences =
+              await DatabaseServices().retrieveFromDatabase('users/$userID');
+
+          if (preferences != null) {
+            print(preferences);
+          } else {
+            print('No data found');
+          }
         },
         child: ListView(
           padding: const EdgeInsets.only(top: 20),
@@ -143,7 +151,31 @@ class GamesScreen extends StatelessWidget {
 class SearchScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('Search Page'));
+    return Scaffold(
+        appBar: AppBar(title: const Text('Games Available')),
+        body: FutureBuilder<List<String>>(
+            future: DatabaseServices().retrieveMultiple('Games'),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(child: Text('No data found'));
+              }
+
+              List<String> games = snapshot.data!;
+              return ListView.builder(
+                itemCount: games.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(games[index]),
+                  );
+                },
+              );
+            }));
   }
 }
 
