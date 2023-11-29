@@ -24,7 +24,9 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.footy_fix"
-    compileSdkVersion flutter.compileSdkVersion
+    // IF IT DOESNT WORK ON ANDROID COULD BE THIS PROBLEM LOL
+    // compileSdkVersion flutter.compileSdkVersion
+     compileSdkVersion 33
     ndkVersion flutter.ndkVersion
 
     compileOptions {

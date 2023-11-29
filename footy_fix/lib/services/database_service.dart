@@ -23,10 +23,11 @@ class DatabaseServices {
 
     try {
       DataSnapshot snapshot = await ref.child(path).get();
-
       if (snapshot.exists) {
+        print("Data retrieved successfully ${snapshot.value}}");
         return snapshot.value;
       } else {
+        print(path);
         print('No data available at the specified path.');
         return null;
       }

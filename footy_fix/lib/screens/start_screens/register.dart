@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:footy_fix/components/my_textfield.dart';
 import 'package:footy_fix/components/register_button.dart';
 import 'package:footy_fix/components/square_tile.dart';
-import 'package:footy_fix/screens/login_screen.dart';
+import 'package:footy_fix/screens/start_screens/login_screen.dart';
 import 'package:footy_fix/services/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {

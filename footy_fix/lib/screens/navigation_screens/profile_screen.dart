@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:footy_fix/screens/account_screen.dart';
-import 'package:footy_fix/screens/login_screen.dart';
+import 'package:footy_fix/screens/profile_screens.dart/account_screen.dart';
+import 'package:footy_fix/screens/start_screens/login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   final VoidCallback onSignOut;

@@ -1,8 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/screens/location_description.dart';
 import 'package:footy_fix/services/database_service.dart';
+import 'package:footy_fix/services/geolocator_services.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:footy_fix/components/my_list_item.dart';
 
-class SearchScreen extends StatelessWidget {
+class SearchScreen extends StatefulWidget {
+  // Constructor to accept a string
+  const SearchScreen({Key? key}) : super(key: key);
+
+  @override
+  _SearchScreenState createState() => _SearchScreenState();
+}
+
+class _SearchScreenState extends State<SearchScreen> {
+  Position? _currentPosition;
+  final GeolocatorService _geolocatorService = GeolocatorService();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCurrentLocation();
+  }
+
+  void _fetchCurrentLocation() async {
+    try {
+      Position position = await GeolocatorService().determinePosition();
+      setState(() {
+        _currentPosition = position;
+      });
+    } catch (e) {
+      // Handle the exception
+      print("Error fetching location: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,24 +73,25 @@ class SearchScreen extends StatelessWidget {
                     values.add(item);
                   }
                 }
-                print(values);
               }
               List<String> games = values;
               return ListView.builder(
                 itemCount: games.length,
                 itemBuilder: (context, index) {
-                  return InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LocationDescription(
-                                      location: games[index],
-                                    )));
-                      },
-                      child: ListTile(
-                        title: Text(games[index]),
-                      ));
+                  return MyListItem(
+                    locationName: games[index],
+                    currentPosition: _currentPosition!,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LocationDescription(
+                            locationName: games[index],
+                          ),
+                        ),
+                      );
+                    },
+                  );
                 },
               );
             }));
