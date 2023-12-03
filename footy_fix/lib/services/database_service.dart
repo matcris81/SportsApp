@@ -11,20 +11,17 @@ class DatabaseServices {
   ).ref();
 
   void createUser(UserCredential userCredential, String email) async {
-    print("User $userCredential created");
     await ref.child('/users/${userCredential.user!.uid}').set({
       "name": userCredential.user!.displayName,
       "email": email,
     });
+    print("User $userCredential created");
   }
 
   Future<Object?> retrieveFromDatabase(String path) async {
-    var userID = await PreferencesService().getUserId();
-
     try {
       DataSnapshot snapshot = await ref.child(path).get();
       if (snapshot.exists) {
-        print("Data retrieved successfully ${snapshot.value}}");
         return snapshot.value;
       } else {
         print(path);
@@ -44,8 +41,6 @@ class DatabaseServices {
 
   Future<void> updateDatabase(String path, String key, dynamic value) async {
     DatabaseReference userPrefRef = FirebaseDatabase.instance.ref(path);
-
-    print(userPrefRef);
 
     return await userPrefRef.update({key: value});
   }

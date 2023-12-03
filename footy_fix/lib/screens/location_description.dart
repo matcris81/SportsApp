@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:footy_fix/screens/upcoming_games_screen.dart';
 import 'package:footy_fix/services/database_service.dart';
 
 class LocationDescription extends StatefulWidget {
@@ -17,7 +18,15 @@ class _LocationDescriptionState extends State<LocationDescription> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.locationName),
+          title: Text(
+            widget.locationName,
+            style: const TextStyle(
+              fontSize: 16, // Smaller font size
+              fontWeight:
+                  FontWeight.w500, // Medium weight - you can adjust as needed
+              color: Colors.black, // Text color - change if needed
+            ),
+          ),
         ),
         body: FutureBuilder<Object?>(
             future: DatabaseServices()
@@ -36,12 +45,19 @@ class _LocationDescriptionState extends State<LocationDescription> {
               }
               // print(snapshot.data);
               List<String> games = [];
+              List<String> upcomingGames = [];
+              Map gamesMap = {};
               if (snapshot.data is Map) {
                 Map<Object?, Object?> dataMap =
                     snapshot.data as Map<Object?, Object?>;
+                print(snapshot.data);
                 if (dataMap.containsKey('Games') && dataMap['Games'] is Map) {
-                  Map gamesMap = dataMap['Games'] as Map;
-                  print("Games Map: $gamesMap");
+                  gamesMap = dataMap['Games'] as Map;
+                  gamesMap.forEach((key, value) {
+                    // Assuming both key and value are strings or can be converted to strings
+                    String gameInfo = "$key: $value";
+                    upcomingGames.add(gameInfo);
+                  });
                 }
 
                 games = dataMap.values.whereType<String>().toList();
@@ -54,6 +70,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
 
               return Column(
                 children: [
+                  const SizedBox(height: 150),
                   Expanded(
                     flex: 0, // Reduced flex to make the game info box smaller
                     child: Center(
@@ -80,7 +97,15 @@ class _LocationDescriptionState extends State<LocationDescription> {
                         1.0), // Reduced padding to bring elements closer
                     child: ElevatedButton(
                       onPressed: () {
-                        // Handle button press
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) {
+                            return UpcomingGamesList(
+                              games: gamesMap,
+                              locationName: widget.locationName,
+                            );
+                          }),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         primary:
