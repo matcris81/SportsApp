@@ -45,9 +45,14 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Container(
               padding: const EdgeInsets.only(bottom: 8), // Adjust as needed
               alignment: Alignment.bottomCenter,
-              child: Text(
+              child: const Text(
                 'Location',
-                style: Theme.of(context).textTheme.headline6,
+                style: TextStyle(
+                  fontSize: 16, // Smaller font size
+                  fontWeight: FontWeight
+                      .w500, // Medium weight - you can adjust as needed
+                  color: Colors.black, // Text color - change if needed
+                ),
               ),
             ),
           ),

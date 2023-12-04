@@ -8,7 +8,6 @@ class PreferencesService {
 
   Future<String?> getUserId() async {
     final prefs = await SharedPreferences.getInstance();
-    print("Gettings user id: ${prefs.getString('userId')}");
     return prefs.getString('userId');
   }
 

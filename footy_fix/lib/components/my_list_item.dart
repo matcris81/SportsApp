@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:footy_fix/services/database_service.dart';
 import 'package:footy_fix/services/geolocator_services.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:footy_fix/location_item.dart';
 
 class MyListItem extends StatelessWidget {
   // final LocationItem item;
