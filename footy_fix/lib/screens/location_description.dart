@@ -127,6 +127,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
                     child: ListView.builder(
                       itemCount: games.length,
                       itemBuilder: (context, index) {
+                        print(games[index]);
                         return ListTile(
                           title: Text(games[index]),
                         );

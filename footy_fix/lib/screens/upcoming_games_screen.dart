@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/components/game_tile.dart';
+import 'package:footy_fix/screens/game_description.dart';
+import 'package:intl/intl.dart';
 
 class UpcomingGamesList extends StatelessWidget {
   final Map<dynamic, dynamic> games;
@@ -35,15 +37,14 @@ class UpcomingGamesList extends StatelessWidget {
           itemCount: games.length,
           itemBuilder: (context, index) {
             var date = games.keys.elementAt(index);
+            DateTime dateTime = DateFormat('dd MM yyyy').parse(date);
+
             var gamesForDate = games[date];
             String gameID = gamesForDate.keys.first;
             var gameDetails = gamesForDate[gameID];
-            print(gameDetails);
 
             return Card(
               child: GameTile(
-                gameDescription:
-                    gameDetails['Description'] ?? '', // Use the correct key
                 location: locationName,
                 time: gameDetails['Time']?.toString() ??
                     '', // Use the correct key
@@ -53,7 +54,23 @@ class UpcomingGamesList extends StatelessWidget {
                 playersJoined: gameDetails['Players joined']?.toString() ??
                     '', // Use the correct key
                 onTap: () {
-                  // Handle tap if needed
+                  // Handle the game item tap, if necessary
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => GameDescription(
+                        locationName: locationName,
+                        date: dateTime,
+                        time: gameDetails['Time']?.toString() ??
+                            '', // Use the correct key
+                        size: gameDetails['Size']?.toString() ??
+                            '', // Use the correct key
+                        price: gameDetails['Price']?.toDouble() ?? '',
+                        playersJoined:
+                            gameDetails['Players joined']?.toString() ?? '',
+                      ),
+                    ),
+                  );
                 },
               ),
             );

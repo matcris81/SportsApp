@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class GameTile extends StatelessWidget {
-  final String gameDescription;
   final String location;
   final String time;
   final String playersJoined;
@@ -11,7 +10,6 @@ class GameTile extends StatelessWidget {
 
   const GameTile({
     Key? key,
-    required this.gameDescription,
     required this.location,
     required this.time,
     required this.playersJoined,
@@ -53,6 +51,7 @@ class GameTile extends StatelessWidget {
                 ),
               ],
             ),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
