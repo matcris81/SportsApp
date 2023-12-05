@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'dart:io' show Platform;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:footy_fix/services/database_service.dart';
+import 'package:footy_fix/screens/payment_screen.dart';
 
 class GameDescription extends StatelessWidget {
   final String location;
@@ -63,29 +64,57 @@ class GameDescription extends StatelessWidget {
   }
 
   Widget buildJoinButton(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 24.0),
-      child: ElevatedButton(
-        onPressed: () async {
-          print(date);
-          await DatabaseServices().incrementValue(
-              'Location Details/$location/Games/$date/$gameID/',
-              'Players joined');
-        },
-        style: ElevatedButton.styleFrom(
-          primary: Colors.black,
-          padding: const EdgeInsets.symmetric(vertical: 12.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-            side: const BorderSide(color: Colors.white, width: 2),
+    return FutureBuilder<Object?>(
+      future: DatabaseServices().retrieveFromDatabase(
+          'Location Details/$location/Games/$date/$gameID/Players joined'),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator(); // Show loading indicator while waiting
+        }
+        int joined = 0;
+        try {
+          // Attempt to cast or convert the data to an integer
+          joined = int.parse(snapshot.data.toString());
+        } catch (e) {
+          print('Error converting snapshot data to int: $e');
+          // Handle or report error as appropriate
+        }
+
+        bool isFull = joined >= 10;
+        return Container(
+          padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 24.0),
+          child: ElevatedButton(
+            onPressed: isFull
+                ? null
+                : () async {
+                    // : () {
+                    await DatabaseServices().incrementValue(
+                        'Location Details/$location/Games/$date/$gameID/',
+                        'Players joined');
+
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //       builder: (context) => const PaymentScreen()),
+                    // );
+                  },
+            style: ElevatedButton.styleFrom(
+              primary:
+                  isFull ? Colors.grey : Colors.black, // Greyed out if full
+              padding: const EdgeInsets.symmetric(vertical: 12.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+                side: const BorderSide(color: Colors.white, width: 2),
+              ),
+              minimumSize: const Size(double.infinity, 50),
+            ),
+            child: Text(
+              isFull ? 'Join (Full)' : 'Join',
+              style: const TextStyle(color: Colors.white, fontSize: 18),
+            ),
           ),
-          minimumSize: const Size(double.infinity, 50),
-        ),
-        child: const Text(
-          'Join',
-          style: TextStyle(color: Colors.white, fontSize: 18),
-        ),
-      ),
+        );
+      },
     );
   }
 
