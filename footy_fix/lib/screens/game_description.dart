@@ -6,8 +6,9 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:footy_fix/services/database_service.dart';
 
 class GameDescription extends StatelessWidget {
-  final String locationName;
-  final DateTime date;
+  final String location;
+  final String gameID;
+  final String date;
   final String time;
   final String playersJoined;
   final double price;
@@ -15,7 +16,8 @@ class GameDescription extends StatelessWidget {
 
   const GameDescription({
     Key? key,
-    required this.locationName,
+    required this.location,
+    required this.gameID,
     required this.date,
     required this.time,
     required this.playersJoined,
@@ -25,9 +27,10 @@ class GameDescription extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String dayName = DateFormat('EEEE').format(date).substring(0, 3);
-    String monthName = DateFormat('MMMM').format(date);
-    int dayNumber = date.day;
+    DateTime dateTime = DateFormat('dd MM yyyy').parse(date);
+    String dayName = DateFormat('EEEE').format(dateTime).substring(0, 3);
+    String monthName = DateFormat('MMMM').format(dateTime);
+    int dayNumber = dateTime.day;
 
     return Scaffold(
       body: Column(
@@ -61,21 +64,24 @@ class GameDescription extends StatelessWidget {
 
   Widget buildJoinButton(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 24.0),
+      padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 24.0),
       child: ElevatedButton(
-        onPressed: () {
-          // Action when the button is pressed
+        onPressed: () async {
+          print(date);
+          await DatabaseServices().incrementValue(
+              'Location Details/$location/Games/$date/$gameID/',
+              'Players joined');
         },
         style: ElevatedButton.styleFrom(
           primary: Colors.black,
-          padding: EdgeInsets.symmetric(vertical: 12.0),
+          padding: const EdgeInsets.symmetric(vertical: 12.0),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8.0),
-            side: BorderSide(color: Colors.white, width: 2),
+            side: const BorderSide(color: Colors.white, width: 2),
           ),
-          minimumSize: Size(double.infinity, 50),
+          minimumSize: const Size(double.infinity, 50),
         ),
-        child: Text(
+        child: const Text(
           'Join',
           style: TextStyle(color: Colors.white, fontSize: 18),
         ),
@@ -108,7 +114,7 @@ class GameDescription extends StatelessWidget {
                   children: [
                     Center(
                       child: Text(
-                        locationName, // Assuming 'locationName' is a String containing the game's location name
+                        location, // Assuming 'locationName' is a String containing the game's location name
                         style: Theme.of(context).textTheme.headline6?.copyWith(
                               fontWeight: FontWeight.bold,
                               fontSize: 24,
@@ -137,7 +143,7 @@ class GameDescription extends StatelessWidget {
                     Divider(),
                     ListTile(
                       leading: Icon(Icons.location_on),
-                      title: Text(locationName), // Display the address here
+                      title: Text(location), // Display the address here
                       subtitle: Text(
                           'Click for map'), // Optional: if you want to add functionality to navigate to a map view
                       onTap: () {
@@ -158,7 +164,7 @@ class GameDescription extends StatelessWidget {
 
   Future<Object?> getAddress() {
     return DatabaseServices()
-        .retrieveFromDatabase('Location Details/$locationName/Address');
+        .retrieveFromDatabase('Location Details/$location/Address');
   }
 
   void _showActionSheet(BuildContext context, String location) {

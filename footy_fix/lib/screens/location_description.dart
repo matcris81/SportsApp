@@ -33,9 +33,9 @@ class _LocationDescriptionState extends State<LocationDescription> {
                 .retrieveMultiple('Location Details/${widget.locationName}'),
             builder: (context, snapshot) {
               // print(snapshot.data);
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
+              // if (snapshot.connectionState == ConnectionState.waiting) {
+              //   return const Center(child: CircularProgressIndicator());
+              // }
               if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               }
@@ -50,7 +50,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
               if (snapshot.data is Map) {
                 Map<Object?, Object?> dataMap =
                     snapshot.data as Map<Object?, Object?>;
-                print(snapshot.data);
                 if (dataMap.containsKey('Games') && dataMap['Games'] is Map) {
                   gamesMap = dataMap['Games'] as Map;
                   gamesMap.forEach((key, value) {
@@ -61,7 +60,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
                 }
 
                 games = dataMap.values.whereType<String>().toList();
-                print("Keys: ${dataMap.values.toList()}");
               } else {
                 // Handle the case where data is not a map
                 return const Center(
@@ -127,7 +125,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
                     child: ListView.builder(
                       itemCount: games.length,
                       itemBuilder: (context, index) {
-                        print(games[index]);
                         return ListTile(
                           title: Text(games[index]),
                         );

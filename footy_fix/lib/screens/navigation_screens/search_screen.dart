@@ -60,9 +60,9 @@ class _SearchScreenState extends State<SearchScreen> {
         body: FutureBuilder<Object?>(
             future: DatabaseServices().retrieveMultiple('Locations'),
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
+              // if (snapshot.connectionState == ConnectionState.waiting) {
+              //   return const Center(child: CircularProgressIndicator());
+              // }
               if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               }

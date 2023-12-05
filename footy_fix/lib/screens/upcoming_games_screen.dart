@@ -37,7 +37,7 @@ class UpcomingGamesList extends StatelessWidget {
           itemCount: games.length,
           itemBuilder: (context, index) {
             var date = games.keys.elementAt(index);
-            DateTime dateTime = DateFormat('dd MM yyyy').parse(date);
+            // DateTime dateTime = DateFormat('dd MM yyyy').parse(date);
 
             var gamesForDate = games[date];
             String gameID = gamesForDate.keys.first;
@@ -46,6 +46,7 @@ class UpcomingGamesList extends StatelessWidget {
             return Card(
               child: GameTile(
                 location: locationName,
+                gameID: gameID,
                 time: gameDetails['Time']?.toString() ??
                     '', // Use the correct key
                 size: gameDetails['Size']?.toString() ??
@@ -59,13 +60,14 @@ class UpcomingGamesList extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => GameDescription(
-                        locationName: locationName,
-                        date: dateTime,
-                        time: gameDetails['Time']?.toString() ??
-                            '', // Use the correct key
-                        size: gameDetails['Size']?.toString() ??
-                            '', // Use the correct key
-                        price: gameDetails['Price']?.toDouble() ?? '',
+                        location: locationName,
+                        gameID: gameID,
+                        date: date,
+                        time: gameDetails['Time']?.toString() ?? '',
+                        size: gameDetails['Size']?.toString() ?? '',
+                        price: (gameDetails['Price'] is num)
+                            ? gameDetails['Price'].toDouble()
+                            : 0.0, // Safeguard for price
                         playersJoined:
                             gameDetails['Players joined']?.toString() ?? '',
                       ),

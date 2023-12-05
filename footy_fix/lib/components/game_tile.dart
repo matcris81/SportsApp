@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class GameTile extends StatelessWidget {
   final String location;
+  final String gameID;
   final String time;
   final String playersJoined;
   final double price;
@@ -11,6 +12,7 @@ class GameTile extends StatelessWidget {
   const GameTile({
     Key? key,
     required this.location,
+    required this.gameID,
     required this.time,
     required this.playersJoined,
     required this.price,
