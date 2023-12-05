@@ -15,7 +15,6 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   Position? _currentPosition;
-  final GeolocatorService _geolocatorService = GeolocatorService();
 
   @override
   void initState() {

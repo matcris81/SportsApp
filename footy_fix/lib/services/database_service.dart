@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:footy_fix/services/sharedPreferences_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 class DatabaseServices {
@@ -73,13 +72,10 @@ class DatabaseServices {
   Future<void> incrementValue(String path, String key) async {
     DatabaseReference referee = rootReference.child(path);
 
-    // Use ServerValue.increment to atomically increment the "Players joined" count
     try {
       await referee.update({key: ServerValue.increment(1)});
-      print('Players joined incremented.');
     } catch (e) {
       print('Error incrementing players joined: $e');
     }
-    print("get fkd");
   }
 }
