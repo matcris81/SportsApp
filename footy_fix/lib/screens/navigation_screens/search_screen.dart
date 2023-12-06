@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:footy_fix/screens/location_description.dart';
+import 'package:footy_fix/descriptions/location_description.dart';
 import 'package:footy_fix/services/database_service.dart';
 import 'package:footy_fix/services/geolocator_services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -14,91 +14,101 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  Position? _currentPosition;
-  final GeolocatorService _geolocatorService = GeolocatorService();
+  Position? currentPosition = GeolocatorService().currentPosition;
+
+  Future<List<MyListItem>>? _itemsFuture;
 
   @override
   void initState() {
     super.initState();
-    _fetchCurrentLocation();
+    _itemsFuture = _loadItems(currentPosition!);
   }
 
-  void _fetchCurrentLocation() async {
-    try {
-      Position position = await GeolocatorService().determinePosition();
-      setState(() {
-        _currentPosition = position;
-      });
-    } catch (e) {
-      // Handle the exception
-      print("Error fetching location: $e");
+  Future<List<MyListItem>> _loadItems(Position currentPosition) async {
+    Object? locationNames =
+        await DatabaseServices().retrieveMultiple('Locations');
+
+    List<String> locationNamesList = [];
+// Check if locationNames is a list
+    if (locationNames is List) {
+      // Convert each item in the list to a string
+      locationNamesList = locationNames.map((item) => item.toString()).toList();
+    } else {
+      // Handle the case where locationNames is not a list
+      print('locationNames is not a list');
     }
+    List<MyListItem> items = [];
+
+    for (String locationName in locationNamesList) {
+      if (locationName != null) {
+        // Fetch address from the database
+        var address = await DatabaseServices()
+            .retrieveFromDatabase('Location Details/$locationName/Address');
+        String addressString = address.toString();
+
+        // Get coordinates from the address
+        Map<double, double>? coordinates =
+            await GeolocatorService().getCoordinatesFromAddress(addressString);
+
+        // Calculate distance
+        double distance = GeolocatorService().calculateDistance(
+          currentPosition.latitude,
+          currentPosition.longitude,
+          coordinates!.keys.first,
+          coordinates.values.first,
+        );
+
+        // Create a MyListItem with all necessary data
+        items.add(MyListItem(
+          locationName: locationName,
+          distance: distance, // Pass the calculated distance
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LocationDescription(
+                  locationName: locationName,
+                ),
+              ),
+            );
+          },
+        ));
+      }
+    }
+
+    return items;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(50), // Adjust as needed
-            child: Container(
-              padding: const EdgeInsets.only(bottom: 8), // Adjust as needed
-              alignment: Alignment.bottomCenter,
-              child: const Text(
-                'Location',
-                style: TextStyle(
-                  fontSize: 16, // Smaller font size
-                  fontWeight: FontWeight
-                      .w500, // Medium weight - you can adjust as needed
-                  color: Colors.black, // Text color - change if needed
-                ),
-              ),
-            ),
-          ),
-        ),
-        body: FutureBuilder<Object?>(
-            future: DatabaseServices().retrieveMultiple('Locations'),
-            builder: (context, snapshot) {
-              // if (snapshot.connectionState == ConnectionState.waiting) {
-              //   return const Center(child: CircularProgressIndicator());
-              // }
-              if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              }
-              if (!snapshot.hasData) {
-                return const Center(child: Text('No data found'));
-              }
-              List<String> values = [];
-              if (snapshot.hasData && snapshot.data is List) {
-                List rawDataList = snapshot.data as List;
-
-                for (var item in rawDataList) {
-                  if (item != null && item is String) {
-                    values.add(item);
-                  }
-                }
-              }
-              List<String> games = values;
-              return ListView.builder(
-                itemCount: games.length,
-                itemBuilder: (context, index) {
-                  return MyListItem(
-                    locationName: games[index],
-                    currentPosition: _currentPosition!,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LocationDescription(
-                            locationName: games[index],
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              );
-            }));
+      appBar: AppBar(
+        title: Text("Search"),
+        // ... other AppBar properties
+      ),
+      body: FutureBuilder<List<MyListItem>>(
+        future: _itemsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Show loading indicator while data is being fetched
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            // Handle any errors here
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (snapshot.hasData) {
+            // Data is ready, build the ListView
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                return snapshot.data![index];
+              },
+            );
+          } else {
+            // Handle the case where there's no data
+            return Center(child: Text('No data found'));
+          }
+        },
+      ),
+    );
   }
 }

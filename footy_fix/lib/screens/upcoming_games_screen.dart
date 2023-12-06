@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/components/game_tile.dart';
-import 'package:footy_fix/screens/game_description.dart';
-import 'package:intl/intl.dart';
+import 'package:footy_fix/descriptions/game_description.dart';
 
-class UpcomingGamesList extends StatelessWidget {
+class UpcomingGamesList extends StatefulWidget {
   final Map<dynamic, dynamic> games;
   final String locationName;
 
@@ -13,61 +12,59 @@ class UpcomingGamesList extends StatelessWidget {
       : super(key: key);
 
   @override
+  _UpcomingGamesListState createState() => _UpcomingGamesListState();
+}
+
+class _UpcomingGamesListState extends State<UpcomingGamesList> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '$locationName Upcoming Games',
+          '${widget.locationName} Upcoming Games',
           style: const TextStyle(
-            fontSize: 16, // Smaller font size
-            fontWeight:
-                FontWeight.w500, // Medium weight - you can adjust as needed
-            color: Colors.black, // Text color - change if needed
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.black,
           ),
-          textAlign: TextAlign.center, // Center align text if needed
+          textAlign: TextAlign.center,
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(), // Navigate back
+          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: Container(
-        color: Colors.white, // Change the background color
+        color: Colors.white,
         child: ListView.builder(
-          itemCount: games.length,
+          itemCount: widget.games.length,
           itemBuilder: (context, index) {
-            var date = games.keys.elementAt(index);
-            // DateTime dateTime = DateFormat('dd MM yyyy').parse(date);
-
-            var gamesForDate = games[date];
+            var date = widget.games.keys.elementAt(index);
+            var gamesForDate = widget.games[date];
             String gameID = gamesForDate.keys.first;
             var gameDetails = gamesForDate[gameID];
 
             return Card(
               child: GameTile(
-                location: locationName,
+                location: widget.locationName,
                 gameID: gameID,
-                time: gameDetails['Time']?.toString() ??
-                    '', // Use the correct key
-                size: gameDetails['Size']?.toString() ??
-                    '', // Use the correct key
-                price: gameDetails['Price']?.toDouble() ?? '',
-                playersJoined: gameDetails['Players joined']?.toString() ??
-                    '', // Use the correct key
+                time: gameDetails['Time']?.toString() ?? '',
+                size: gameDetails['Size']?.toString() ?? '',
+                price: gameDetails['Price']?.toDouble() ?? 0.0,
+                playersJoined: gameDetails['Players joined']?.toString() ?? '',
                 onTap: () {
-                  // Handle the game item tap, if necessary
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => GameDescription(
-                        location: locationName,
+                        location: widget.locationName,
                         gameID: gameID,
                         date: date,
                         time: gameDetails['Time']?.toString() ?? '',
                         size: gameDetails['Size']?.toString() ?? '',
                         price: (gameDetails['Price'] is num)
                             ? gameDetails['Price'].toDouble()
-                            : 0.0, // Safeguard for price
+                            : 0.0,
                         playersJoined:
                             gameDetails['Players joined']?.toString() ?? '',
                       ),

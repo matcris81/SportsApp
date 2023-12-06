@@ -27,6 +27,10 @@ class _LocationDescriptionState extends State<LocationDescription> {
               color: Colors.black, // Text color - change if needed
             ),
           ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
         ),
         body: FutureBuilder<Object?>(
             future: DatabaseServices()

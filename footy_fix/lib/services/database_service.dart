@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:footy_fix/services/sharedPreferences_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 class DatabaseServices {
@@ -59,7 +58,14 @@ class DatabaseServices {
       DataSnapshot snapshot = await rootReference.child(path).get();
 
       if (snapshot.exists) {
-        return snapshot.value;
+        var values = snapshot.value;
+        if (values is List) {
+          // Convert to a growable list and remove null values
+          List<dynamic> growableList = List.from(values);
+          growableList.removeWhere((value) => value == null);
+          return growableList;
+        }
+        return values;
       } else {
         print('No data available at the specified path.');
         return [];
@@ -73,13 +79,10 @@ class DatabaseServices {
   Future<void> incrementValue(String path, String key) async {
     DatabaseReference referee = rootReference.child(path);
 
-    // Use ServerValue.increment to atomically increment the "Players joined" count
     try {
       await referee.update({key: ServerValue.increment(1)});
-      print('Players joined incremented.');
     } catch (e) {
       print('Error incrementing players joined: $e');
     }
-    print("get fkd");
   }
 }

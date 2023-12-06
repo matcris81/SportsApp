@@ -2,7 +2,16 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
 class GeolocatorService {
+  static final GeolocatorService _instance = GeolocatorService._internal();
   Position? _currentPosition;
+
+  factory GeolocatorService() {
+    return _instance;
+  }
+
+  GeolocatorService._internal();
+
+  Position? get currentPosition => _currentPosition;
 
   Future<Position> determinePosition() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -40,8 +49,10 @@ class GeolocatorService {
 
   double calculateDistance(double startLatitude, double startLongitude,
       double endLatitude, double endLongitude) {
-    return Geolocator.distanceBetween(
+    double distance = Geolocator.distanceBetween(
         startLatitude, startLongitude, endLatitude, endLongitude);
+
+    return double.parse((distance).toStringAsFixed(1));
   }
 
   Future<double> distanceToLocation(double startLatitude, double startLongitude,

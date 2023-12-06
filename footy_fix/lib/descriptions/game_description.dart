@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:footy_fix/services/database_service.dart';
 import 'package:footy_fix/screens/payment_screen.dart';
 
-class GameDescription extends StatelessWidget {
+class GameDescription extends StatefulWidget {
   final String location;
   final String gameID;
   final String date;
@@ -27,8 +27,13 @@ class GameDescription extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _GameDescriptionState createState() => _GameDescriptionState();
+}
+
+class _GameDescriptionState extends State<GameDescription> {
+  @override
   Widget build(BuildContext context) {
-    DateTime dateTime = DateFormat('dd MM yyyy').parse(date);
+    DateTime dateTime = DateFormat('dd MM yyyy').parse(widget.date);
     String dayName = DateFormat('EEEE').format(dateTime).substring(0, 3);
     String monthName = DateFormat('MMMM').format(dateTime);
     int dayNumber = dateTime.day;
@@ -49,6 +54,10 @@ class GameDescription extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
+                  leading: IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
                 ),
                 SliverToBoxAdapter(
                   child:
@@ -66,7 +75,7 @@ class GameDescription extends StatelessWidget {
   Widget buildJoinButton(BuildContext context) {
     return FutureBuilder<Object?>(
       future: DatabaseServices().retrieveFromDatabase(
-          'Location Details/$location/Games/$date/$gameID/Players joined'),
+          'Location Details/${widget.location}/Games/${widget.date}/${widget.gameID}/Players joined'),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator(); // Show loading indicator while waiting
@@ -86,17 +95,17 @@ class GameDescription extends StatelessWidget {
           child: ElevatedButton(
             onPressed: isFull
                 ? null
-                : () async {
-                    // : () {
-                    await DatabaseServices().incrementValue(
-                        'Location Details/$location/Games/$date/$gameID/',
-                        'Players joined');
+                // : () async {
+                : () {
+                    // await DatabaseServices().incrementValue(
+                    //     'Location Details/$location/Games/$date/$gameID/',
+                    //     'Players joined');
 
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //       builder: (context) => const PaymentScreen()),
-                    // );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const PaymentScreen()),
+                    );
                   },
             style: ElevatedButton.styleFrom(
               primary:
@@ -143,7 +152,8 @@ class GameDescription extends StatelessWidget {
                   children: [
                     Center(
                       child: Text(
-                        location, // Assuming 'locationName' is a String containing the game's location name
+                        widget
+                            .location, // Assuming 'locationName' is a String containing the game's location name
                         style: Theme.of(context).textTheme.headline6?.copyWith(
                               fontWeight: FontWeight.bold,
                               fontSize: 24,
@@ -159,20 +169,22 @@ class GameDescription extends StatelessWidget {
                     ),
                     ListTile(
                       leading: Icon(Icons.access_time),
-                      title: Text('Time: $time'),
+                      title: Text('Time: ${widget.time}'),
                     ),
                     ListTile(
                       leading: Icon(Icons.group),
-                      title: Text('Players Joined: $playersJoined/$size'),
+                      title: Text(
+                          'Players Joined: ${widget.playersJoined}/${widget.size}'),
                     ),
                     ListTile(
                       leading: Icon(Icons.attach_money),
-                      title: Text('Price: \$${price.toStringAsFixed(2)}'),
+                      title:
+                          Text('Price: \$${widget.price.toStringAsFixed(2)}'),
                     ),
                     Divider(),
                     ListTile(
                       leading: Icon(Icons.location_on),
-                      title: Text(location), // Display the address here
+                      title: Text(widget.location), // Display the address here
                       subtitle: Text(
                           'Click for map'), // Optional: if you want to add functionality to navigate to a map view
                       onTap: () {
@@ -193,7 +205,7 @@ class GameDescription extends StatelessWidget {
 
   Future<Object?> getAddress() {
     return DatabaseServices()
-        .retrieveFromDatabase('Location Details/$location/Address');
+        .retrieveFromDatabase('Location Details/${widget.location}/Address');
   }
 
   void _showActionSheet(BuildContext context, String location) {
