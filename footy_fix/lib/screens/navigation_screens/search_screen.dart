@@ -4,6 +4,7 @@ import 'package:footy_fix/services/database_service.dart';
 import 'package:footy_fix/services/geolocator_services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:footy_fix/components/my_list_item.dart';
+import 'package:footy_fix/services/shared_preferences_service.dart';
 
 class SearchScreen extends StatefulWidget {
   // Constructor to accept a string
@@ -25,57 +26,67 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<List<MyListItem>> _loadItems(Position currentPosition) async {
-    Object? locationNames =
-        await DatabaseServices().retrieveMultiple('Locations');
-
-    List<String> locationNamesList = [];
-// Check if locationNames is a list
-    if (locationNames is List) {
-      // Convert each item in the list to a string
-      locationNamesList = locationNames.map((item) => item.toString()).toList();
-    } else {
-      // Handle the case where locationNames is not a list
-      print('locationNames is not a list');
-    }
     List<MyListItem> items = [];
+    List<String> locationNamesList = [];
 
-    for (String locationName in locationNamesList) {
-      if (locationName != null) {
-        // Fetch address from the database
-        var address = await DatabaseServices()
-            .retrieveFromDatabase('Location Details/$locationName/Address');
-        String addressString = address.toString();
+    // Check if location data is stored in shared preferences
+    items = await PreferencesService().loadLocationDataList(context);
 
-        // Get coordinates from the address
-        Map<double, double>? coordinates =
-            await GeolocatorService().getCoordinatesFromAddress(addressString);
+    print(items);
 
-        // Calculate distance
-        double distance = GeolocatorService().calculateDistance(
-          currentPosition.latitude,
-          currentPosition.longitude,
-          coordinates!.keys.first,
-          coordinates.values.first,
-        );
+    if (items.isEmpty) {
+      // else fetch location names from the database
+      Object? locationNames =
+          await DatabaseServices().retrieveMultiple('Locations');
 
-        // Create a MyListItem with all necessary data
-        items.add(MyListItem(
-          locationName: locationName,
-          distance: distance, // Pass the calculated distance
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LocationDescription(
-                  locationName: locationName,
+// Check if locationNames is a list
+      if (locationNames is List) {
+        // Convert each item in the list to a string
+        locationNamesList =
+            locationNames.map((item) => item.toString()).toList();
+      } else {
+        // Handle the case where locationNames is not a list
+        print('locationNames is not a list');
+      }
+
+      for (String locationName in locationNamesList) {
+        if (locationName != null) {
+          // Fetch address from the database
+          var address = await DatabaseServices()
+              .retrieveFromDatabase('Location Details/$locationName/Address');
+          String addressString = address.toString();
+
+          // Get coordinates from the address
+          Map<double, double>? coordinates = await GeolocatorService()
+              .getCoordinatesFromAddress(addressString);
+
+          // Calculate distance
+          double distance = GeolocatorService().calculateDistance(
+            currentPosition.latitude,
+            currentPosition.longitude,
+            coordinates!.keys.first,
+            coordinates.values.first,
+          );
+
+          // Create a MyListItem with all necessary data
+          items.add(MyListItem(
+            locationName: locationName,
+            distance: distance, // Pass the calculated distance
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LocationDescription(
+                    locationName: locationName,
+                  ),
                 ),
-              ),
-            );
-          },
-        ));
+              );
+            },
+          ));
+        }
       }
     }
-
+    await PreferencesService().saveLocationDataList(items);
     return items;
   }
 

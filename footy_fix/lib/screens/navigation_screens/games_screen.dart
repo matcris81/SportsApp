@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/database_service.dart';
-import 'package:footy_fix/services/sharedPreferences_service.dart';
+import 'package:footy_fix/services/shared_preferences_service.dart';
 // Add any other necessary imports (e.g., services, models)
 
 class GamesScreen extends StatelessWidget {
