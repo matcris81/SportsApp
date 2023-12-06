@@ -36,18 +36,12 @@ class _LocationDescriptionState extends State<LocationDescription> {
             future: DatabaseServices()
                 .retrieveMultiple('Location Details/${widget.locationName}'),
             builder: (context, snapshot) {
-              // print(snapshot.data);
-              // if (snapshot.connectionState == ConnectionState.waiting) {
-              //   return const Center(child: CircularProgressIndicator());
-              // }
               if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               }
-              // print(snapshot.data);
               if (!snapshot.hasData) {
                 return const Center(child: Text('No data found'));
               }
-              // print(snapshot.data);
               List<String> games = [];
               List<String> upcomingGames = [];
               Map gamesMap = {};
