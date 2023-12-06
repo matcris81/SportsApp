@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/components/game_tile.dart';
-import 'package:footy_fix/screens/game_description.dart';
+import 'package:footy_fix/descriptions/game_description.dart';
 
 class UpcomingGamesList extends StatefulWidget {
   final Map<dynamic, dynamic> games;

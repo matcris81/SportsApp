@@ -47,9 +47,11 @@ dependencies:
   shared_preferences: ^2.2.2
   geolocator: ^10.1.0
   geocoding: ^2.1.1
-  intl: ^0.17.0
+  intl: ^0.18.1
   url_launcher: ^6.2.1
   connectivity_plus: ^5.0.2
+  # flutter_stripe: ^9.6.0
+  pay: ^1.1.2
 
 dev_dependencies:
   flutter_test:

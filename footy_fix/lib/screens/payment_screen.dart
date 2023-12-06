@@ -29,7 +29,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
       ),
       body: Center(
-        child: buildApplePayButton(),
+        child: Padding(
+          padding: const EdgeInsets.only(
+              top: 500), // Adjust the padding value as needed
+          child: buildApplePayButton(),
+        ),
       ),
     );
   }
@@ -54,8 +58,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
         children: <Widget>[
           Image.asset('assets/apple_logo.png',
               height: 24.0), // Adjust size as needed
-          SizedBox(width: 8.0),
-          Text('Pay', style: TextStyle(fontSize: 18)),
+          const SizedBox(width: 8.0),
+          const Text('Pay', style: TextStyle(fontSize: 18)),
         ],
       ),
     );

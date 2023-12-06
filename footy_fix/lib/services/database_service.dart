@@ -58,7 +58,14 @@ class DatabaseServices {
       DataSnapshot snapshot = await rootReference.child(path).get();
 
       if (snapshot.exists) {
-        return snapshot.value;
+        var values = snapshot.value;
+        if (values is List) {
+          // Convert to a growable list and remove null values
+          List<dynamic> growableList = List.from(values);
+          growableList.removeWhere((value) => value == null);
+          return growableList;
+        }
+        return values;
       } else {
         print('No data available at the specified path.');
         return [];
