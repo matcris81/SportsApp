@@ -47,6 +47,7 @@ class _UpcomingGamesListState extends State<UpcomingGamesList> {
             return Card(
               child: GameTile(
                 location: widget.locationName,
+                date: date,
                 gameID: gameID,
                 time: gameDetails['Time']?.toString() ?? '',
                 size: gameDetails['Size']?.toString() ?? '',

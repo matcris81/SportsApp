@@ -8,6 +8,7 @@ class GamesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false, // This line removes the back button
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(50), // Adjust as needed

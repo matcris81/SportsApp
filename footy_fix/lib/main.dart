@@ -3,19 +3,25 @@ import 'package:footy_fix/mongo/mongodb.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:footy_fix/screens/start_screens/auth_page.dart';
-import 'package:footy_fix/services/geolocator_services.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:footy_fix/components/navigation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  WidgetsFlutterBinding.ensureInitialized();
+  // Enable Firebase Database persistence
+  FirebaseDatabase.instance.setPersistenceEnabled(true);
+
+  // Initialize Mongo Database
   await MongoDatabse.connect();
-  GeolocatorService().determinePosition().then((_) {
-    runApp(const MyApp());
-  });
+
+  // Run the app
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -25,7 +31,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AuthPage(),
+      home: Scaffold(
+        body: NavBar(), // Wrap HomeScreen with NavBar
+      ),
     );
   }
 }

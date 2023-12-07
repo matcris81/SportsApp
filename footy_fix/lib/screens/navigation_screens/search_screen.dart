@@ -31,21 +31,19 @@ class _SearchScreenState extends State<SearchScreen> {
 
     // Check if location data is stored in shared preferences
     items = await PreferencesService().loadLocationDataList(context);
-
-    print(items);
+    // Object? locationNames = await DatabaseServices().retrieveLocal('Locations');
 
     if (items.isEmpty) {
+      // print(locationNames);
       // else fetch location names from the database
       Object? locationNames =
           await DatabaseServices().retrieveMultiple('Locations');
 
-// Check if locationNames is a list
+      // Check if locationNames is a list
       if (locationNames is List) {
-        // Convert each item in the list to a string
         locationNamesList =
             locationNames.map((item) => item.toString()).toList();
       } else {
-        // Handle the case where locationNames is not a list
         print('locationNames is not a list');
       }
 
@@ -53,14 +51,12 @@ class _SearchScreenState extends State<SearchScreen> {
         if (locationName != null) {
           // Fetch address from the database
           var address = await DatabaseServices()
-              .retrieveFromDatabase('Location Details/$locationName/Address');
+              .retrieveLocal('Location Details/$locationName/Address');
           String addressString = address.toString();
 
-          // Get coordinates from the address
           Map<double, double>? coordinates = await GeolocatorService()
               .getCoordinatesFromAddress(addressString);
 
-          // Calculate distance
           double distance = GeolocatorService().calculateDistance(
             currentPosition.latitude,
             currentPosition.longitude,
@@ -68,7 +64,6 @@ class _SearchScreenState extends State<SearchScreen> {
             coordinates.values.first,
           );
 
-          // Create a MyListItem with all necessary data
           items.add(MyListItem(
             locationName: locationName,
             distance: distance, // Pass the calculated distance
@@ -85,8 +80,8 @@ class _SearchScreenState extends State<SearchScreen> {
           ));
         }
       }
+      await PreferencesService().saveLocationDataList(items);
     }
-    await PreferencesService().saveLocationDataList(items);
     return items;
   }
 
@@ -94,8 +89,8 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false, // This line removes the back button
         title: Text("Search"),
-        // ... other AppBar properties
       ),
       body: FutureBuilder<List<MyListItem>>(
         future: _itemsFuture,
