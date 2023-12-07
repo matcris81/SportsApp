@@ -1,9 +1,11 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'dart:async';
 
 class GeolocatorService {
   static final GeolocatorService _instance = GeolocatorService._internal();
   Position? _currentPosition;
+  Timer? _locationTimer;
 
   factory GeolocatorService() {
     return _instance;
@@ -12,6 +14,20 @@ class GeolocatorService {
   GeolocatorService._internal();
 
   Position? get currentPosition => _currentPosition;
+
+  // Method to start periodic location updates
+  void startPeriodicLocationUpdates(Duration interval) {
+    _locationTimer?.cancel(); // Cancel any existing timer
+    _locationTimer = Timer.periodic(interval, (Timer t) async {
+      await determinePosition();
+      // Do something with the updated location, like a callback or a Stream
+    });
+  }
+
+  // Optional: Method to stop periodic location updates
+  void stopPeriodicLocationUpdates() {
+    _locationTimer?.cancel();
+  }
 
   Future<Position> determinePosition() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();

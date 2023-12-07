@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'dart:async';
 
 class DatabaseServices {
   DatabaseReference rootReference = FirebaseDatabase.instanceFor(
@@ -15,6 +16,29 @@ class DatabaseServices {
       "email": email,
     });
     print("User $userCredential created");
+  }
+
+  Future<Object?> retrieveLocal(String path) async {
+    DatabaseReference localRef = rootReference.child(path);
+    var completer = Completer<Object?>();
+
+    localRef.onValue.listen((event) {
+      var data = event.snapshot.value;
+
+      // Check if data is a list and filter out null elements
+      if (data is List) {
+        var nonNullData = data.where((element) => element != null).toList();
+        if (!completer.isCompleted) {
+          completer.complete(nonNullData);
+        }
+      } else {
+        if (!completer.isCompleted) {
+          completer.complete(data);
+        }
+      }
+    });
+
+    return completer.future;
   }
 
   Future<Object?> retrieveFromDatabase(String path) async {

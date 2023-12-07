@@ -5,7 +5,7 @@ import 'package:footy_fix/components/my_textfield.dart';
 import 'package:footy_fix/components/square_tile.dart';
 import 'package:footy_fix/services/auth_service.dart';
 import 'package:footy_fix/screens/start_screens/register.dart';
-import 'package:footy_fix/screens/home.dart';
+import 'package:footy_fix/screens/navigation_screens/home_screen.dart';
 import 'package:footy_fix/services/database_service.dart';
 import 'package:footy_fix/screens/start_screens/filter_screen.dart';
 

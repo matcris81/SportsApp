@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class GameTile extends StatelessWidget {
   final String location;
+  final String date;
   final String gameID;
   final String time;
   final String playersJoined;
@@ -12,6 +14,7 @@ class GameTile extends StatelessWidget {
   const GameTile({
     Key? key,
     required this.location,
+    required this.date,
     required this.gameID,
     required this.time,
     required this.playersJoined,
@@ -22,6 +25,10 @@ class GameTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    DateTime dateTime = DateFormat('dd MM yyyy').parse(date);
+    String dayName = DateFormat('EEEE').format(dateTime).substring(0, 3);
+    String monthName = DateFormat('MMMM').format(dateTime);
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -52,6 +59,13 @@ class GameTile extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 5),
+            Text(
+              '$dayName, $monthName ${dateTime.day}',
+              style: const TextStyle(
+                fontSize: 15,
+              ),
             ),
             const SizedBox(height: 10),
             Row(
