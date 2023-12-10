@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/components/my_textfield.dart';
 import 'package:footy_fix/services/database_service.dart';
+import 'package:footy_fix/components/navigation.dart';
 import 'package:footy_fix/screens/navigation_screens/home_screen.dart';
 
 class FilterScreen extends StatefulWidget {
@@ -60,8 +61,7 @@ class _FilterScreenState extends State<FilterScreen> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => const HomeScreen()),
+                          MaterialPageRoute(builder: (context) => NavBar()),
                         );
                       },
                       child: const Text('Done'),

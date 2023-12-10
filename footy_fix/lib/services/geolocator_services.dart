@@ -99,4 +99,23 @@ class GeolocatorService {
       return null;
     }
   }
+
+  void setupLocationListener() {
+    const LocationSettings locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 100,
+    );
+
+    StreamSubscription<Position> positionStream = Geolocator.getPositionStream(
+      locationSettings: locationSettings,
+    ).listen((Position? position) {
+      if (position != null) {
+        // Handle the location change here
+        print("Location updated: ${position.latitude}, ${position.longitude}");
+      }
+    });
+
+    // Don't forget to cancel the stream subscription when no longer needed
+    // positionStream.cancel();
+  }
 }
