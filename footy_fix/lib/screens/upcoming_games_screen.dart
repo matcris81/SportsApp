@@ -16,6 +16,14 @@ class UpcomingGamesList extends StatefulWidget {
 }
 
 class _UpcomingGamesListState extends State<UpcomingGamesList> {
+  List<dynamic> sortedDates = [];
+
+  @override
+  void initState() {
+    super.initState();
+    sortedDates = widget.games.keys.toList()..sort((a, b) => a.compareTo(b));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,11 +45,18 @@ class _UpcomingGamesListState extends State<UpcomingGamesList> {
       body: Container(
         color: Colors.white,
         child: ListView.builder(
-          itemCount: widget.games.length,
+          itemCount: sortedDates.length,
           itemBuilder: (context, index) {
-            var date = widget.games.keys.elementAt(index);
+            var date = sortedDates[index];
             var gamesForDate = widget.games[date];
+            // Check if gamesForDate is a Map, if not, return an alternative widget or skip
+            if (gamesForDate is! Map || gamesForDate.isEmpty) {
+              return SizedBox
+                  .shrink(); // or return a widget that indicates no game details are available
+            }
+
             String gameID = gamesForDate.keys.first;
+            // print(gameID);
             var gameDetails = gamesForDate[gameID];
 
             return Card(

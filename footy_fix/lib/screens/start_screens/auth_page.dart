@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/geolocator_services.dart';
 import 'package:footy_fix/screens/start_screens/login_screen.dart';
-import 'package:footy_fix/screens/navigation_screens/home_screen.dart';
 import 'package:footy_fix/components/navigation.dart';
 
 class AuthPage extends StatelessWidget {
