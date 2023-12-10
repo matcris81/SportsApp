@@ -79,33 +79,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            widget.locationName,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.black,
-            ),
-          ),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(
-                isHeartFilled ? Icons.favorite : Icons.favorite_border,
-                color: isHeartFilled ? Colors.red : Colors.black,
-              ),
-              onPressed: () {
-                setState(() {
-                  isHeartFilled = !isHeartFilled; // Toggle the state
-                });
-              },
-            ),
-          ],
-        ),
         body: FutureBuilder<Object?>(
             future: DatabaseServices()
                 .retrieveMultiple('Location Details/${widget.locationName}'),
@@ -157,15 +130,50 @@ class _LocationDescriptionState extends State<LocationDescription> {
 
               return CustomScrollView(
                 slivers: [
+                  SliverAppBar(
+                    expandedHeight: 200.0,
+                    floating: false,
+                    pinned: true,
+                    flexibleSpace: FlexibleSpaceBar(
+                      background: Image.asset(
+                        'assets/albany.png',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    leading: IconButton(
+                      icon: const CircleAvatar(
+                        backgroundColor:
+                            Colors.white, // Background color of the circle
+                        child: Icon(Icons.arrow_back,
+                            color: Colors.black), // Black arrow icon
+                      ),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    actions: <Widget>[
+                      IconButton(
+                        icon: CircleAvatar(
+                          backgroundColor:
+                              Colors.white, // Background color of the circle
+                          child: Icon(
+                            isHeartFilled
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            color: isHeartFilled
+                                ? Colors.red
+                                : Colors.black, // Black heart icon
+                          ),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            isHeartFilled = !isHeartFilled; // Toggle the state
+                          });
+                        },
+                      ),
+                    ],
+                  ),
                   SliverToBoxAdapter(
                     child: Column(
                       children: [
-                        Image.asset(
-                          'assets/albany.png',
-                          width: MediaQuery.of(context).size.width,
-                          height: 200,
-                          fit: BoxFit.cover,
-                        ),
                         const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: Text(

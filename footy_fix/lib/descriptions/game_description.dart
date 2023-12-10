@@ -55,7 +55,12 @@ class _GameDescriptionState extends State<GameDescription> {
                     ),
                   ),
                   leading: IconButton(
-                    icon: const Icon(Icons.arrow_back),
+                    icon: const CircleAvatar(
+                      backgroundColor:
+                          Colors.white, // Background color of the circle
+                      child: Icon(Icons.arrow_back,
+                          color: Colors.black), // Black arrow icon
+                    ),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
