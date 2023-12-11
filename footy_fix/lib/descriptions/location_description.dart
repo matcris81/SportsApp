@@ -166,6 +166,20 @@ class _LocationDescriptionState extends State<LocationDescription> {
                           ),
                         ),
                         onPressed: () {
+                          if (!isHeartFilled) {
+                            DatabaseServices().addToDataBase(
+                                'User Preferences/Liked Venues',
+                                widget.locationName);
+                          } else {
+                            // NEED EVERY VENUE TO HAVE A UNIQUE ID
+                            Object? id = DatabaseServices()
+                                .retrieveFromDatabase(
+                                    'User Preferences/Liked Venues');
+
+                            DatabaseServices().removeFromDatabase(
+                                'User Preferences/Liked Venues/$id',
+                                widget.locationName);
+                          }
                           setState(() {
                             isHeartFilled = !isHeartFilled; // Toggle the state
                           });

@@ -109,4 +109,14 @@ class DatabaseServices {
       print('Error incrementing players joined: $e');
     }
   }
+
+  Future<void> removeFromDatabase(String path, String key) async {
+    DatabaseReference referee = rootReference.child(path);
+
+    try {
+      await referee.child(key).remove();
+    } catch (e) {
+      print('Error removing data: $e');
+    }
+  }
 }

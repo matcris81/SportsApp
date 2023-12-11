@@ -34,7 +34,6 @@ class _SearchScreenState extends State<SearchScreen> {
     // Object? locationNames = await DatabaseServices().retrieveLocal('Locations');
 
     if (items.isEmpty) {
-      // print(locationNames);
       // else fetch location names from the database
       Object? locationNames =
           await DatabaseServices().retrieveMultiple('Locations');
@@ -53,8 +52,8 @@ class _SearchScreenState extends State<SearchScreen> {
             .retrieveLocal('Location Details/$locationName/Address');
         String addressString = address.toString();
 
-        Map<double, double>? coordinates = await GeolocatorService()
-            .getCoordinatesFromAddress(addressString);
+        Map<double, double>? coordinates =
+            await GeolocatorService().getCoordinatesFromAddress(addressString);
 
         double distance = GeolocatorService().calculateDistance(
           currentPosition.latitude,
@@ -77,7 +76,7 @@ class _SearchScreenState extends State<SearchScreen> {
             );
           },
         ));
-            }
+      }
       await PreferencesService().saveLocationDataList(items);
     }
     return items;
