@@ -30,20 +30,18 @@ class _SearchScreenState extends State<SearchScreen> {
     List<String> locationNamesList = [];
 
     // Check if location data is stored in shared preferences
-    items = await PreferencesService().loadLocationDataList(context);
+    // items = await PreferencesService().loadLocationDataList(context);
     // Object? locationNames = await DatabaseServices().retrieveLocal('Locations');
 
     if (items.isEmpty) {
       // else fetch location names from the database
       Object? locationNames =
           await DatabaseServices().retrieveMultiple('Locations');
-        
-      print(locationNames);
 
       // Check if locationNames is a list
-      if (locationNames is List) {
+      if (locationNames is Map) {
         locationNamesList =
-            locationNames.map((item) => item.toString()).toList();
+            locationNames.values.map((item) => item.toString()).toList();
       } else {
         print('locationNames is not a list');
       }
@@ -57,18 +55,15 @@ class _SearchScreenState extends State<SearchScreen> {
         Map<double, double>? coordinates =
             await GeolocatorService().getCoordinatesFromAddress(addressString);
 
-            print(coordinates);
         double distance = 0;
-        if(coordinates != null) {
-           distance = GeolocatorService().calculateDistance(
+        if (coordinates != null) {
+          distance = GeolocatorService().calculateDistance(
             currentPosition.latitude,
             currentPosition.longitude,
-            coordinates!.keys.first,
+            coordinates.keys.first,
             coordinates.values.first,
           );
         }
-        print(coordinates);
-
 
         items.add(MyListItem(
           locationName: locationName,
@@ -87,6 +82,8 @@ class _SearchScreenState extends State<SearchScreen> {
       }
       await PreferencesService().saveLocationDataList(items);
     }
+    items.sort((a, b) => a.distance.compareTo(b.distance));
+
     return items;
   }
 

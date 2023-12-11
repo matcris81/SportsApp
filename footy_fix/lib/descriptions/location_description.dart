@@ -19,6 +19,43 @@ class LocationDescription extends StatefulWidget {
 class _LocationDescriptionState extends State<LocationDescription> {
   bool isHeartFilled = false; // Tracks if heart is filled or not
 
+  @override
+  void initState() {
+    super.initState();
+    checkIfLiked();
+  }
+
+  void checkIfLiked() async {
+    bool liked = false;
+    Object? received = await DatabaseServices().retrieveMultiple('User Preferences/Liked Venues/');
+    
+    if(received is Map) {
+      received.forEach((key, value) {
+        if (value == widget.locationName) {
+          liked = true;
+        }
+      });
+    }
+
+    setState(() {
+      isHeartFilled = liked;
+    });
+  }
+
+  void toggleLike() async {
+    if (isHeartFilled) {
+      Object? received = await DatabaseServices().retrieveMultiple('Locations');
+      print(received);
+      DatabaseServices().removeFromDatabase('User Preferences/Liked Venues/${widget.locationName}');
+    } else {
+      DatabaseServices().addToDataBase('User Preferences/Liked Venues/', widget.locationName);
+    }
+
+    setState(() {
+      isHeartFilled = !isHeartFilled;
+    });
+  }
+
   DateTime? parseDateString(String dateString) {
     try {
       var parts = dateString.split(' ');
@@ -166,23 +203,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
                           ),
                         ),
                         onPressed: () {
-                          if (!isHeartFilled) {
-                            DatabaseServices().addToDataBase(
-                                'User Preferences/Liked Venues',
-                                widget.locationName);
-                          } else {
-                            // NEED EVERY VENUE TO HAVE A UNIQUE ID
-                            Object? id = DatabaseServices()
-                                .retrieveFromDatabase(
-                                    'User Preferences/Liked Venues');
-
-                            DatabaseServices().removeFromDatabase(
-                                'User Preferences/Liked Venues/$id',
-                                widget.locationName);
-                          }
-                          setState(() {
-                            isHeartFilled = !isHeartFilled; // Toggle the state
-                          });
+                          toggleLike();
                         },
                       ),
                     ],
@@ -190,11 +211,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
                   SliverToBoxAdapter(
                     child: Column(
                       children: [
-                        // Card(
-                        // color: Colors.white,
-                        // elevation: 4.0,
-                        // margin: const EdgeInsets.fromLTRB(
-                        //     8.0, 8.0, 8.0, 20.0), // Increased bottom margin
                         Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Column(
