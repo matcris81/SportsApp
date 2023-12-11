@@ -4,6 +4,8 @@ import 'package:footy_fix/services/shared_preferences_service.dart';
 // Add any other necessary imports (e.g., services, models)
 
 class GamesScreen extends StatelessWidget {
+  const GamesScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

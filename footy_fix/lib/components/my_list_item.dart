@@ -5,7 +5,7 @@ class MyListItem extends StatelessWidget {
   final double distance;
   final Function()? onTap;
 
-  MyListItem({required this.locationName, required this.distance, this.onTap});
+  const MyListItem({super.key, required this.locationName, required this.distance, this.onTap});
 
   @override
   Widget build(BuildContext context) {

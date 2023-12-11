@@ -36,36 +36,37 @@ class GameTile extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border.all(color: Colors.white),
           borderRadius: BorderRadius.circular(16),
-          color: Colors.grey[200],
+          color: Colors.white,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            Text(
+              location,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            const SizedBox(height: 5),
+            const Divider(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  location,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
                 Text(
                   '$playersJoined/$size',
                   style: const TextStyle(
                     fontSize: 15,
                   ),
                 ),
+                Text(
+                  '$dayName, $monthName ${dateTime.day}',
+                  style: const TextStyle(
+                    fontSize: 15,
+                  ),
+                ),
               ],
-            ),
-            const SizedBox(height: 5),
-            Text(
-              '$dayName, $monthName ${dateTime.day}',
-              style: const TextStyle(
-                fontSize: 15,
-              ),
             ),
             const SizedBox(height: 10),
             Row(

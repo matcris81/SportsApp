@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:io' show Platform;
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({Key? key}) : super(key: key);
@@ -44,14 +42,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
         // TODO: Implement Apple Pay Integration
       },
       style: ElevatedButton.styleFrom(
-        primary: Colors.black, // Background color
-        onPrimary: Colors.white, // Text and icon color
-        padding: EdgeInsets.symmetric(
+        foregroundColor: Colors.white, backgroundColor: Colors.black, // Text and icon color
+        padding: const EdgeInsets.symmetric(
             horizontal: 32.0, vertical: 12.0), // Increase horizontal padding
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.0),
         ),
-        minimumSize: Size(200, 50), // Set a minimum size for the button
+        minimumSize: const Size(200, 50), // Set a minimum size for the button
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min, // To wrap the content of the row

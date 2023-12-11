@@ -54,7 +54,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
     DateTime? earliestTime;
     Map<String, dynamic>? earliestGameInfo;
 
-    print(date);
     if (gamesForDate is Map) {
       gamesForDate.forEach((gameID, gameDetails) {
         if (gameDetails is Map && gameDetails['Time'] is String) {
@@ -79,11 +78,11 @@ class _LocationDescriptionState extends State<LocationDescription> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Colors.grey[300],
         body: FutureBuilder<Object?>(
             future: DatabaseServices()
                 .retrieveMultiple('Location Details/${widget.locationName}'),
             builder: (context, snapshot) {
-              print("snappie: ${snapshot.data}");
               if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               }
@@ -116,7 +115,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
                 }
 
                 games = dataMap.values.whereType<String>().toList();
-                // print(gamesMap);
+
                 // find next upcoming game
                 date = findNextUpcomingGame(gamesMap);
                 nextGame = findEarliestGameTime(gamesMap, date);
@@ -126,11 +125,14 @@ class _LocationDescriptionState extends State<LocationDescription> {
                 return const Center(
                     child: Text('Data is not in the expected format'));
               }
-              print(nextGame);
+              //extract address and description from games
+              var address = games[0];
+              var description = games[1];
 
               return CustomScrollView(
                 slivers: [
                   SliverAppBar(
+                    // Your existing SliverAppBar properties
                     expandedHeight: 200.0,
                     floating: false,
                     pinned: true,
@@ -174,14 +176,64 @@ class _LocationDescriptionState extends State<LocationDescription> {
                   SliverToBoxAdapter(
                     child: Column(
                       children: [
+                        // Card(
+                        // color: Colors.white,
+                        // elevation: 4.0,
+                        // margin: const EdgeInsets.fromLTRB(
+                        //     8.0, 8.0, 8.0, 20.0), // Increased bottom margin
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                widget.locationName, // Place's name
+                                style: const TextStyle(
+                                  fontSize: 24.0,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Roboto',
+                                ),
+                              ),
+                              const SizedBox(height: 8.0),
+                              const Divider(), // Divider line
+                              const SizedBox(height: 8.0),
+                              Row(
+                                children: <Widget>[
+                                  const Icon(
+                                    Icons.location_on, // Location icon
+                                    color: Colors.grey, // Icon color
+                                    size: 20.0, // Icon size
+                                  ),
+                                  const SizedBox(
+                                      width:
+                                          8.0), // Spacing between icon and text
+                                  Text(
+                                    address, // Place's address
+                                    style: const TextStyle(
+                                      fontSize: 13.0,
+                                      fontWeight: FontWeight.normal,
+                                      fontFamily: 'Roboto',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        // ),
                         const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text(
-                            'Next Game', // Your title text here
-                            style: TextStyle(
-                              fontSize: 24.0, // Adjust the font size as needed
-                              fontWeight: FontWeight
-                                  .bold, // Adjust the font weight as needed
+                          padding: EdgeInsets.only(
+                              left: 30.0, top: 4.0, right: 4.0, bottom: 4.0),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Next Game', // Your title text here
+                              style: TextStyle(
+                                fontSize:
+                                    15.0, // Adjust the font size as needed
+                                fontWeight: FontWeight
+                                    .bold, // Adjust the font weight as needed
+                              ),
                             ),
                           ),
                         ),
@@ -189,51 +241,58 @@ class _LocationDescriptionState extends State<LocationDescription> {
                             ? Expanded(
                                 flex:
                                     0, // Reduced flex to make the game info box smaller
-                                child: GameTile(
-                                  location: widget.locationName,
-                                  date: date,
-                                  gameID: nextGame!['gameID']?.toString() ?? '',
-                                  time: nextGameDetails!['Time']?.toString() ??
-                                      '',
-                                  size:
-                                      nextGameDetails['Size']?.toString() ?? '',
-                                  price: nextGameDetails['Price']?.toDouble() ??
-                                      0.0,
-                                  playersJoined:
-                                      nextGameDetails['Players joined']
-                                              ?.toString() ??
-                                          '',
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => GameDescription(
-                                          location: widget.locationName,
-                                          gameID:
-                                              nextGame!['gameID']?.toString() ??
-                                                  '',
-                                          date: date,
-                                          time: nextGameDetails!['Time']
-                                                  ?.toString() ??
-                                              '',
-                                          size: nextGameDetails['Size']
-                                                  ?.toString() ??
-                                              '',
-                                          price:
-                                              (nextGameDetails['Price'] is num)
-                                                  ? nextGameDetails['Price']
-                                                      .toDouble()
-                                                  : 0.0,
-                                          playersJoined:
-                                              nextGameDetails['Players joined']
-                                                      ?.toString() ??
-                                                  '',
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal:
+                                          16.0), // Add horizontal padding
+                                  child: GameTile(
+                                    location: widget.locationName,
+                                    date: date,
+                                    gameID:
+                                        nextGame!['gameID']?.toString() ?? '',
+                                    time:
+                                        nextGameDetails!['Time']?.toString() ??
+                                            '',
+                                    size: nextGameDetails['Size']?.toString() ??
+                                        '',
+                                    price:
+                                        nextGameDetails['Price']?.toDouble() ??
+                                            0.0,
+                                    playersJoined:
+                                        nextGameDetails['Players joined']
+                                                ?.toString() ??
+                                            '',
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => GameDescription(
+                                            location: widget.locationName,
+                                            gameID: nextGame!['gameID']
+                                                    ?.toString() ??
+                                                '',
+                                            date: date,
+                                            time: nextGameDetails!['Time']
+                                                    ?.toString() ??
+                                                '',
+                                            size: nextGameDetails['Size']
+                                                    ?.toString() ??
+                                                '',
+                                            price: (nextGameDetails['Price']
+                                                    is num)
+                                                ? nextGameDetails['Price']
+                                                    .toDouble()
+                                                : 0.0,
+                                            playersJoined: nextGameDetails[
+                                                        'Players joined']
+                                                    ?.toString() ??
+                                                '',
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              )
+                                      );
+                                    },
+                                  ),
+                                ))
                             : Container(
                                 padding: const EdgeInsets.all(20),
                                 margin: const EdgeInsets.all(20),
@@ -245,7 +304,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
                                       color: Colors.grey.withOpacity(0.5),
                                       spreadRadius: 5,
                                       blurRadius: 7,
-                                      offset: Offset(0, 3),
+                                      offset: const Offset(0, 3),
                                     ),
                                   ],
                                 ),
@@ -256,8 +315,8 @@ class _LocationDescriptionState extends State<LocationDescription> {
                               ),
                         const SizedBox(height: 10),
                         Padding(
-                          padding: const EdgeInsets.all(
-                              1.0), // Reduced padding to bring elements closer
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0), // Increase horizontal padding
                           child: ElevatedButton(
                             onPressed: () {
                               Navigator.push(
@@ -271,10 +330,14 @@ class _LocationDescriptionState extends State<LocationDescription> {
                               );
                             },
                             style: ElevatedButton.styleFrom(
-                              primary: Colors
+                              backgroundColor: Colors
                                   .black, // Set the button's background color
-                              minimumSize: const Size(
-                                  300, 50), // Button takes full width available
+                              minimumSize: const Size(double.infinity,
+                                  50), // Button width will be the width of the parent minus padding
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    5), // Less rounded corners
+                              ),
                             ),
                             child: const Text(
                               'See Upcoming Games',
@@ -284,17 +347,32 @@ class _LocationDescriptionState extends State<LocationDescription> {
                             ),
                           ),
                         ),
+                        const SizedBox(height: 20.0),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 16.0),
+                          child: Text(
+                            "About the venue", // Title text
+                            style: TextStyle(
+                              fontSize: 17.0,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Roboto',
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 16.0, right: 16.0, bottom: 16.0),
+                          child: Text(
+                            description, // Description text
+                            style: const TextStyle(
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.w300,
+                              fontFamily: 'Roboto',
+                            ),
+                          ),
+                        ),
                       ],
-                    ),
-                  ),
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        return ListTile(
-                          title: Text(games[index]),
-                        );
-                      },
-                      childCount: games.length,
                     ),
                   ),
                 ],

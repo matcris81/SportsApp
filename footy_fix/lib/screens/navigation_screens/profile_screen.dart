@@ -4,7 +4,7 @@ import 'package:footy_fix/screens/profile_screens/account_screen.dart';
 class ProfileScreen extends StatelessWidget {
   final VoidCallback onSignOut;
 
-  ProfileScreen({Key? key, required this.onSignOut}) : super(key: key);
+  const ProfileScreen({Key? key, required this.onSignOut}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -47,7 +47,7 @@ class _UpcomingGamesListState extends State<UpcomingGamesList> {
         ),
       ),
       body: Container(
-        color: Colors.white,
+        color: Colors.grey[300],
         child: ListView.builder(
           itemCount: sortedDates.length,
           itemBuilder: (context, index) {
@@ -55,7 +55,7 @@ class _UpcomingGamesListState extends State<UpcomingGamesList> {
             var gamesForDate = widget.games[date];
             // Check if gamesForDate is a Map, if not, return an alternative widget or skip
             if (gamesForDate is! Map || gamesForDate.isEmpty) {
-              return SizedBox
+              return const SizedBox
                   .shrink(); // or return a widget that indicates no game details are available
             }
 
@@ -63,36 +63,40 @@ class _UpcomingGamesListState extends State<UpcomingGamesList> {
             // print(gameID);
             var gameDetails = gamesForDate[gameID];
 
-            return Card(
-              child: GameTile(
-                location: widget.locationName,
-                date: date,
-                gameID: gameID,
-                time: gameDetails['Time']?.toString() ?? '',
-                size: gameDetails['Size']?.toString() ?? '',
-                price: gameDetails['Price']?.toDouble() ?? 0.0,
-                playersJoined: gameDetails['Players joined']?.toString() ?? '',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => GameDescription(
-                        location: widget.locationName,
-                        gameID: gameID,
-                        date: date,
-                        time: gameDetails['Time']?.toString() ?? '',
-                        size: gameDetails['Size']?.toString() ?? '',
-                        price: (gameDetails['Price'] is num)
-                            ? gameDetails['Price'].toDouble()
-                            : 0.0,
-                        playersJoined:
-                            gameDetails['Players joined']?.toString() ?? '',
-                      ),
-                    ),
-                  );
-                },
-              ),
-            );
+            return Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0), // Add horizontal padding
+                child: Card(
+                  child: GameTile(
+                    location: widget.locationName,
+                    date: date,
+                    gameID: gameID,
+                    time: gameDetails['Time']?.toString() ?? '',
+                    size: gameDetails['Size']?.toString() ?? '',
+                    price: gameDetails['Price']?.toDouble() ?? 0.0,
+                    playersJoined:
+                        gameDetails['Players joined']?.toString() ?? '',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GameDescription(
+                            location: widget.locationName,
+                            gameID: gameID,
+                            date: date,
+                            time: gameDetails['Time']?.toString() ?? '',
+                            size: gameDetails['Size']?.toString() ?? '',
+                            price: (gameDetails['Price'] is num)
+                                ? gameDetails['Price'].toDouble()
+                                : 0.0,
+                            playersJoined:
+                                gameDetails['Players joined']?.toString() ?? '',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ));
           },
         ),
       ),
