@@ -30,7 +30,7 @@ class _SearchScreenState extends State<SearchScreen> {
     List<String> locationNamesList = [];
 
     // Check if location data is stored in shared preferences
-    // items = await PreferencesService().loadLocationDataList(context);
+    items = await PreferencesService().loadLocationDataList(context);
     // Object? locationNames = await DatabaseServices().retrieveLocal('Locations');
 
     if (items.isEmpty) {
