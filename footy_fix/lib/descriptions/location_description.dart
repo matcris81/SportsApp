@@ -18,23 +18,49 @@ class LocationDescription extends StatefulWidget {
 
 class _LocationDescriptionState extends State<LocationDescription> {
   bool isHeartFilled = false; // Tracks if heart is filled or not
+  String locationID = '';
 
   @override
   void initState() {
     super.initState();
     checkIfLiked();
+    getLocationID();
+  }
+
+  void getLocationID() async {
+    Object? locations = await DatabaseServices().retrieveMultiple('Locations');
+    print(locations);
+
+    if (locations is Map) {
+      locations.forEach((key, value) {
+        if (value == widget.locationName) {
+          locationID = key;
+        }
+      });
+    } else if (locations is String) {
+      if (locations == widget.locationName) {
+        locationID = locations;
+      }
+    }
+    print(locationID);
   }
 
   void checkIfLiked() async {
     bool liked = false;
-    Object? received = await DatabaseServices().retrieveMultiple('User Preferences/Liked Venues/');
-    
-    if(received is Map) {
+    Object? received = await DatabaseServices()
+        .retrieveMultiple('User Preferences/Liked Venues/');
+    print(received);
+
+    if (received is Map) {
       received.forEach((key, value) {
         if (value == widget.locationName) {
           liked = true;
         }
       });
+    } else if (received is String) {
+      if (received == widget.locationName) {
+        liked = true;
+      }
     }
 
     setState(() {
@@ -46,9 +72,11 @@ class _LocationDescriptionState extends State<LocationDescription> {
     if (isHeartFilled) {
       Object? received = await DatabaseServices().retrieveMultiple('Locations');
       print(received);
-      DatabaseServices().removeFromDatabase('User Preferences/Liked Venues/${widget.locationName}');
+      DatabaseServices()
+          .removeFromDatabase('User Preferences/Liked Venues/$locationID');
     } else {
-      DatabaseServices().addToDataBase('User Preferences/Liked Venues/', widget.locationName);
+      DatabaseServices().addToDataBase(
+          'User Preferences/Liked Venues/$locationID', widget.locationName);
     }
 
     setState(() {

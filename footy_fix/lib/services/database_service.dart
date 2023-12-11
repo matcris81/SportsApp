@@ -112,9 +112,10 @@ class DatabaseServices {
 
   Future<void> removeFromDatabase(String path) async {
     DatabaseReference referee = rootReference.child(path);
+    print(path);
 
     try {
-      await referee.remove();
+      await rootReference.child(path).remove();
     } catch (e) {
       print('Error removing data: $e');
     }

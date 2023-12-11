@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:footy_fix/services/database_service.dart';
 
 class PaymentScreen extends StatefulWidget {
-  const PaymentScreen({Key? key}) : super(key: key);
+  final String locationName;
+  final String gameID;
+  final String date;
+
+  const PaymentScreen(
+      {Key? key,
+      required this.gameID,
+      required this.date,
+      required this.locationName})
+      : super(key: key);
 
   @override
   _PaymentScreenState createState() => _PaymentScreenState();
@@ -38,11 +48,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   Widget buildApplePayButton() {
     return ElevatedButton(
-      onPressed: () {
-        // TODO: Implement Apple Pay Integration
+      onPressed: () async {
+        Object? data = await DatabaseServices().retrieveFromDatabase(
+            'Location Details/${widget.locationName}/Games/${widget.date}/${widget.gameID}'); // Retrieve the data from the database
+        print(data);
+        DatabaseServices().addToDataBase(
+            'User Preferences/Games joined/${widget.locationName}/${widget.gameID}',
+            data);
       },
       style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.white, backgroundColor: Colors.black, // Text and icon color
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.black, // Text and icon color
         padding: const EdgeInsets.symmetric(
             horizontal: 32.0, vertical: 12.0), // Increase horizontal padding
         shape: RoundedRectangleBorder(
