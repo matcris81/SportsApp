@@ -29,7 +29,7 @@ class AuthPage extends StatelessWidget {
                   .startPeriodicLocationUpdates(const Duration(minutes: 5));
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                    builder: (context) => NavBar()), // Navigate to NavBar
+                    builder: (context) => const NavBar()), // Navigate to NavBar
               );
             }
             // User is NOT logged in

@@ -48,38 +48,36 @@ class _SearchScreenState extends State<SearchScreen> {
       }
 
       for (String locationName in locationNamesList) {
-        if (locationName != null) {
-          // Fetch address from the database
-          var address = await DatabaseServices()
-              .retrieveLocal('Location Details/$locationName/Address');
-          String addressString = address.toString();
+        // Fetch address from the database
+        var address = await DatabaseServices()
+            .retrieveLocal('Location Details/$locationName/Address');
+        String addressString = address.toString();
 
-          Map<double, double>? coordinates = await GeolocatorService()
-              .getCoordinatesFromAddress(addressString);
+        Map<double, double>? coordinates = await GeolocatorService()
+            .getCoordinatesFromAddress(addressString);
 
-          double distance = GeolocatorService().calculateDistance(
-            currentPosition.latitude,
-            currentPosition.longitude,
-            coordinates!.keys.first,
-            coordinates.values.first,
-          );
+        double distance = GeolocatorService().calculateDistance(
+          currentPosition.latitude,
+          currentPosition.longitude,
+          coordinates!.keys.first,
+          coordinates.values.first,
+        );
 
-          items.add(MyListItem(
-            locationName: locationName,
-            distance: distance, // Pass the calculated distance
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => LocationDescription(
-                    locationName: locationName,
-                  ),
+        items.add(MyListItem(
+          locationName: locationName,
+          distance: distance, // Pass the calculated distance
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LocationDescription(
+                  locationName: locationName,
                 ),
-              );
-            },
-          ));
-        }
-      }
+              ),
+            );
+          },
+        ));
+            }
       await PreferencesService().saveLocationDataList(items);
     }
     return items;
@@ -90,14 +88,14 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false, // This line removes the back button
-        title: Text("Search"),
+        title: const Text("Search"),
       ),
       body: FutureBuilder<List<MyListItem>>(
         future: _itemsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Show loading indicator while data is being fetched
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             // Handle any errors here
             return Center(child: Text('Error: ${snapshot.error}'));
@@ -111,7 +109,7 @@ class _SearchScreenState extends State<SearchScreen> {
             );
           } else {
             // Handle the case where there's no data
-            return Center(child: Text('No data found'));
+            return const Center(child: Text('No data found'));
           }
         },
       ),

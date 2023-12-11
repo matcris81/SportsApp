@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:footy_fix/components/navigation.dart';
 import 'package:footy_fix/services/geolocator_services.dart';
 
 class HomeScreen extends StatefulWidget {

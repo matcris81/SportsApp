@@ -7,6 +7,8 @@ import 'package:footy_fix/screens/start_screens/login_screen.dart';
 import 'package:footy_fix/services/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
+
   @override
   _RegisterPageState createState() => _RegisterPageState();
 }
@@ -38,7 +40,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
+        MaterialPageRoute(builder: (context) => const LoginPage()),
       );
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
@@ -51,7 +53,7 @@ class _RegisterPageState extends State<RegisterPage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },

@@ -39,6 +39,7 @@ class _GameDescriptionState extends State<GameDescription> {
     int dayNumber = dateTime.day;
 
     return Scaffold(
+      backgroundColor: Colors.grey[300],
       body: Column(
         children: [
           Expanded(
@@ -83,7 +84,7 @@ class _GameDescriptionState extends State<GameDescription> {
           'Location Details/${widget.location}/Games/${widget.date}/${widget.gameID}/Players joined'),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator(); // Show loading indicator while waiting
+          return const CircularProgressIndicator(); // Show loading indicator while waiting
         }
         int joined = 0;
         try {
@@ -113,7 +114,7 @@ class _GameDescriptionState extends State<GameDescription> {
                     );
                   },
             style: ElevatedButton.styleFrom(
-              primary:
+              backgroundColor:
                   isFull ? Colors.grey : Colors.black, // Greyed out if full
               padding: const EdgeInsets.symmetric(vertical: 12.0),
               shape: RoundedRectangleBorder(
@@ -146,12 +147,12 @@ class _GameDescriptionState extends State<GameDescription> {
             final address = snapshot.data as String? ?? 'Address not available';
 
             return Card(
-              margin: EdgeInsets.all(16.0),
+              margin: const EdgeInsets.all(16.0),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -159,38 +160,38 @@ class _GameDescriptionState extends State<GameDescription> {
                       child: Text(
                         widget
                             .location, // Assuming 'locationName' is a String containing the game's location name
-                        style: Theme.of(context).textTheme.headline6?.copyWith(
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                               fontSize: 24,
                             ),
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    SizedBox(height: 8),
-                    Divider(),
+                    const SizedBox(height: 8),
+                    const Divider(),
                     ListTile(
-                      leading: Icon(Icons.date_range),
+                      leading: const Icon(Icons.date_range),
                       title: Text('Date: $dayName, $dayNumber $monthName'),
                     ),
                     ListTile(
-                      leading: Icon(Icons.access_time),
+                      leading: const Icon(Icons.access_time),
                       title: Text('Time: ${widget.time}'),
                     ),
                     ListTile(
-                      leading: Icon(Icons.group),
+                      leading: const Icon(Icons.group),
                       title: Text(
                           'Players Joined: ${widget.playersJoined}/${widget.size}'),
                     ),
                     ListTile(
-                      leading: Icon(Icons.attach_money),
+                      leading: const Icon(Icons.attach_money),
                       title:
                           Text('Price: \$${widget.price.toStringAsFixed(2)}'),
                     ),
-                    Divider(),
+                    const Divider(),
                     ListTile(
-                      leading: Icon(Icons.location_on),
+                      leading: const Icon(Icons.location_on),
                       title: Text(widget.location), // Display the address here
-                      subtitle: Text(
+                      subtitle: const Text(
                           'Click for map'), // Optional: if you want to add functionality to navigate to a map view
                       onTap: () {
                         _launchMaps(context, address);
@@ -203,7 +204,7 @@ class _GameDescriptionState extends State<GameDescription> {
           }
         }
         // By default, show a loading spinner while the Future is incomplete
-        return Center(child: CircularProgressIndicator());
+        return const Center(child: CircularProgressIndicator());
       },
     );
   }
@@ -250,11 +251,11 @@ class _GameDescriptionState extends State<GameDescription> {
             ),
           ],
           cancelButton: CupertinoActionSheetAction(
-            child: const Text('Cancel'),
             isDefaultAction: true,
             onPressed: () {
               Navigator.pop(context);
             },
+            child: const Text('Cancel'),
           ),
         );
       },

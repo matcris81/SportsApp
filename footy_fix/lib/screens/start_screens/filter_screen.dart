@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:footy_fix/components/my_textfield.dart';
 import 'package:footy_fix/services/database_service.dart';
 import 'package:footy_fix/components/navigation.dart';
-import 'package:footy_fix/screens/navigation_screens/home_screen.dart';
 
 class FilterScreen extends StatefulWidget {
   const FilterScreen({Key? key}) : super(key: key);
@@ -19,7 +18,7 @@ class _FilterScreenState extends State<FilterScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -61,7 +60,7 @@ class _FilterScreenState extends State<FilterScreen> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => NavBar()),
+                          MaterialPageRoute(builder: (context) => const NavBar()),
                         );
                       },
                       child: const Text('Done'),

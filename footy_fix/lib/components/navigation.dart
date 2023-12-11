@@ -33,9 +33,9 @@ class _NavBarState extends State<NavBar> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> widgetOptions = <Widget>[
-      HomeScreen(),
-      GamesScreen(),
-      SearchScreen(),
+      const HomeScreen(),
+      const GamesScreen(),
+      const SearchScreen(),
       ProfileScreen(
         onSignOut: signOutUser,
       ),

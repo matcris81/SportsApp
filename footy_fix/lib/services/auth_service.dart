@@ -22,9 +22,9 @@ class AuthService {
       DatabaseServices().createUser(userCredential, email);
 
       return userCredential;
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException {
       // Handle error
-      throw e;
+      rethrow;
     }
   }
 
