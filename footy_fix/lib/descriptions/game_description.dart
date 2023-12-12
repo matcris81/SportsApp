@@ -110,7 +110,11 @@ class _GameDescriptionState extends State<GameDescription> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const PaymentScreen()),
+                          builder: (context) => PaymentScreen(
+                                locationName: widget.location,
+                                gameID: widget.gameID,
+                                date: widget.date,
+                              )),
                     );
                   },
             style: ElevatedButton.styleFrom(

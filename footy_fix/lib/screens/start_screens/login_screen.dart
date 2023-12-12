@@ -5,9 +5,8 @@ import 'package:footy_fix/components/my_textfield.dart';
 import 'package:footy_fix/components/square_tile.dart';
 import 'package:footy_fix/services/auth_service.dart';
 import 'package:footy_fix/screens/start_screens/register.dart';
-import 'package:footy_fix/screens/navigation_screens/home_screen.dart';
 import 'package:footy_fix/services/database_service.dart';
-import 'package:footy_fix/screens/start_screens/filter_screen.dart';
+import 'package:footy_fix/components/navigation.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -58,17 +57,10 @@ class _LoginPageState extends State<LoginPage> {
 
         if (!mounted) return;
 
-        if (firstTime != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
-          );
-        } else {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const FilterScreen()),
-          );
-        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const NavBar()),
+        );
       }
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
@@ -244,19 +236,11 @@ class _LoginPageState extends State<LoginPage> {
 
                           if (!mounted) return;
 
-                          if (firstTime != null) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const HomeScreen()),
-                            );
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const FilterScreen()),
-                            );
-                          }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const NavBar()),
+                          );
                         } else {
                           // Handle the case where sign-in was not successful
                           // For example, show an error message
@@ -279,23 +263,13 @@ class _LoginPageState extends State<LoginPage> {
                               .retrieveFromDatabase(
                                   'users/${credential.user!.uid}');
 
-                          print(firstTime);
-
                           if (!mounted) return;
 
-                          if (firstTime != null) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const HomeScreen()),
-                            );
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const FilterScreen()),
-                            );
-                          }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const NavBar()),
+                          );
                         } else {
                           // Handle the case where sign-in was not successful
                           // For example, show an error message
@@ -322,19 +296,11 @@ class _LoginPageState extends State<LoginPage> {
 
                           if (!mounted) return;
 
-                          if (firstTime != null) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const HomeScreen()),
-                            );
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const FilterScreen()),
-                            );
-                          }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const NavBar()),
+                          );
                         } else {
                           // Handle the case where sign-in was not successful
                           // For example, show an error message

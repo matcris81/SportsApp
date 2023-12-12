@@ -45,6 +45,7 @@ class DatabaseServices {
     try {
       DataSnapshot snapshot = await rootReference.child(path).get();
       if (snapshot.exists) {
+        // Directly return the value as it should not include the userID key
         return snapshot.value;
       } else {
         print(path);

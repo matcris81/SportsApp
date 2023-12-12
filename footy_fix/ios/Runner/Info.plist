@@ -29,7 +29,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.955778873823-e7hkg44t0sk3euiijgsti38ogtverqo2</string>
+				<string>com.googleusercontent.apps.955778873823-us9r32ifbeu7r8m8vokp4rkjmklg0c0r</string>
 			</array>
 		</dict>
 		<dict>
@@ -39,6 +39,12 @@
 			<array>
 				<string>fb587728373466235</string>
 			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array/>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
