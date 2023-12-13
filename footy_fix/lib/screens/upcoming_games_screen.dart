@@ -60,7 +60,6 @@ class _UpcomingGamesListState extends State<UpcomingGamesList> {
             }
 
             String gameID = gamesForDate.keys.first;
-            // print(gameID);
             var gameDetails = gamesForDate[gameID];
 
             return Padding(

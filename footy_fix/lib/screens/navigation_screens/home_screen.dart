@@ -6,6 +6,8 @@ import 'package:footy_fix/descriptions/location_description.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:intl/intl.dart';
 import 'package:footy_fix/descriptions/game_description.dart';
+import 'package:footy_fix/screens/profile_screen.dart';
+import 'package:footy_fix/screens/notification_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -134,8 +136,8 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: const Icon(Icons.account_circle, color: Colors.black),
           iconSize: 25,
           onPressed: () {
-            // Add your onTap functionality here
-            print('Profile icon tapped');
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => ProfileScreen()));
           },
         ),
 
@@ -145,8 +147,10 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.notifications, color: Colors.black),
             iconSize: 25,
             onPressed: () {
-              // Add your onTap functionality here
-              print('Bell icon tapped');
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => NotificationScreen()));
             },
           ),
         ],

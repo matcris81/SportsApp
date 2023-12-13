@@ -73,7 +73,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
 
     if (isHeartFilled) {
       Object? received = await DatabaseServices().retrieveLocal('Locations');
-      print(received);
       DatabaseServices().removeFromDatabase(
           'User Preferences/$userID/Liked Venues/$locationID');
     } else {
