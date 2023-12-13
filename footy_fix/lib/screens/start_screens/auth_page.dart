@@ -3,9 +3,26 @@ import 'package:flutter/material.dart';
 import 'package:footy_fix/services/geolocator_services.dart';
 import 'package:footy_fix/screens/start_screens/login_screen.dart';
 import 'package:footy_fix/components/navigation.dart';
+import 'package:footy_fix/services/shared_preferences_service.dart';
 
-class AuthPage extends StatelessWidget {
+class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
+
+  @override
+  _AuthPageState createState() => _AuthPageState();
+}
+
+class _AuthPageState extends State<AuthPage> {
+  final GeolocatorService _geolocatorService = GeolocatorService();
+  final PreferencesService _sharedPreferencesService =
+      PreferencesService(); // Instance of your shared preferences service
+
+  @override
+  void initState() {
+    super.initState();
+    // Perform necessary initializations if needed
+    print("wtf");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,36 +31,53 @@ class AuthPage extends StatelessWidget {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.active) {
-            // User is logged in
-            if (snapshot.hasData) {
-              // Determine and update the user's position
-              GeolocatorService().determinePosition().then((position) {
-                // If you need to do something with the position, do it here
-                // For example, save it to a user profile in a database
-              }).catchError((error) {
-                // Handle the error of location retrieval if necessary
-              });
-
-              // Start location updates
-              GeolocatorService()
-                  .startPeriodicLocationUpdates(const Duration(minutes: 5));
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                    builder: (context) => const NavBar()), // Navigate to NavBar
-              );
-            }
-            // User is NOT logged in
-            else {
-              // Stop location updates
-              GeolocatorService().stopPeriodicLocationUpdates();
-              return const LoginPage(); // Your login page
-            }
+            User? user = snapshot.data;
+            return user == null
+                ? const LoginPage()
+                : _handleAuthenticatedUser(user);
           }
-
-          // While waiting for the authentication state, show a progress indicator
           return const Center(child: CircularProgressIndicator());
         },
       ),
     );
+  }
+
+  Widget _handleAuthenticatedUser(User user) {
+    print('User Identification: (${user.uid}');
+    // save user id
+    _saveUserID(user.uid);
+    // Update location
+    _updateUserLocation();
+
+    // Start location updates
+    _geolocatorService.startPeriodicLocationUpdates(const Duration(minutes: 5));
+
+    // Navigate to NavBar
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const NavBar()),
+      );
+    });
+
+    return const Center(child: CircularProgressIndicator());
+  }
+
+  void _updateUserLocation() {
+    _geolocatorService.determinePosition().then((position) {
+      // Handle the position update logic
+    }).catchError((error) {
+      // Handle errors appropriately
+    });
+  }
+
+  void _saveUserID(String userID) async {
+    await _sharedPreferencesService
+        .saveUserId(userID); // Call your method to save the userID
+  }
+
+  @override
+  void dispose() {
+    _geolocatorService.stopPeriodicLocationUpdates();
+    super.dispose();
   }
 }

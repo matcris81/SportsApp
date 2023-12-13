@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/database_service.dart';
+import 'package:footy_fix/services/shared_preferences_service.dart';
 
 class PaymentScreen extends StatefulWidget {
   final String locationName;
@@ -49,12 +50,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget buildApplePayButton() {
     return ElevatedButton(
       onPressed: () async {
+        String userID = await PreferencesService().getUserId() ?? '';
+        
         Object? data = await DatabaseServices().retrieveFromDatabase(
             'Location Details/${widget.locationName}/Games/${widget.date}/${widget.gameID}'); // Retrieve the data from the database
         print(data);
         DatabaseServices().addToDataBase(
-            'User Preferences/Games joined/${widget.locationName}/${widget.gameID}',
+            'User Preferences/$userID/Games joined/${widget.locationName}/${widget.gameID}',
             data);
+        DatabaseServices().incrementValue(
+            'Location Details/${widget.locationName}/Games/${widget.date}/${widget.gameID}/',
+            'Players joined');
       },
       style: ElevatedButton.styleFrom(
         foregroundColor: Colors.white,

@@ -5,8 +5,8 @@ import 'package:footy_fix/components/my_textfield.dart';
 import 'package:footy_fix/components/square_tile.dart';
 import 'package:footy_fix/services/auth_service.dart';
 import 'package:footy_fix/screens/start_screens/register.dart';
-import 'package:footy_fix/screens/navigation_screens/home_screen.dart';
 import 'package:footy_fix/services/database_service.dart';
+import 'package:footy_fix/components/navigation.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -59,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
 
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (context) => const NavBar()),
         );
       }
     } on FirebaseAuthException catch (e) {
@@ -239,7 +239,7 @@ class _LoginPageState extends State<LoginPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const HomeScreen()),
+                                builder: (context) => const NavBar()),
                           );
                         } else {
                           // Handle the case where sign-in was not successful
@@ -263,14 +263,12 @@ class _LoginPageState extends State<LoginPage> {
                               .retrieveFromDatabase(
                                   'users/${credential.user!.uid}');
 
-                          print(firstTime);
-
                           if (!mounted) return;
 
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const HomeScreen()),
+                                builder: (context) => const NavBar()),
                           );
                         } else {
                           // Handle the case where sign-in was not successful
@@ -301,7 +299,7 @@ class _LoginPageState extends State<LoginPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const HomeScreen()),
+                                builder: (context) => const NavBar()),
                           );
                         } else {
                           // Handle the case where sign-in was not successful

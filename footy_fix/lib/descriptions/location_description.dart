@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/screens/upcoming_games_screen.dart';
 import 'package:footy_fix/services/database_service.dart';
+import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:intl/intl.dart';
 import 'package:footy_fix/components/game_tile.dart';
 import 'package:footy_fix/descriptions/game_description.dart';
@@ -28,8 +29,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
   }
 
   void getLocationID() async {
-    Object? locations = await DatabaseServices().retrieveMultiple('Locations');
-    print(locations);
+    Object? locations = await DatabaseServices().retrieveLocal('Locations');
 
     if (locations is Map) {
       locations.forEach((key, value) {
@@ -46,10 +46,11 @@ class _LocationDescriptionState extends State<LocationDescription> {
   }
 
   void checkIfLiked() async {
+    String userID = await PreferencesService().getUserId() ?? '';
     bool liked = false;
     Object? received = await DatabaseServices()
-        .retrieveMultiple('User Preferences/Liked Venues/');
-    print(received);
+        .retrieveLocal('User Preferences/$userID/Liked Venues');
+
 
     if (received is Map) {
       received.forEach((key, value) {
@@ -63,20 +64,24 @@ class _LocationDescriptionState extends State<LocationDescription> {
       }
     }
 
+
     setState(() {
       isHeartFilled = liked;
     });
   }
 
   void toggleLike() async {
+    String userID = await PreferencesService().getUserId() ?? '';
+
     if (isHeartFilled) {
-      Object? received = await DatabaseServices().retrieveMultiple('Locations');
+      Object? received = await DatabaseServices().retrieveLocal('Locations');
       print(received);
-      DatabaseServices()
-          .removeFromDatabase('User Preferences/Liked Venues/$locationID');
+      DatabaseServices().removeFromDatabase(
+          'User Preferences/$userID/Liked Venues/', locationID);
     } else {
       DatabaseServices().addToDataBase(
-          'User Preferences/Liked Venues/$locationID', widget.locationName);
+          'User Preferences/$userID/Liked Venues/$locationID',
+          widget.locationName);
     }
 
     setState(() {
@@ -152,7 +157,8 @@ class _LocationDescriptionState extends State<LocationDescription> {
                 return Center(child: Text('Error: ${snapshot.error}'));
               }
               if (!snapshot.hasData) {
-                return const Center(child: Text('No data found'));
+                // Replace this line with a CircularProgressIndicator
+                return const Center(child: CircularProgressIndicator());
               }
               List<String> games = [];
               List<String> upcomingGames = [];

@@ -8,7 +8,7 @@ class UpcomingGamesList extends StatefulWidget {
 
   // Constructor to accept a list of games
   const UpcomingGamesList(
-      {Key? key, required this.locationName, required this.games})
+      {Key? key, this.locationName = '', required this.games})
       : super(key: key);
 
   @override

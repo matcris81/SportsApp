@@ -3,7 +3,7 @@ import 'package:footy_fix/mongo/mongodb.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:footy_fix/components/navigation.dart';
+import 'package:footy_fix/screens/start_screens/auth_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: NavBar(), // Wrap HomeScreen with NavBar
+        body: AuthPage(), // Wrap HomeScreen with NavBar
       ),
     );
   }
