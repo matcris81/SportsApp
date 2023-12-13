@@ -51,6 +51,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
     Object? received = await DatabaseServices()
         .retrieveLocal('User Preferences/$userID/Liked Venues');
 
+
     if (received is Map) {
       received.forEach((key, value) {
         if (value == widget.locationName) {
@@ -62,7 +63,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
         liked = true;
       }
     }
-    print(liked);
+
 
     setState(() {
       isHeartFilled = liked;
@@ -236,23 +237,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
                           ),
                         ),
                         onPressed: () {
-                          if (!isHeartFilled) {
-                            DatabaseServices().addToDataBase(
-                                'User Preferences/Liked Venues',
-                                widget.locationName);
-                          } else {
-                            // NEED EVERY VENUE TO HAVE A UNIQUE ID
-                            Object? id = DatabaseServices()
-                                .retrieveFromDatabase(
-                                    'User Preferences/Liked Venues');
-
-                            DatabaseServices().removeFromDatabase(
-                                'User Preferences/Liked Venues/$id',
-                                widget.locationName);
-                          }
-                          setState(() {
-                            isHeartFilled = !isHeartFilled; // Toggle the state
-                          });
+                          toggleLike();
                         },
                       ),
                     ],
@@ -260,11 +245,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
                   SliverToBoxAdapter(
                     child: Column(
                       children: [
-                        // Card(
-                        // color: Colors.white,
-                        // elevation: 4.0,
-                        // margin: const EdgeInsets.fromLTRB(
-                        //     8.0, 8.0, 8.0, 20.0), // Increased bottom margin
                         Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Column(

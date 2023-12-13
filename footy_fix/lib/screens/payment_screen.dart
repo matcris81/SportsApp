@@ -51,6 +51,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return ElevatedButton(
       onPressed: () async {
         String userID = await PreferencesService().getUserId() ?? '';
+        
         Object? data = await DatabaseServices().retrieveFromDatabase(
             'Location Details/${widget.locationName}/Games/${widget.date}/${widget.gameID}'); // Retrieve the data from the database
         print(data);

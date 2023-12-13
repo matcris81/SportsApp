@@ -71,7 +71,7 @@ class DatabaseServices {
 
   Future<void> addToDataBase(String path, dynamic value) async {
     try {
-      await rootReference.child(path).push().set(value);
+      await rootReference.child(path).set(value);
       print('Data successfully added');
     } catch (e) {
       print('Error adding data: $e');
@@ -111,11 +111,12 @@ class DatabaseServices {
     }
   }
 
-  Future<void> removeFromDatabase(String path, String key) async {
+  Future<void> removeFromDatabase(String path) async {
     DatabaseReference referee = rootReference.child(path);
+    print(path);
 
     try {
-      await referee.child(key).remove();
+      await rootReference.child(path).remove();
     } catch (e) {
       print('Error removing data: $e');
     }

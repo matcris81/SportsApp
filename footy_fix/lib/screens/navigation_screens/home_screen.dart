@@ -112,6 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
         await DatabaseServices().retrieveLocal('User Preferences/$userID/');
     print(data);
 
+
     if (data is Map) {
       populateLists(data);
     } else {
