@@ -160,7 +160,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
             future: DatabaseServices()
                 .retrieveMultiple('Location Details/${widget.locationName}'),
             builder: (context, snapshot) {
-              print('snapshot: ${snapshot.data}');
               if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               }
@@ -187,11 +186,9 @@ class _LocationDescriptionState extends State<LocationDescription> {
                   gamesMap = dataMap['Games'] as Map;
                 }
                 games = dataMap.values.whereType<String>().toList();
-
                 // find next upcoming game
                 // first find the next upcoming date
                 date = findNextUpcomingGame(gamesMap);
-                print('date: $date');
 
                 // then find the earliest game time for that date
                 nextGame = findEarliestGameTime(gamesMap, date);
