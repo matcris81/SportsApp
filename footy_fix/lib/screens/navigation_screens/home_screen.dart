@@ -106,12 +106,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadPreferences() async {
     String userID = await PreferencesService().getUserId() ?? '';
-    print('userID: $userID');
 
     var data =
         await DatabaseServices().retrieveLocal('User Preferences/$userID/');
-    print(data);
-
 
     if (data is Map) {
       populateLists(data);
@@ -126,10 +123,36 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Home', style: TextStyle(color: Colors.black)),
+        title: const Text('FitFeat',
+            style: TextStyle(color: Colors.black, fontSize: 20)),
         centerTitle: true,
-        automaticallyImplyLeading: false, // This line removes the back button
+        automaticallyImplyLeading:
+            false, // This line removes the default back button
+
+        // Add profile icon on the left
+        leading: IconButton(
+          icon: const Icon(Icons.account_circle, color: Colors.black),
+          iconSize: 25,
+          onPressed: () {
+            // Add your onTap functionality here
+            print('Profile icon tapped');
+          },
+        ),
+
+        // Add bell icon on the right
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.notifications, color: Colors.black),
+            iconSize: 25,
+            onPressed: () {
+              // Add your onTap functionality here
+              print('Bell icon tapped');
+            },
+          ),
+        ],
       ),
+
+      backgroundColor: Colors.grey[200], // Set the background color to grey
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment

@@ -10,25 +10,15 @@ class GamesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, // This line removes the back button
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text('Games',
+            style: TextStyle(color: Colors.black, fontSize: 20)),
         centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(50), // Adjust as needed
-          child: Container(
-            padding: const EdgeInsets.only(bottom: 8), // Adjust as needed
-            alignment: Alignment.bottomCenter,
-            child: const Text(
-              'Games',
-              style: TextStyle(
-                fontSize: 16, // Smaller font size
-                fontWeight:
-                    FontWeight.w500, // Medium weight - you can adjust as needed
-                color: Colors.black, // Text color - change if needed
-              ),
-            ),
-          ),
-        ),
+        automaticallyImplyLeading:
+            false, // This line removes the default back button
       ),
+      backgroundColor: Colors.grey[200], // Set the background color to grey
       body: RefreshIndicator(
         onRefresh: () async {
           var userID = await PreferencesService().getUserId();

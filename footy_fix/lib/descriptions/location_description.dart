@@ -51,7 +51,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
     Object? received = await DatabaseServices()
         .retrieveLocal('User Preferences/$userID/Liked Venues');
 
-
     if (received is Map) {
       received.forEach((key, value) {
         if (value == widget.locationName) {
@@ -63,7 +62,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
         liked = true;
       }
     }
-
 
     setState(() {
       isHeartFilled = liked;
@@ -77,7 +75,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
       Object? received = await DatabaseServices().retrieveLocal('Locations');
       print(received);
       DatabaseServices().removeFromDatabase(
-          'User Preferences/$userID/Liked Venues/', locationID);
+          'User Preferences/$userID/Liked Venues/$locationID');
     } else {
       DatabaseServices().addToDataBase(
           'User Preferences/$userID/Liked Venues/$locationID',

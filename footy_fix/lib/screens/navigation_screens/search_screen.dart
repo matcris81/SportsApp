@@ -91,9 +91,15 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, // This line removes the back button
-        title: const Text("Search"),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text('Search',
+            style: TextStyle(color: Colors.black, fontSize: 20)),
+        centerTitle: true,
+        automaticallyImplyLeading:
+            false, // This line removes the default back button
       ),
+      backgroundColor: Colors.grey[200],
       body: FutureBuilder<List<MyListItem>>(
         future: _itemsFuture,
         builder: (context, snapshot) {
