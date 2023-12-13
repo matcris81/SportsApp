@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 double.tryParse(gameDetails['Price'].toString()) ?? 0.0;
 
             // Assuming date needs to be passed, but it's not available in data. Using current date.
-            String date = DateFormat('dd MM yyyy').format(DateTime.now());
+            String date = DateFormat('dd/MM/yyyy').format(DateTime.now());
 
             // Create a GameTile
             Widget gameTile = GameTile(

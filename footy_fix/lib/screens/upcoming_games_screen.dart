@@ -53,6 +53,7 @@ class _UpcomingGamesListState extends State<UpcomingGamesList> {
           itemBuilder: (context, index) {
             var date = sortedDates[index];
             var gamesForDate = widget.games[date];
+            print('gamesForDate: $gamesForDate');
             // Check if gamesForDate is a Map, if not, return an alternative widget or skip
             if (gamesForDate is! Map || gamesForDate.isEmpty) {
               return const SizedBox
