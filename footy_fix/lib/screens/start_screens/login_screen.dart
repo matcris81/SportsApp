@@ -57,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
 
         if (!mounted) return;
 
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const NavBar()),
         );
@@ -236,7 +236,7 @@ class _LoginPageState extends State<LoginPage> {
 
                           if (!mounted) return;
 
-                          Navigator.push(
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => const NavBar()),
@@ -265,7 +265,7 @@ class _LoginPageState extends State<LoginPage> {
 
                           if (!mounted) return;
 
-                          Navigator.push(
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => const NavBar()),
@@ -296,7 +296,7 @@ class _LoginPageState extends State<LoginPage> {
 
                           if (!mounted) return;
 
-                          Navigator.push(
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => const NavBar()),
