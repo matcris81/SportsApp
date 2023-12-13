@@ -53,11 +53,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
         String userID = await PreferencesService().getUserId() ?? '';
 
         Object? data = await DatabaseServices().retrieveFromDatabase(
-            'Location Details/${widget.locationName}/Games/${widget.date}/${widget.gameID}'); // Retrieve the data from the database
+            'Location Details/${widget.locationName}/Games/${widget.gameID}'); // Retrieve the data from the database
         DatabaseServices().addToDataBase(
             'User Preferences/$userID/Games joined/${widget.locationName}/${widget.gameID}',
             data);
-        print(data);
+        print('data is $data');
         DatabaseServices().incrementValue(
             'Location Details/${widget.locationName}/Games/${widget.date}/${widget.gameID}/',
             'Players joined');

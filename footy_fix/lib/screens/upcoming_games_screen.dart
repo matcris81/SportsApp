@@ -6,7 +6,6 @@ class UpcomingGamesList extends StatefulWidget {
   final Map<dynamic, dynamic> games;
   final String locationName;
 
-  // Constructor to accept a list of games
   const UpcomingGamesList(
       {Key? key, this.locationName = '', required this.games})
       : super(key: key);
@@ -16,25 +15,16 @@ class UpcomingGamesList extends StatefulWidget {
 }
 
 class _UpcomingGamesListState extends State<UpcomingGamesList> {
-  List<dynamic> sortedDates = [];
-
-  @override
-  void initState() {
-    super.initState();
-    sortedDates = widget.games.keys.toList()..sort((a, b) => a.compareTo(b));
-  }
-
   @override
   Widget build(BuildContext context) {
+    var gameIDs = widget.games.keys.toList(); // Get all game IDs
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           '${widget.locationName} Upcoming Games',
           style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Colors.black,
-          ),
+              fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
           textAlign: TextAlign.center,
         ),
         leading: IconButton(
@@ -49,54 +39,48 @@ class _UpcomingGamesListState extends State<UpcomingGamesList> {
       body: Container(
         color: Colors.grey[300],
         child: ListView.builder(
-          itemCount: sortedDates.length,
+          itemCount: gameIDs.length,
           itemBuilder: (context, index) {
-            var date = sortedDates[index];
-            var gamesForDate = widget.games[date];
-            print('gamesForDate: $gamesForDate');
-            // Check if gamesForDate is a Map, if not, return an alternative widget or skip
-            if (gamesForDate is! Map || gamesForDate.isEmpty) {
-              return const SizedBox
-                  .shrink(); // or return a widget that indicates no game details are available
+            var gameID = gameIDs[index];
+            var gameDetails = widget.games[gameID];
+            if (gameDetails is! Map) {
+              return const SizedBox.shrink();
             }
 
-            String gameID = gamesForDate.keys.first;
-            var gameDetails = gamesForDate[gameID];
-
             return Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0), // Add horizontal padding
-                child: Card(
-                  child: GameTile(
-                    location: widget.locationName,
-                    date: date,
-                    gameID: gameID,
-                    time: gameDetails['Time']?.toString() ?? '',
-                    size: gameDetails['Size']?.toString() ?? '',
-                    price: gameDetails['Price']?.toDouble() ?? 0.0,
-                    playersJoined:
-                        gameDetails['Players joined']?.toString() ?? '',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => GameDescription(
-                            location: widget.locationName,
-                            gameID: gameID,
-                            date: date,
-                            time: gameDetails['Time']?.toString() ?? '',
-                            size: gameDetails['Size']?.toString() ?? '',
-                            price: (gameDetails['Price'] is num)
-                                ? gameDetails['Price'].toDouble()
-                                : 0.0,
-                            playersJoined:
-                                gameDetails['Players joined']?.toString() ?? '',
-                          ),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Card(
+                child: GameTile(
+                  location: widget.locationName,
+                  date: gameDetails['Date']?.toString() ?? '',
+                  gameID: gameID.toString(),
+                  time: gameDetails['Time']?.toString() ?? '',
+                  size: gameDetails['Size']?.toString() ?? '',
+                  price: gameDetails['Price']?.toDouble() ?? 0.0,
+                  playersJoined:
+                      gameDetails['Players joined']?.toString() ?? '',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => GameDescription(
+                          location: widget.locationName,
+                          gameID: gameID.toString(),
+                          date: gameDetails['Date']?.toString() ?? '',
+                          time: gameDetails['Time']?.toString() ?? '',
+                          size: gameDetails['Size']?.toString() ?? '',
+                          price: (gameDetails['Price'] is num)
+                              ? gameDetails['Price'].toDouble()
+                              : 0.0,
+                          playersJoined:
+                              gameDetails['Players joined']?.toString() ?? '',
                         ),
-                      );
-                    },
-                  ),
-                ));
+                      ),
+                    );
+                  },
+                ),
+              ),
+            );
           },
         ),
       ),

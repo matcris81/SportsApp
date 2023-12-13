@@ -34,21 +34,25 @@ class _HomeScreenState extends State<HomeScreen> {
       if (games is Map) {
         games.forEach((gameID, gameDetails) {
           if (gameDetails is Map) {
-            // Extract game details
-            String size = gameDetails['Size'].toString();
-            String time = gameDetails['Time'];
-            String playersJoined = gameDetails['Players joined'].toString();
+            // Extract game details safely
+            String size = gameDetails['Size']?.toString() ?? 'Unknown size';
+            String time = gameDetails['Time'] ?? 'Unknown time';
+            String playersJoined =
+                gameDetails['Players joined']?.toString() ?? '0';
             double price =
-                double.tryParse(gameDetails['Price'].toString()) ?? 0.0;
+                double.tryParse(gameDetails['Price']?.toString() ?? '0') ?? 0.0;
 
-            // Assuming date needs to be passed, but it's not available in data. Using current date.
-            String date = DateFormat('dd/MM/yyyy').format(DateTime.now());
+            // Correctly parse the date
+            String date = gameDetails['Date'] != null
+                ? DateFormat('dd/MM/yyyy')
+                    .format(DateFormat('dd/MM/yyyy').parse(gameDetails['Date']))
+                : DateFormat('dd/MM/yyyy').format(DateTime.now());
 
             // Create a GameTile
             Widget gameTile = GameTile(
               location: location,
-              date: date, // Placeholder date
-              gameID: gameID,
+              date: date,
+              gameID: gameID.toString(),
               time: time,
               playersJoined: playersJoined,
               price: price,
@@ -59,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     MaterialPageRoute(
                         builder: (context) => GameDescription(
                             location: location,
-                            gameID: gameID,
+                            gameID: gameID.toString(),
                             date: date,
                             time: time,
                             playersJoined: playersJoined,
