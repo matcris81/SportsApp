@@ -16,7 +16,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   Position? currentPosition = GeolocatorService().currentPosition;
-
+  double distance = 0;
   Future<List<MyListItem>>? _itemsFuture;
 
   @override
@@ -37,6 +37,7 @@ class _SearchScreenState extends State<SearchScreen> {
       // else fetch location names from the database
       Object? locationNames =
           await DatabaseServices().retrieveMultiple('Locations');
+      print(locationNames);
 
       // Check if locationNames is a list
       if (locationNames is Map) {
@@ -55,7 +56,8 @@ class _SearchScreenState extends State<SearchScreen> {
         Map<double, double>? coordinates =
             await GeolocatorService().getCoordinatesFromAddress(addressString);
 
-        double distance = 0;
+        print(currentPosition);
+
         if (coordinates != null) {
           distance = GeolocatorService().calculateDistance(
             currentPosition.latitude,
@@ -63,6 +65,8 @@ class _SearchScreenState extends State<SearchScreen> {
             coordinates.keys.first,
             coordinates.values.first,
           );
+
+          distance /= 1000;
         }
 
         items.add(MyListItem(
@@ -91,9 +95,15 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, // This line removes the back button
-        title: const Text("Search"),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text('Search',
+            style: TextStyle(color: Colors.black, fontSize: 20)),
+        centerTitle: true,
+        automaticallyImplyLeading:
+            false, // This line removes the default back button
       ),
+      backgroundColor: Colors.grey[200],
       body: FutureBuilder<List<MyListItem>>(
         future: _itemsFuture,
         builder: (context, snapshot) {

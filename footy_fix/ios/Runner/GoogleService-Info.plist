@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>955778873823-e7hkg44t0sk3euiijgsti38ogtverqo2.apps.googleusercontent.com</string>
+	<string>955778873823-us9r32ifbeu7r8m8vokp4rkjmklg0c0r.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.955778873823-e7hkg44t0sk3euiijgsti38ogtverqo2</string>
+	<string>com.googleusercontent.apps.955778873823-us9r32ifbeu7r8m8vokp4rkjmklg0c0r</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>955778873823-a82asu6781g0iaqoh1keh57pek2a9l60.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -31,6 +31,8 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:955778873823:ios:540469368ebabe1a41ec6a</string>
+	<string>1:955778873823:ios:75474f07eade0d0f41ec6a</string>
+	<key>DATABASE_URL</key>
+	<string>https://fitfeat-bf285-default-rtdb.asia-southeast1.firebasedatabase.app</string>
 </dict>
 </plist>

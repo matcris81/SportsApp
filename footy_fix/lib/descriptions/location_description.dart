@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/screens/upcoming_games_screen.dart';
 import 'package:footy_fix/services/database_service.dart';
+import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:intl/intl.dart';
 import 'package:footy_fix/components/game_tile.dart';
 import 'package:footy_fix/descriptions/game_description.dart';
@@ -28,8 +29,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
   }
 
   void getLocationID() async {
-    Object? locations = await DatabaseServices().retrieveMultiple('Locations');
-    print(locations);
+    Object? locations = await DatabaseServices().retrieveLocal('Locations');
 
     if (locations is Map) {
       locations.forEach((key, value) {
@@ -42,14 +42,13 @@ class _LocationDescriptionState extends State<LocationDescription> {
         locationID = locations;
       }
     }
-    print(locationID);
   }
 
   void checkIfLiked() async {
+    String userID = await PreferencesService().getUserId() ?? '';
     bool liked = false;
     Object? received = await DatabaseServices()
-        .retrieveMultiple('User Preferences/Liked Venues/');
-    print(received);
+        .retrieveLocal('User Preferences/$userID/Liked Venues');
 
     if (received is Map) {
       received.forEach((key, value) {
@@ -69,14 +68,16 @@ class _LocationDescriptionState extends State<LocationDescription> {
   }
 
   void toggleLike() async {
+    String userID = await PreferencesService().getUserId() ?? '';
+
     if (isHeartFilled) {
-      Object? received = await DatabaseServices().retrieveMultiple('Locations');
-      print(received);
-      DatabaseServices()
-          .removeFromDatabase('User Preferences/Liked Venues/$locationID');
+      Object? received = await DatabaseServices().retrieveLocal('Locations');
+      DatabaseServices().removeFromDatabase(
+          'User Preferences/$userID/Liked Venues/$locationID');
     } else {
       DatabaseServices().addToDataBase(
-          'User Preferences/Liked Venues/$locationID', widget.locationName);
+          'User Preferences/$userID/Liked Venues/$locationID',
+          widget.locationName);
     }
 
     setState(() {
@@ -86,9 +87,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
 
   DateTime? parseDateString(String dateString) {
     try {
-      var parts = dateString.split(' ');
-      return DateTime(
-          int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+      return DateFormat('dd MM yyyy').parse(dateString);
     } catch (e) {
       // Handle or log parse error if necessary
       return null;
@@ -98,45 +97,58 @@ class _LocationDescriptionState extends State<LocationDescription> {
   String findNextUpcomingGame(Map<dynamic, dynamic> games) {
     DateTime now = DateTime.now();
     DateTime? closestDate;
-    String closestGameKey = '';
-    games.forEach((key, value) {
-      DateTime? gameDate = parseDateString(key);
-      if (gameDate != null && gameDate.isAfter(now)) {
-        // Compare only if closestDate is non-null and ensure closestDate itself is not null in the comparison
-        if (closestDate == null || gameDate.isBefore(closestDate!)) {
-          closestDate = gameDate;
-          closestGameKey = key;
+
+    games.forEach((gameID, gameDetails) {
+      if (gameDetails is Map && gameDetails.containsKey('Date')) {
+        DateTime? gameDate = parseDateString(gameDetails['Date']);
+        if (gameDate != null && gameDate.isAfter(now)) {
+          if (closestDate == null || gameDate.isBefore(closestDate!)) {
+            closestDate = gameDate;
+          }
         }
       }
     });
 
-    return closestGameKey;
+    // Format the closestDate back into a string or handle the case where there is no upcoming game
+    if (closestDate != null) {
+      return DateFormat('dd MM yyyy').format(closestDate!);
+    } else {
+      return 'No upcoming games';
+    }
   }
 
   Map<String, dynamic>? findEarliestGameTime(
-      Map<dynamic, dynamic> games, String date) {
-    var gamesForDate = games[date];
+      Map<dynamic, dynamic> games, String targetDate) {
     DateTime? earliestTime;
     Map<String, dynamic>? earliestGameInfo;
 
-    if (gamesForDate is Map) {
-      gamesForDate.forEach((gameID, gameDetails) {
-        if (gameDetails is Map && gameDetails['Time'] is String) {
-          var timeString = gameDetails['Time'];
-          // Assuming the time is in HH:MM format, adjust the format if necessary
-          var gameDateTime = DateFormat('HH:mm').parse(timeString, true);
+    games.forEach((gameID, gameDetails) {
+      if (gameDetails is Map) {
+        String? gameDateString = gameDetails['Date'];
+        String? gameTimeString = gameDetails['Time'];
 
-          // Set the date part to be the same for all game times to compare only the time part
-          gameDateTime =
-              DateTime(2000, 1, 1, gameDateTime.hour, gameDateTime.minute);
+        if (gameDateString != null &&
+            gameTimeString != null &&
+            gameDateString == targetDate) {
+          // Parse the game date and time
+          try {
+            DateTime gameDateTime = DateFormat('dd MM yyyy HH:mm')
+                .parse('$gameDateString $gameTimeString', true);
 
-          if (earliestTime == null || gameDateTime.isBefore(earliestTime!)) {
-            earliestTime = gameDateTime;
-            earliestGameInfo = {'gameID': gameID, 'details': gameDetails};
+            if (earliestTime == null || gameDateTime.isBefore(earliestTime!)) {
+              earliestTime = gameDateTime;
+              earliestGameInfo = {
+                'gameID': gameID.toString(),
+                'details': gameDetails
+              };
+            }
+          } catch (e) {
+            // Handle or log parse error if necessary
           }
         }
-      });
-    }
+      }
+    });
+
     return earliestGameInfo;
   }
 
@@ -152,10 +164,10 @@ class _LocationDescriptionState extends State<LocationDescription> {
                 return Center(child: Text('Error: ${snapshot.error}'));
               }
               if (!snapshot.hasData) {
-                return const Center(child: Text('No data found'));
+                // Replace this line with a CircularProgressIndicator
+                return const Center(child: CircularProgressIndicator());
               }
               List<String> games = [];
-              List<String> upcomingGames = [];
               Map gamesMap = {};
 
               String date = '';
@@ -172,18 +184,15 @@ class _LocationDescriptionState extends State<LocationDescription> {
 
                 if (dataMap.containsKey('Games') && dataMap['Games'] is Map) {
                   gamesMap = dataMap['Games'] as Map;
-                  gamesMap.forEach((key, value) {
-                    // Assuming both key and value are strings or can be converted to strings
-                    String gameInfo = "$key: $value";
-                    upcomingGames.add(gameInfo);
-                  });
                 }
-
                 games = dataMap.values.whereType<String>().toList();
-
                 // find next upcoming game
+                // first find the next upcoming date
                 date = findNextUpcomingGame(gamesMap);
+
+                // then find the earliest game time for that date
                 nextGame = findEarliestGameTime(gamesMap, date);
+
                 nextGameDetails = nextGame?['details'];
               } else {
                 // Handle the case where data is not a map

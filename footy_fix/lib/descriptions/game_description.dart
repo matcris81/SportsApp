@@ -111,9 +111,10 @@ class _GameDescriptionState extends State<GameDescription> {
                       context,
                       MaterialPageRoute(
                           builder: (context) => PaymentScreen(
+                                locationName: widget.location,
                                 gameID: widget.gameID,
                                 date: widget.date,
-                                locationName: widget.location,
+                                price: widget.price,
                               )),
                     );
                   },

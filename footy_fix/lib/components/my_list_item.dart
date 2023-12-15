@@ -5,7 +5,11 @@ class MyListItem extends StatelessWidget {
   final double distance;
   final Function()? onTap;
 
-  const MyListItem({super.key, required this.locationName, required this.distance, this.onTap});
+  const MyListItem(
+      {super.key,
+      required this.locationName,
+      required this.distance,
+      this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +30,7 @@ class MyListItem extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        subtitle: Text('Distance: $distance km'),
+        subtitle: Text('Distance: ${distance.toStringAsFixed(1)} km'),
         onTap: onTap,
       ),
     );
