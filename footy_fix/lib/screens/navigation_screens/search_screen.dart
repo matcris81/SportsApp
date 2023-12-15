@@ -65,6 +65,8 @@ class _SearchScreenState extends State<SearchScreen> {
             coordinates.keys.first,
             coordinates.values.first,
           );
+
+          distance /= 1000;
         }
 
         items.add(MyListItem(
