@@ -44,9 +44,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
             // Correctly parse the date
             String date = gameDetails['Date'] != null
-                ? DateFormat('dd/MM/yyyy')
-                    .format(DateFormat('dd/MM/yyyy').parse(gameDetails['Date']))
-                : DateFormat('dd/MM/yyyy').format(DateTime.now());
+                ? DateFormat('dd MM yyyy')
+                    .format(DateFormat('dd/MM yyyy').parse(gameDetails['Date']))
+                : DateFormat('dd MM yyyy').format(DateTime.now());
 
             // Create a GameTile
             Widget gameTile = GameTile(
@@ -71,7 +71,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             size: size)));
               },
             );
-
             gameTiles.add(gameTile);
           }
         });
