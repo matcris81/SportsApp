@@ -25,7 +25,7 @@ class GameTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    DateTime dateTime = DateFormat('dd/MM/yyyy').parse(date);
+    DateTime dateTime = DateFormat('dd MM yyyy').parse(date);
     String dayName = DateFormat('EEEE').format(dateTime).substring(0, 3);
     String monthName = DateFormat('MMMM').format(dateTime);
 
