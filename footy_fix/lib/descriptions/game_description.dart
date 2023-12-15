@@ -114,6 +114,7 @@ class _GameDescriptionState extends State<GameDescription> {
                                 locationName: widget.location,
                                 gameID: widget.gameID,
                                 date: widget.date,
+                                price: widget.price,
                               )),
                     );
                   },

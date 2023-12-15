@@ -16,7 +16,7 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   Position? currentPosition = GeolocatorService().currentPosition;
-
+  double distance = 0;
   Future<List<MyListItem>>? _itemsFuture;
 
   @override
@@ -56,7 +56,8 @@ class _SearchScreenState extends State<SearchScreen> {
         Map<double, double>? coordinates =
             await GeolocatorService().getCoordinatesFromAddress(addressString);
 
-        double distance = 0;
+        print(currentPosition);
+
         if (coordinates != null) {
           distance = GeolocatorService().calculateDistance(
             currentPosition.latitude,

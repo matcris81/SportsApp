@@ -9,15 +9,15 @@ class PaymentScreen extends StatefulWidget {
   final String locationName;
   final String gameID;
   final String date;
-  final String price;
+  final double price;
 
-  const PaymentScreen(
-      {Key? key,
-      required this.gameID,
-      required this.date,
-      required this.price,
-      required this.locationName})
-      : super(key: key);
+  const PaymentScreen({
+    Key? key,
+    required this.gameID,
+    required this.date,
+    required this.locationName,
+    required this.price,
+  }) : super(key: key);
 
   @override
   _PaymentScreenState createState() => _PaymentScreenState();
@@ -30,20 +30,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return ApplePayButton(
         paymentConfiguration:
             PaymentConfiguration.fromJsonString(defaultApplePay),
-        paymentItems: const [
+        paymentItems: [
           PaymentItem(
-            label: 'Item A',
-            amount: '0.01',
-            status: PaymentItemStatus.final_price,
-          ),
-          PaymentItem(
-            label: 'Item B',
-            amount: '0.01',
-            status: PaymentItemStatus.final_price,
-          ),
-          PaymentItem(
-            label: 'Total',
-            amount: '0.01',
+            label: widget.locationName,
+            amount: widget.price.toStringAsFixed(2),
             status: PaymentItemStatus.final_price,
           ),
         ],
@@ -67,10 +57,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return GooglePayButton(
         paymentConfiguration:
             PaymentConfiguration.fromJsonString(defaultGooglePay),
-        paymentItems: const [
+        paymentItems: [
           PaymentItem(
-            label: 'Item A',
-            amount: '0.01',
+            label: widget.locationName,
+            amount: widget.price.toStringAsFixed(2),
             status: PaymentItemStatus.final_price,
           ),
         ],
@@ -108,12 +98,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(40),
+        padding: const EdgeInsets.all(10),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            // You can place other widgets here if needed
-            Spacer(), // This will push the button to the bottom
+            Text(
+              'Total Price: \$${widget.price.toStringAsFixed(2)}',
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            const Spacer(),
             Center(
                 child: Platform.isIOS
                     ? _buildApplePayButton()
@@ -135,10 +132,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
         'User Preferences/$userID/Games joined/${widget.locationName}/${widget.gameID}',
         data);
 
-    print('data is $data');
-
     await DatabaseServices().incrementValue(
-        'Location Details/${widget.locationName}/Games/${widget.date}/${widget.gameID}/',
+        'Location Details/${widget.locationName}/Games/${widget.gameID}/',
         'Players joined');
   }
 }

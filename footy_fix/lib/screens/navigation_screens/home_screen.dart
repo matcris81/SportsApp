@@ -29,53 +29,56 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<Widget> createGameTiles(Map data) {
     List<Widget> gameTiles = [];
-    print(data);
-    data.forEach((location, games) {
-      if (games is Map) {
-        games.forEach((gameID, gameDetails) {
-          if (gameDetails is Map) {
-            // Extract game details safely
-            String size = gameDetails['Size']?.toString() ?? 'Unknown size';
-            String time = gameDetails['Time'] ?? 'Unknown time';
-            String playersJoined =
-                gameDetails['Players joined']?.toString() ?? '0';
-            double price =
-                double.tryParse(gameDetails['Price']?.toString() ?? '0') ?? 0.0;
 
-            // Correctly parse the date
-            String date = gameDetails['Date'] != null
-                ? DateFormat('dd MM yyyy')
-                    .format(DateFormat('dd/MM yyyy').parse(gameDetails['Date']))
-                : DateFormat('dd MM yyyy').format(DateTime.now());
+    if (data.isNotEmpty) {
+      data.forEach((location, games) {
+        if (games is Map) {
+          games.forEach((gameID, gameDetails) {
+            if (gameDetails is Map) {
+              // Extract game details safely
+              String size = gameDetails['Size']?.toString() ?? 'Unknown size';
+              String time = gameDetails['Time'] ?? 'Unknown time';
+              String playersJoined =
+                  gameDetails['Players joined']?.toString() ?? '0';
+              double price =
+                  double.tryParse(gameDetails['Price']?.toString() ?? '0') ??
+                      0.0;
 
-            // Create a GameTile
-            Widget gameTile = GameTile(
-              location: location,
-              date: date,
-              gameID: gameID.toString(),
-              time: time,
-              playersJoined: playersJoined,
-              price: price,
-              size: size,
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => GameDescription(
-                            location: location,
-                            gameID: gameID.toString(),
-                            date: date,
-                            time: time,
-                            playersJoined: playersJoined,
-                            price: price,
-                            size: size)));
-              },
-            );
-            gameTiles.add(gameTile);
-          }
-        });
-      }
-    });
+              // Correctly parse the date
+              String date = gameDetails['Date'] != null
+                  ? DateFormat('dd MM yyyy').format(
+                      DateFormat('dd MM yyyy').parse(gameDetails['Date']))
+                  : DateFormat('dd MM yyyy').format(DateTime.now());
+
+              // Create a GameTile
+              Widget gameTile = GameTile(
+                location: location,
+                date: date,
+                gameID: gameID.toString(),
+                time: time,
+                playersJoined: playersJoined,
+                price: price,
+                size: size,
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => GameDescription(
+                              location: location,
+                              gameID: gameID.toString(),
+                              date: date,
+                              time: time,
+                              playersJoined: playersJoined,
+                              price: price,
+                              size: size)));
+                },
+              );
+              gameTiles.add(gameTile);
+            }
+          });
+        }
+      });
+    }
 
     return gameTiles;
   }

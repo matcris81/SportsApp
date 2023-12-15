@@ -46,6 +46,7 @@ class _UpcomingGamesListState extends State<UpcomingGamesList> {
             if (gameDetails is! Map) {
               return const SizedBox.shrink();
             }
+            print('gameDetails: $gameDetails');
 
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
