@@ -87,7 +87,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
 
   DateTime? parseDateString(String dateString) {
     try {
-      return DateFormat('dd/MM/yyyy').parse(dateString);
+      return DateFormat('dd MM yyyy').parse(dateString);
     } catch (e) {
       // Handle or log parse error if necessary
       return null;
@@ -111,7 +111,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
 
     // Format the closestDate back into a string or handle the case where there is no upcoming game
     if (closestDate != null) {
-      return DateFormat('dd/MM/yyyy').format(closestDate!);
+      return DateFormat('dd MM yyyy').format(closestDate!);
     } else {
       return 'No upcoming games';
     }
@@ -132,7 +132,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
             gameDateString == targetDate) {
           // Parse the game date and time
           try {
-            DateTime gameDateTime = DateFormat('dd/MM/yyyy HH:mm')
+            DateTime gameDateTime = DateFormat('dd MM yyyy HH:mm')
                 .parse('$gameDateString $gameTimeString', true);
 
             if (earliestTime == null || gameDateTime.isBefore(earliestTime!)) {

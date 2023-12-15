@@ -131,4 +131,10 @@ class AuthService {
       return null;
     }
   }
+
+  Future<void> signOut() async {
+    await FirebaseAuth.instance.signOut();
+    // Clear local preferences if necessary
+    PreferencesService().clearUserId();
+  }
 }

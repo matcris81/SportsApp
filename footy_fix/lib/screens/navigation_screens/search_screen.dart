@@ -37,6 +37,7 @@ class _SearchScreenState extends State<SearchScreen> {
       // else fetch location names from the database
       Object? locationNames =
           await DatabaseServices().retrieveMultiple('Locations');
+      print(locationNames);
 
       // Check if locationNames is a list
       if (locationNames is Map) {

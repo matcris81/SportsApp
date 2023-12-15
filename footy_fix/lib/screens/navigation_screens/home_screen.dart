@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<Widget> createGameTiles(Map data) {
     List<Widget> gameTiles = [];
-
+    print(data);
     data.forEach((location, games) {
       if (games is Map) {
         games.forEach((gameID, gameDetails) {

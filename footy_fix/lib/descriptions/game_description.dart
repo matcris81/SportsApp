@@ -33,7 +33,7 @@ class GameDescription extends StatefulWidget {
 class _GameDescriptionState extends State<GameDescription> {
   @override
   Widget build(BuildContext context) {
-    DateTime dateTime = DateFormat('dd/MM/yyyy').parse(widget.date);
+    DateTime dateTime = DateFormat('dd MM yyyy').parse(widget.date);
     String dayName = DateFormat('EEEE').format(dateTime).substring(0, 3);
     String monthName = DateFormat('MMMM').format(dateTime);
     int dayNumber = dateTime.day;
