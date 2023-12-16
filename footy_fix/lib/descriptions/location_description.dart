@@ -192,9 +192,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
               var address = dataMap['Address'].toString();
               var description = dataMap['Description'].toString();
 
-              print('gamesMap: $gamesMap');
-              print('date: $date');
-
               return CustomScrollView(
                 slivers: [
                   SliverAppBar(
