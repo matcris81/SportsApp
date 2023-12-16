@@ -85,71 +85,118 @@ class _LocationDescriptionState extends State<LocationDescription> {
     });
   }
 
-  DateTime? parseDateString(String dateString) {
+  // DateTime? parseDateString(String dateString) {
+  //   try {
+  //     return DateFormat('dd MM yyyy').parse(dateString);
+  //   } catch (e) {
+  //     // Handle or log parse error if necessary
+  //     return null;
+  //   }
+  // }
+
+  // String findNextUpcomingGame(Map<dynamic, dynamic> games) {
+  //   DateTime now = DateTime.now();
+  //   DateTime? closestDate;
+
+  //   games.forEach((gameID, gameDetails) {
+  //     if (gameDetails is Map && gameDetails.containsKey('Date')) {
+  //       DateTime? gameDate = parseDateString(gameDetails['Date']);
+  //       if (gameDate != null && gameDate.isAfter(now)) {
+  //         if (closestDate == null || gameDate.isBefore(closestDate!)) {
+  //           closestDate = gameDate;
+  //         }
+  //       }
+  //     }
+  //   });
+
+  //   // Format the closestDate back into a string or handle the case where there is no upcoming game
+  //   if (closestDate != null) {
+  //     return DateFormat('dd MM yyyy').format(closestDate!);
+  //   } else {
+  //     return 'No upcoming games';
+  //   }
+  // }
+
+  // Map<String, dynamic>? findEarliestGameTime(
+  //     Map<dynamic, dynamic> games, String targetDate) {
+  //   DateTime? earliestTime;
+  //   Map<String, dynamic>? earliestGameInfo;
+
+  //   games.forEach((gameID, gameDetails) {
+  //     if (gameDetails is Map) {
+  //       String? gameDateString = gameDetails['Date'];
+  //       String? gameTimeString = gameDetails['Time'];
+
+  //       if (gameDateString != null &&
+  //           gameTimeString != null &&
+  //           gameDateString == targetDate) {
+  //         // Parse the game date and time
+  //         try {
+  //           DateTime gameDateTime = DateFormat('dd MM yyyy HH:mm')
+  //               .parse('$gameDateString $gameTimeString', true);
+
+  //           if (earliestTime == null || gameDateTime.isBefore(earliestTime!)) {
+  //             earliestTime = gameDateTime;
+  //             earliestGameInfo = {
+  //               'gameID': gameID.toString(),
+  //               'details': gameDetails
+  //             };
+  //           }
+  //         } catch (e) {
+  //           // Handle or log parse error if necessary
+  //         }
+  //       }
+  //     }
+  //   });
+
+  //   return earliestGameInfo;
+  // }
+
+  DateTime? parseDateTime(String date, String time) {
     try {
-      return DateFormat('dd MM yyyy').parse(dateString);
+      return DateFormat('dd MM yyyy HH:mm').parse('$date $time', true);
     } catch (e) {
       // Handle or log parse error if necessary
       return null;
     }
   }
 
-  String findNextUpcomingGame(Map<dynamic, dynamic> games) {
+  Map<dynamic, dynamic> sortAndCreateSortedGamesMap(
+      Map<dynamic, dynamic> games) {
     DateTime now = DateTime.now();
-    DateTime? closestDate;
+    var sortedGames = Map.fromEntries(games.entries.where((entry) {
+      var gameDetails = entry.value;
+      DateTime? gameDateTime = gameDetails is Map
+          ? parseDateTime(gameDetails['Date'], gameDetails['Time'])
+          : null;
+      return gameDateTime != null && gameDateTime.isAfter(now);
+    }).toList()
+      ..sort((a, b) {
+        var gameADateTime = a.value is Map
+            ? parseDateTime(a.value['Date'], a.value['Time'])
+            : null;
+        var gameBDateTime = b.value is Map
+            ? parseDateTime(b.value['Date'], b.value['Time'])
+            : null;
 
-    games.forEach((gameID, gameDetails) {
-      if (gameDetails is Map && gameDetails.containsKey('Date')) {
-        DateTime? gameDate = parseDateString(gameDetails['Date']);
-        if (gameDate != null && gameDate.isAfter(now)) {
-          if (closestDate == null || gameDate.isBefore(closestDate!)) {
-            closestDate = gameDate;
-          }
+        if (gameADateTime != null && gameBDateTime != null) {
+          return gameADateTime.compareTo(gameBDateTime);
+        } else if (gameADateTime != null) {
+          return -1;
+        } else if (gameBDateTime != null) {
+          return 1;
+        } else {
+          return 0;
         }
-      }
-    });
-
-    // Format the closestDate back into a string or handle the case where there is no upcoming game
-    if (closestDate != null) {
-      return DateFormat('dd MM yyyy').format(closestDate!);
-    } else {
-      return 'No upcoming games';
-    }
+      }));
+    return sortedGames;
   }
 
-  Map<String, dynamic>? findEarliestGameTime(
-      Map<dynamic, dynamic> games, String targetDate) {
-    DateTime? earliestTime;
-    Map<String, dynamic>? earliestGameInfo;
-
-    games.forEach((gameID, gameDetails) {
-      if (gameDetails is Map) {
-        String? gameDateString = gameDetails['Date'];
-        String? gameTimeString = gameDetails['Time'];
-
-        if (gameDateString != null &&
-            gameTimeString != null &&
-            gameDateString == targetDate) {
-          // Parse the game date and time
-          try {
-            DateTime gameDateTime = DateFormat('dd MM yyyy HH:mm')
-                .parse('$gameDateString $gameTimeString', true);
-
-            if (earliestTime == null || gameDateTime.isBefore(earliestTime!)) {
-              earliestTime = gameDateTime;
-              earliestGameInfo = {
-                'gameID': gameID.toString(),
-                'details': gameDetails
-              };
-            }
-          } catch (e) {
-            // Handle or log parse error if necessary
-          }
-        }
-      }
-    });
-
-    return earliestGameInfo;
+  MapEntry<dynamic, dynamic>? getNextUpcomingGame(
+      Map<dynamic, dynamic> sortedGamesMap) {
+    return sortedGamesMap.entries.isNotEmpty
+        ? sortedGamesMap.entries.first
+        : null;
   }
 
   @override
@@ -169,39 +216,57 @@ class _LocationDescriptionState extends State<LocationDescription> {
               }
               List<String> games = [];
               Map gamesMap = {};
+              Map<dynamic, dynamic> sortedGamesMap = {};
+              Map<Object?, Object?> dataMap = {};
 
-              String date = '';
-              Map? nextGame;
-              Map? nextGameDetails;
+              var nextGameID;
+              var nextGameDetails;
               bool hasGames = false;
 
               if (snapshot.data is Map) {
-                Map<Object?, Object?> dataMap =
-                    snapshot.data as Map<Object?, Object?>;
+                dataMap = snapshot.data as Map<Object?, Object?>;
+
                 hasGames = dataMap.containsKey('Games') &&
                     dataMap['Games'] is Map &&
                     (dataMap['Games'] as Map).isNotEmpty;
 
                 if (dataMap.containsKey('Games') && dataMap['Games'] is Map) {
                   gamesMap = dataMap['Games'] as Map;
+
+                  sortedGamesMap = sortAndCreateSortedGamesMap(gamesMap);
+
+                  if (sortedGamesMap.isNotEmpty) {
+                    MapEntry<dynamic, dynamic>? nextGameEntry =
+                        getNextUpcomingGame(sortedGamesMap);
+
+                    if (sortedGamesMap.isNotEmpty) {
+                      // Use nextGameDetails to display the next upcoming game
+                      nextGameID = nextGameEntry!.key;
+                      nextGameDetails = nextGameEntry.value;
+                    }
+                    print('nextGameID: $nextGameID');
+                    print(
+                        'nextGameDetails.runtimeType: ${nextGameDetails.runtimeType}');
+                  }
                 }
-                games = dataMap.values.whereType<String>().toList();
-                // find next upcoming game
-                // first find the next upcoming date
-                date = findNextUpcomingGame(gamesMap);
+                print(dataMap);
+                // games = dataMap.values.whereType<String>().toList();
+                // // find next upcoming game
+                // // first find the next upcoming date
+                // date = findNextUpcomingGame(gamesMap);
 
-                // then find the earliest game time for that date
-                nextGame = findEarliestGameTime(gamesMap, date);
+                // // then find the earliest game time for that date
+                // nextGame = findEarliestGameTime(gamesMap, date);
 
-                nextGameDetails = nextGame?['details'];
+                // nextGameDetails = nextGame?['details'];
               } else {
                 // Handle the case where data is not a map
                 return const Center(
                     child: Text('Data is not in the expected format'));
               }
               //extract address and description from games
-              var address = games[0];
-              var description = games[1];
+              var address = dataMap['Address'].toString();
+              var description = dataMap['Description'].toString();
 
               return CustomScrollView(
                 slivers: [
@@ -314,12 +379,14 @@ class _LocationDescriptionState extends State<LocationDescription> {
                                           16.0), // Add horizontal padding
                                   child: GameTile(
                                     location: widget.locationName,
-                                    date: date,
-                                    gameID:
-                                        nextGame!['gameID']?.toString() ?? '',
-                                    time:
-                                        nextGameDetails!['Time']?.toString() ??
+                                    date:
+                                        nextGameDetails!['Date']?.toString() ??
                                             '',
+                                    gameID:
+                                        nextGameDetails['gameID']?.toString() ??
+                                            '',
+                                    time: nextGameDetails['Time']?.toString() ??
+                                        '',
                                     size: nextGameDetails['Size']?.toString() ??
                                         '',
                                     price:
@@ -335,10 +402,12 @@ class _LocationDescriptionState extends State<LocationDescription> {
                                         MaterialPageRoute(
                                           builder: (context) => GameDescription(
                                             location: widget.locationName,
-                                            gameID: nextGame!['gameID']
+                                            gameID: nextGameDetails!['gameID']
                                                     ?.toString() ??
                                                 '',
-                                            date: date,
+                                            date: nextGameDetails['gameID']
+                                                    ?.toString() ??
+                                                '',
                                             time: nextGameDetails!['Time']
                                                     ?.toString() ??
                                                 '',
@@ -390,7 +459,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
                                 context,
                                 MaterialPageRoute(builder: (context) {
                                   return UpcomingGamesList(
-                                    games: gamesMap,
+                                    games: sortedGamesMap,
                                     locationName: widget.locationName,
                                   );
                                 }),
