@@ -183,15 +183,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
                   }
                 }
                 print(dataMap);
-                // games = dataMap.values.whereType<String>().toList();
-                // // find next upcoming game
-                // // first find the next upcoming date
-                // date = findNextUpcomingGame(gamesMap);
-
-                // // then find the earliest game time for that date
-                // nextGame = findEarliestGameTime(gamesMap, date);
-
-                // nextGameDetails = nextGame?['details'];
               } else {
                 // Handle the case where data is not a map
                 return const Center(
