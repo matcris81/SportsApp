@@ -30,65 +30,70 @@ class GameTile extends StatelessWidget {
     String monthName = DateFormat('MMMM').format(dateTime);
 
     return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.white),
-          borderRadius: BorderRadius.circular(16),
-          color: Colors.white,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              location,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
+        onTap: onTap,
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 4,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.white),
+              borderRadius: BorderRadius.circular(16),
+              color: Colors.white,
             ),
-            const SizedBox(height: 5),
-            const Divider(),
-            Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '$playersJoined/$size',
+                  location,
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
                   ),
                 ),
-                Text(
-                  '$dayName, $monthName ${dateTime.day}',
-                  style: const TextStyle(
-                    fontSize: 15,
-                  ),
+                const SizedBox(height: 5),
+                const Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '$playersJoined/$size',
+                      style: const TextStyle(
+                        fontSize: 15,
+                      ),
+                    ),
+                    Text(
+                      '$dayName, $monthName ${dateTime.day}',
+                      style: const TextStyle(
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      time,
+                      style: const TextStyle(
+                        fontSize: 15,
+                      ),
+                    ),
+                    Text(
+                      '\$$price',
+                      style: const TextStyle(
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  time,
-                  style: const TextStyle(
-                    fontSize: 15,
-                  ),
-                ),
-                Text(
-                  '\$$price',
-                  style: const TextStyle(
-                    fontSize: 15,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 }
