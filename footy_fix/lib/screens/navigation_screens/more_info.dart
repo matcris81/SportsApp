@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/screens/profile_screens/account_screen.dart';
-import 'package:footy_fix/services/auth_service.dart';
+import 'package:footy_fix/services/database_service.dart';
+import 'package:footy_fix/screens/start_screens/login_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
-  final VoidCallback onSignOut;
-  // final AuthService authService; // Add AuthService instance
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
 
-  // const ProfileScreen({Key? key, required this.authService}) : super(key: key);
-  const ProfileScreen({Key? key, required this.onSignOut}) : super(key: key);
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
 
+class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -50,14 +52,14 @@ class ProfileScreen extends StatelessWidget {
                 leading: const Icon(Icons.logout),
                 title: const Text('Sign out'),
                 onTap: () async {
-                  try {
-                    // await authService.signOut();
-                    // Optionally navigate to a different screen after sign-out
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error signing out: $e')),
-                    );
-                  }
+                  await DatabaseServices().signOut();
+
+                  if (!mounted) return;
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                  );
                 }),
             ListTile(
                 leading: const Icon(Icons.delete_forever_sharp),

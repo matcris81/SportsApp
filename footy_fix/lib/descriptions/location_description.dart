@@ -147,7 +147,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
                 // Replace this line with a CircularProgressIndicator
                 return const Center(child: CircularProgressIndicator());
               }
-              List<String> games = [];
               Map gamesMap = {};
               Map<dynamic, dynamic> sortedGamesMap = {};
               Map<Object?, Object?> dataMap = {};
@@ -159,10 +158,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
               if (snapshot.data is Map) {
                 dataMap = snapshot.data as Map<Object?, Object?>;
 
-                hasGames = dataMap.containsKey('Games') &&
-                    dataMap['Games'] is Map &&
-                    (dataMap['Games'] as Map).isNotEmpty;
-
                 if (dataMap.containsKey('Games') && dataMap['Games'] is Map) {
                   gamesMap = dataMap['Games'] as Map;
 
@@ -172,17 +167,14 @@ class _LocationDescriptionState extends State<LocationDescription> {
                     MapEntry<dynamic, dynamic>? nextGameEntry =
                         getNextUpcomingGame(sortedGamesMap);
 
-                    if (sortedGamesMap.isNotEmpty) {
-                      // Use nextGameDetails to display the next upcoming game
-                      nextGameID = nextGameEntry!.key;
+                    if (nextGameEntry != null) {
+                      // Safely use nextGameDetails to display the next upcoming game
+                      nextGameID = nextGameEntry.key;
                       nextGameDetails = nextGameEntry.value;
+                      hasGames = true;
                     }
-                    print('nextGameID: $nextGameID');
-                    print(
-                        'nextGameDetails.runtimeType: ${nextGameDetails.runtimeType}');
                   }
                 }
-                print(dataMap);
               } else {
                 // Handle the case where data is not a map
                 return const Center(
@@ -190,7 +182,8 @@ class _LocationDescriptionState extends State<LocationDescription> {
               }
               //extract address and description from games
               var address = dataMap['Address'].toString();
-              var description = dataMap['Description'].toString();
+              var description = dataMap['About Venue'].toString();
+              print("nextGameDetails: $nextGameDetails");
 
               return CustomScrollView(
                 slivers: [
@@ -263,16 +256,23 @@ class _LocationDescriptionState extends State<LocationDescription> {
                                   const SizedBox(
                                       width:
                                           8.0), // Spacing between icon and text
-                                  Text(
-                                    address, // Place's address
-                                    style: const TextStyle(
-                                      fontSize: 13.0,
-                                      fontWeight: FontWeight.normal,
-                                      fontFamily: 'Roboto',
+                                  Flexible(
+                                    // Wrap Text in Flexible
+                                    child: Text(
+                                      address, // Place's address
+                                      style: const TextStyle(
+                                        fontSize: 13.0,
+                                        fontWeight: FontWeight.normal,
+                                        fontFamily: 'Roboto',
+                                      ),
+                                      overflow: TextOverflow
+                                          .ellipsis, // Add this line to handle overflow
+                                      softWrap:
+                                          true, // Allow text to wrap onto the next line
                                     ),
                                   ),
                                 ],
-                              ),
+                              )
                             ],
                           ),
                         ),
@@ -326,10 +326,9 @@ class _LocationDescriptionState extends State<LocationDescription> {
                                         MaterialPageRoute(
                                           builder: (context) => GameDescription(
                                             location: widget.locationName,
-                                            gameID: nextGameDetails!['gameID']
-                                                    ?.toString() ??
-                                                '',
-                                            date: nextGameDetails['gameID']
+                                            gameID:
+                                                nextGameID?.toString() ?? '',
+                                            date: nextGameDetails['Date']
                                                     ?.toString() ??
                                                 '',
                                             time: nextGameDetails!['Time']

@@ -121,4 +121,13 @@ class DatabaseServices {
       print('Error removing data: $e');
     }
   }
+
+  Future<void> signOut() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      print('User successfully signed out');
+    } catch (e) {
+      print('Error signing out: $e');
+    }
+  }
 }

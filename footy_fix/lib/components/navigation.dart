@@ -37,9 +37,7 @@ class _NavBarState extends State<NavBar> {
       const HomeScreen(),
       const GamesScreen(),
       const SearchScreen(),
-      ProfileScreen(
-        onSignOut: signOutUser,
-      ),
+      const ProfileScreen(),
     ];
     return Scaffold(
       backgroundColor: Colors.white,
