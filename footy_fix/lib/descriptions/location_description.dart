@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/screens/upcoming_games_screen.dart';
 import 'package:footy_fix/services/database_service.dart';
@@ -5,6 +6,8 @@ import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:intl/intl.dart';
 import 'package:footy_fix/components/game_tile.dart';
 import 'package:footy_fix/descriptions/game_description.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:io' show Platform;
 
 class LocationDescription extends StatefulWidget {
   final String locationName;
@@ -246,40 +249,44 @@ class _LocationDescriptionState extends State<LocationDescription> {
                               const SizedBox(height: 8.0),
                               const Divider(), // Divider line
                               const SizedBox(height: 8.0),
-                              Row(
-                                children: <Widget>[
-                                  const Icon(
-                                    Icons.location_on, // Location icon
-                                    color: Colors.grey, // Icon color
-                                    size: 20.0, // Icon size
-                                  ),
-                                  const SizedBox(
-                                      width:
-                                          8.0), // Spacing between icon and text
-                                  Flexible(
-                                    // Wrap Text in Flexible
-                                    child: Text(
-                                      address, // Place's address
-                                      style: const TextStyle(
-                                        fontSize: 13.0,
-                                        fontWeight: FontWeight.normal,
-                                        fontFamily: 'Roboto',
+                              InkWell(
+                                  onTap: () {
+                                    _launchMaps(context, address);
+                                  },
+                                  child: Row(
+                                    children: <Widget>[
+                                      const Icon(
+                                        Icons.location_on, // Location icon
+                                        color: Colors.grey, // Icon color
+                                        size: 20.0, // Icon size
                                       ),
-                                      overflow: TextOverflow
-                                          .ellipsis, // Add this line to handle overflow
-                                      softWrap:
-                                          true, // Allow text to wrap onto the next line
-                                    ),
-                                  ),
-                                ],
-                              )
+                                      const SizedBox(
+                                          width:
+                                              8.0), // Spacing between icon and text
+                                      Flexible(
+                                        // Wrap Text in Flexible
+                                        child: Text(
+                                          address, // Place's address
+                                          style: const TextStyle(
+                                            fontSize: 13.0,
+                                            fontWeight: FontWeight.normal,
+                                            fontFamily: 'Roboto',
+                                          ),
+                                          overflow: TextOverflow
+                                              .ellipsis, // Add this line to handle overflow
+                                          softWrap:
+                                              true, // Allow text to wrap onto the next line
+                                        ),
+                                      ),
+                                    ],
+                                  ))
                             ],
                           ),
                         ),
                         // ),
                         const Padding(
                           padding: EdgeInsets.only(
-                              left: 30.0, top: 4.0, right: 4.0, bottom: 4.0),
+                              left: 30.0, top: 20.0, right: 4.0, bottom: 4.0),
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
@@ -437,5 +444,72 @@ class _LocationDescriptionState extends State<LocationDescription> {
                 ],
               );
             }));
+  }
+
+  void _showActionSheet(BuildContext context, String location) {
+    final String encodedLocation = Uri.encodeComponent(location);
+    final String googleMapsUrl =
+        "https://www.google.com/maps/search/?api=1&query=$encodedLocation";
+    final String appleMapsUrl = "https://maps.apple.com/?q=$encodedLocation";
+
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoActionSheet(
+          title: const Text('Open in Maps'),
+          message: const Text('Select the maps app to use:'),
+          actions: <CupertinoActionSheetAction>[
+            CupertinoActionSheetAction(
+              child: const Text('Apple Maps'),
+              onPressed: () async {
+                Navigator.pop(context);
+                if (await canLaunch(appleMapsUrl)) {
+                  await launch(appleMapsUrl);
+                } else {
+                  // Handle the error or inform the user they can't open the map
+                }
+              },
+            ),
+            CupertinoActionSheetAction(
+              child: const Text('Google Maps'),
+              onPressed: () async {
+                Navigator.pop(context);
+                if (await canLaunch(googleMapsUrl)) {
+                  await launch(googleMapsUrl);
+                } else {
+                  // Handle the error or inform the user they can't open the map
+                }
+              },
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            isDefaultAction: true,
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Cancel'),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _launchMaps(BuildContext context, String location) async {
+    if (Platform.isAndroid) {
+      // Directly launch Google Maps for Android devices
+      await _launchURL(
+          'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(location)}');
+    } else if (Platform.isIOS) {
+      // Show the Cupertino action sheet for iOS devices
+      _showActionSheet(context, location);
+    }
+  }
+
+  Future<void> _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      // Handle the error or inform the user they can't open the URL
+    }
   }
 }
