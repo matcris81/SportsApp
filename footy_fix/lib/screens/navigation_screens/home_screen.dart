@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:footy_fix/components/liked_venues_tile.dart';
 import 'package:footy_fix/descriptions/game_description.dart';
 import 'package:footy_fix/services/geolocator_services.dart';
 import 'package:footy_fix/services/database_service.dart';
@@ -6,7 +7,6 @@ import 'package:footy_fix/components/game_tile.dart';
 import 'package:footy_fix/descriptions/location_description.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:intl/intl.dart';
-import 'package:footy_fix/descriptions/game_description.dart';
 import 'package:footy_fix/screens/profile_screen.dart';
 import 'package:footy_fix/screens/notification_screen.dart';
 
@@ -198,7 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Container(
-              height: 200,
+              height: 150,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: venuesList.length,
@@ -212,16 +212,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       locationName: venuesList[index],
                                     )));
                       },
-                      child: Container(
-                        width: 200,
-                        child: Card(
-                          child: Column(
-                            children: [
-                              Text(venuesList[index]),
-                            ],
-                          ),
-                        ),
-                      ));
+                      child: LocationTile(
+                          locationName: venuesList[index].toString()));
                 },
               ),
             ),
