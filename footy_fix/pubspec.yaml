@@ -81,6 +81,7 @@ flutter:
     - assets/albany.png
     - assets/apple_logo.png
     - assets/AlbanyFootyFix.jpg
+    - assets/football.jpg
 
   # To add assets to your application, add an assets section, like this:
   # assets:

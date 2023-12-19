@@ -301,13 +301,11 @@ class _LocationDescriptionState extends State<LocationDescription> {
                           ),
                         ),
                         hasGames
-                            ? Expanded(
-                                flex:
-                                    0, // Reduced flex to make the game info box smaller
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal:
-                                          16.0), // Add horizontal padding
+                            ? Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0), // Add horizontal padding
+                                child: Container(
+                                  height: 310,
                                   child: GameTile(
                                     location: widget.locationName,
                                     date:
@@ -379,7 +377,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
                                   style: TextStyle(fontSize: 18),
                                 ),
                               ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 20),
                         Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16.0), // Increase horizontal padding

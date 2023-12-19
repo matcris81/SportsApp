@@ -48,36 +48,39 @@ class _UpcomingGamesListState extends State<UpcomingGamesList> {
             }
 
             return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: GameTile(
-                location: widget.locationName,
-                date: gameDetails['Date']?.toString() ?? '',
-                gameID: gameID.toString(),
-                time: gameDetails['Time']?.toString() ?? '',
-                size: gameDetails['Size']?.toString() ?? '',
-                price: gameDetails['Price']?.toDouble() ?? 0.0,
-                playersJoined: gameDetails['Players joined']?.toString() ?? '',
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => GameDescription(
-                        location: widget.locationName,
-                        gameID: gameID.toString(),
-                        date: gameDetails['Date']?.toString() ?? '',
-                        time: gameDetails['Time']?.toString() ?? '',
-                        size: gameDetails['Size']?.toString() ?? '',
-                        price: (gameDetails['Price'] is num)
-                            ? gameDetails['Price'].toDouble()
-                            : 0.0,
-                        playersJoined:
-                            gameDetails['Players joined']?.toString() ?? '',
-                      ),
-                    ),
-                  );
-                },
-              ),
-            );
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Container(
+                  height: 310,
+                  child: GameTile(
+                    location: widget.locationName,
+                    date: gameDetails['Date']?.toString() ?? '',
+                    gameID: gameID.toString(),
+                    time: gameDetails['Time']?.toString() ?? '',
+                    size: gameDetails['Size']?.toString() ?? '',
+                    price: gameDetails['Price']?.toDouble() ?? 0.0,
+                    playersJoined:
+                        gameDetails['Players joined']?.toString() ?? '',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GameDescription(
+                            location: widget.locationName,
+                            gameID: gameID.toString(),
+                            date: gameDetails['Date']?.toString() ?? '',
+                            time: gameDetails['Time']?.toString() ?? '',
+                            size: gameDetails['Size']?.toString() ?? '',
+                            price: (gameDetails['Price'] is num)
+                                ? gameDetails['Price'].toDouble()
+                                : 0.0,
+                            playersJoined:
+                                gameDetails['Players joined']?.toString() ?? '',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ));
           },
         ),
       ),
