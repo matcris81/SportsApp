@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:footy_fix/screens/feature_manager_screens/event_adder.dart';
+import 'package:footy_fix/screens/feature_manager_screens/venue_adder.dart';
 
 class GameVenueManager extends StatefulWidget {
   const GameVenueManager({Key? key}) : super(key: key);
@@ -13,7 +15,7 @@ class _GameVenueManagerState extends State<GameVenueManager> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Payment',
+          'Add Venue or Game',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -30,19 +32,20 @@ class _GameVenueManagerState extends State<GameVenueManager> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Padding(
-              padding: EdgeInsets.only(bottom: 30),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20),
               child: Text(
-                'What would you like to add?',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                'Would you like to add a venue?',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
             ),
             ElevatedButton(
               onPressed: () {
-                // TODO: Implement Venue button functionality
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const AddVenue()));
               },
-              child: Text(
+              child: const Text(
                 'Venue',
                 style: TextStyle(fontSize: 18),
               ),
@@ -59,12 +62,22 @@ class _GameVenueManagerState extends State<GameVenueManager> {
                 elevation: 5,
               ),
             ),
-            const SizedBox(height: 20), // Spacing between the buttons
+            const SizedBox(
+                height: 30), // Spacing between the venue and event sections
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: Text(
+                'Or an event?',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+            ),
             ElevatedButton(
               onPressed: () {
-                // TODO: Implement Event button functionality
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const AddEvent()));
               },
-              child: Text(
+              child: const Text(
                 'Event',
                 style: TextStyle(fontSize: 18),
               ),
