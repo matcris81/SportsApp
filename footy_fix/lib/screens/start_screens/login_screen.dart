@@ -50,10 +50,8 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pop(context);
       // navigate to home screen
       if (credential != null) {
-        var firstTime = await DatabaseServices()
-            .retrieveFromDatabase('users/${credential.user!.uid}');
-
-        print(firstTime);
+        // var firstTime = await DatabaseServices()
+        //     .retrieveFromDatabase('users/${credential.user!.uid}');
 
         if (!mounted) return;
 
