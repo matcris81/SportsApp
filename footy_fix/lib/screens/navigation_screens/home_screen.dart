@@ -9,6 +9,7 @@ import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:intl/intl.dart';
 import 'package:footy_fix/screens/profile_screen.dart';
 import 'package:footy_fix/screens/notification_screen.dart';
+import 'package:footy_fix/screens/game_venue_manager.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -173,7 +174,10 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.all(10.0),
               child: ElevatedButton(
                 onPressed: () {
-                  // do something
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const GameVenueManager()));
                 },
                 style: ElevatedButton.styleFrom(
                   primary: Colors.black,
@@ -183,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   minimumSize: const Size(double.infinity, 36),
                 ),
-                child: const Text('Find a Game'),
+                child: const Text('Create a game or venue'),
               ),
             ),
             const Padding(
