@@ -9,7 +9,7 @@ import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:intl/intl.dart';
 import 'package:footy_fix/screens/profile_screen.dart';
 import 'package:footy_fix/screens/notification_screen.dart';
-import 'package:footy_fix/screens/game_venue_manager.dart';
+import 'package:footy_fix/screens/feature_manager_screens/game_venue_manager.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
