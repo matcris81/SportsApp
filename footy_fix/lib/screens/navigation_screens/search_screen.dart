@@ -91,18 +91,6 @@ class _SearchScreenState extends State<SearchScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start, // Align title to the left
         children: [
-          const Padding(
-            padding: EdgeInsets.only(
-                left: 25.0,
-                top: 16.0,
-                bottom: 10.0), // Adjust padding as needed
-            child: Text(
-              'Venues',
-              style: TextStyle(
-                fontSize: 20,
-              ), // Style your title
-            ),
-          ),
           Expanded(
             // Use Expanded to fill the remaining space with the FutureBuilder
             child: FutureBuilder<List<String>>(
