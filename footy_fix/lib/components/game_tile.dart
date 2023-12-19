@@ -88,6 +88,8 @@ class GameTile extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                     ),
+                    overflow: TextOverflow.ellipsis, // Add this line
+                    maxLines: 1, // Ensure it's only one line
                   ),
                   const SizedBox(height: 4),
                   Text(
