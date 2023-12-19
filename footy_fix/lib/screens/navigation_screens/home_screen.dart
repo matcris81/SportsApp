@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:footy_fix/components/liked_venues_tile.dart';
+import 'package:footy_fix/components/venues_tile.dart';
 import 'package:footy_fix/descriptions/game_description.dart';
 import 'package:footy_fix/services/geolocator_services.dart';
 import 'package:footy_fix/services/database_service.dart';
@@ -203,17 +203,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 scrollDirection: Axis.horizontal,
                 itemCount: venuesList.length,
                 itemBuilder: (context, index) {
-                  return InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LocationDescription(
-                                      locationName: venuesList[index],
-                                    )));
-                      },
-                      child: LocationTile(
-                          locationName: venuesList[index].toString()));
+                  return LocationTile(
+                    locationName: venuesList[index].toString(),
+                    distance: 0, // Replace with actual distance if available
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LocationDescription(
+                            locationName: venuesList[index],
+                          ),
+                        ),
+                      );
+                    },
+                    rating: 5, // Replace with actual rating if available
+                  );
                 },
               ),
             ),
@@ -230,25 +234,19 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Container(
-              height: 200, // Set the height of the container
+              height: 310, // Adjusted height
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: gamesList.length,
                 itemBuilder: (context, index) {
                   return Container(
-                    width:
-                        300, // Define a fixed width for each game tile if necessary
-                    margin: const EdgeInsets.all(
-                        8), // Add some margin around the card
-                    child: AspectRatio(
-                      aspectRatio:
-                          4 / 3, // Example aspect ratio, adjust as needed
-                      child: gamesList[index], // Your GameTile widget
-                    ),
+                    width: 300, // Width of each game tile
+                    margin: const EdgeInsets.all(8),
+                    child: gamesList[index], // Your GameTile widget
                   );
                 },
               ),
-            )
+            ),
           ],
         ),
       ),
