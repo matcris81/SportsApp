@@ -6,12 +6,18 @@ class LocationTile extends StatelessWidget {
   final double distance;
   final Function()? onTap;
   final int rating;
+  final double opacity;
+  final bool showDistance; // New flag to control distance display
+  final bool showRating;
 
   LocationTile({
     required this.locationName,
     this.rating = 5,
-    required this.distance,
+    this.distance = 0,
     required this.onTap,
+    this.showDistance = true,
+    this.showRating = true,
+    required this.opacity,
   });
 
   @override
@@ -56,7 +62,7 @@ class LocationTile extends StatelessWidget {
                         ),
                         Container(
                           color: Colors.black
-                              .withOpacity(0.3), // Adjust opacity as needed
+                              .withOpacity(opacity), // Adjust opacity as needed
                           height: 200,
                           width: double.infinity,
                         ),
@@ -75,7 +81,7 @@ class LocationTile extends StatelessWidget {
                         ),
                         Container(
                           color: Colors.black
-                              .withOpacity(0.3), // Adjust opacity as needed
+                              .withOpacity(0.35), // Adjust opacity as needed
                           height: 200,
                           width: double.infinity,
                         ),
@@ -107,24 +113,26 @@ class LocationTile extends StatelessWidget {
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                    Text(
-                      '${distance.toStringAsFixed(1)} km away', // Assuming distance is in kilometers
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
-                        color: Colors.white70,
+                    if (showDistance) // Conditionally display distance
+                      Text(
+                        '${distance.toStringAsFixed(1)} km away',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                          color: Colors.white70,
+                        ),
                       ),
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: List.generate(5, (index) {
-                        return Icon(
-                          index < rating ? Icons.star : Icons.star_border,
-                          color: Colors.white,
-                          size: 20.0,
-                        );
-                      }),
-                    ),
+                    if (showRating) // Conditionally display rating
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: List.generate(5, (index) {
+                          return Icon(
+                            index < rating ? Icons.star : Icons.star_border,
+                            color: Colors.white,
+                            size: 20.0,
+                          );
+                        }),
+                      ),
                   ],
                 ),
               ),
