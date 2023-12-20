@@ -32,8 +32,8 @@ class _GameVenueManagerState extends State<GameVenueManager> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(bottom: 20),
+            const Padding(
+              padding: EdgeInsets.only(bottom: 20),
               child: Text(
                 'Would you like to add a venue?',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -45,10 +45,6 @@ class _GameVenueManagerState extends State<GameVenueManager> {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => const AddVenue()));
               },
-              child: const Text(
-                'Venue',
-                style: TextStyle(fontSize: 18),
-              ),
               style: ElevatedButton.styleFrom(
                 primary: Colors.black, // Button background color
                 onPrimary: Colors.blue, // Button text color
@@ -61,11 +57,15 @@ class _GameVenueManagerState extends State<GameVenueManager> {
                 ),
                 elevation: 5,
               ),
+              child: const Text(
+                'Venue',
+                style: TextStyle(fontSize: 18),
+              ),
             ),
             const SizedBox(
                 height: 30), // Spacing between the venue and event sections
-            Padding(
-              padding: const EdgeInsets.only(bottom: 20),
+            const Padding(
+              padding: EdgeInsets.only(bottom: 20),
               child: Text(
                 'Or an event?',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -77,10 +77,6 @@ class _GameVenueManagerState extends State<GameVenueManager> {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => const AddEvent()));
               },
-              child: const Text(
-                'Event',
-                style: TextStyle(fontSize: 18),
-              ),
               style: ElevatedButton.styleFrom(
                 primary: Colors.black, // Button background color
                 onPrimary: Colors.green, // Button text color
@@ -92,6 +88,10 @@ class _GameVenueManagerState extends State<GameVenueManager> {
                   borderRadius: BorderRadius.circular(30),
                 ),
                 elevation: 5,
+              ),
+              child: const Text(
+                'Event',
+                style: TextStyle(fontSize: 18),
               ),
             ),
           ],

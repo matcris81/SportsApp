@@ -113,6 +113,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           locationName: locationName,
                           distance:
                               distance, // Set actual distance if available
+                          opacity: 0.4,
                           onTap: () {
                             Navigator.push(
                               context,

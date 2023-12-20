@@ -145,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
           iconSize: 25,
           onPressed: () {
             Navigator.push(context,
-                MaterialPageRoute(builder: (context) => ProfileScreen()));
+                MaterialPageRoute(builder: (context) => const ProfileScreen()));
           },
         ),
 
@@ -158,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => NotificationScreen()));
+                      builder: (context) => const NotificationScreen()));
             },
           ),
         ],
@@ -209,7 +209,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemBuilder: (context, index) {
                   return LocationTile(
                     locationName: venuesList[index].toString(),
-                    distance: 0, // Replace with actual distance if available
+                    showDistance: false,
+                    showRating: false,
+                    opacity: 0,
                     onTap: () {
                       Navigator.push(
                         context,
@@ -220,7 +222,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       );
                     },
-                    rating: 5, // Replace with actual rating if available
                   );
                 },
               ),
@@ -229,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const Padding(
               padding: EdgeInsets.all(10.0),
               child: Text(
-                'Your upcoming games',
+                'Your upcoming games', // NEED TO CHANGE THIS TO BE UPCOMING GAMES INSTEAD OF GAMES USERS HAVE JOINED
                 style: TextStyle(
                   fontSize: 20, // Adjust the font size as needed
                   fontWeight: FontWeight.bold, // Makes the text bold
