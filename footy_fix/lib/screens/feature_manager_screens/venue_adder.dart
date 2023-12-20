@@ -36,23 +36,23 @@ class _AddVenueState extends State<AddVenue> {
         child: Center(
           // Center the content
           child: Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: ConstrainedBox(
               // Constrain the size of the Column
-              constraints: BoxConstraints(
+              constraints: const BoxConstraints(
                   maxWidth:
                       600), // Set a max width for better look on wide screens
               child: Form(
                 key: _formKey,
                 child: Padding(
-                  padding: EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: Column(
                     mainAxisAlignment:
                         MainAxisAlignment.center, // Center vertically
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
                       TextFormField(
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Venue Name',
                           border: OutlineInputBorder(),
                         ),
@@ -64,9 +64,9 @@ class _AddVenueState extends State<AddVenue> {
                         },
                         onSaved: (value) => venueName = value!,
                       ),
-                      SizedBox(height: 16.0),
+                      const SizedBox(height: 16.0),
                       TextFormField(
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Address',
                           border: OutlineInputBorder(),
                         ),
@@ -78,9 +78,9 @@ class _AddVenueState extends State<AddVenue> {
                         },
                         onSaved: (value) => address = value!,
                       ),
-                      SizedBox(height: 16.0),
+                      const SizedBox(height: 16.0),
                       TextFormField(
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Description',
                           border: OutlineInputBorder(),
                         ),
@@ -93,7 +93,7 @@ class _AddVenueState extends State<AddVenue> {
                         },
                         onSaved: (value) => description = value!,
                       ),
-                      SizedBox(height: 24.0),
+                      const SizedBox(height: 24.0),
                       ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {

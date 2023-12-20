@@ -44,18 +44,42 @@ class LocationTile extends StatelessWidget {
                 future: _checkImageExists(imagePath),
                 builder: (context, snapshot) {
                   if (snapshot.data ?? false) {
-                    return Image.asset(
-                      imagePath,
-                      fit: BoxFit.cover,
-                      height: 200,
-                      width: double.infinity,
+                    return Stack(
+                      children: <Widget>[
+                        Image.asset(
+                          snapshot.data ?? false
+                              ? imagePath
+                              : fallbackImagePath,
+                          fit: BoxFit.cover,
+                          height: 200,
+                          width: double.infinity,
+                        ),
+                        Container(
+                          color: Colors.black
+                              .withOpacity(0.3), // Adjust opacity as needed
+                          height: 200,
+                          width: double.infinity,
+                        ),
+                      ],
                     );
                   } else {
-                    return Image.asset(
-                      fallbackImagePath,
-                      fit: BoxFit.cover,
-                      height: 200,
-                      width: double.infinity,
+                    return Stack(
+                      children: <Widget>[
+                        Image.asset(
+                          snapshot.data ?? false
+                              ? imagePath
+                              : fallbackImagePath,
+                          fit: BoxFit.cover,
+                          height: 200,
+                          width: double.infinity,
+                        ),
+                        Container(
+                          color: Colors.black
+                              .withOpacity(0.3), // Adjust opacity as needed
+                          height: 200,
+                          width: double.infinity,
+                        ),
+                      ],
                     );
                   }
                 },
@@ -85,7 +109,7 @@ class LocationTile extends StatelessWidget {
                     ),
                     Text(
                       '${distance.toStringAsFixed(1)} km away', // Assuming distance is in kilometers
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.normal,
                         color: Colors.white70,
