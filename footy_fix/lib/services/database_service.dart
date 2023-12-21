@@ -63,18 +63,42 @@ class DatabaseServices {
     }
   }
 
-  Future<void> updateDatabase(String path, String key, dynamic value) async {
-    DatabaseReference userPrefRef = FirebaseDatabase.instance.ref(path);
-
-    return await userPrefRef.update({key: value});
+  Future<void> updateDatabase(String path, dynamic value) async {
+    return await rootReference.child(path).update(value);
   }
 
-  Future<void> addToDataBase(String path, dynamic value) async {
+  Future<void> addWithIDToDataBase(String path, dynamic value) async {
+    DatabaseReference reference = rootReference.child(path).push();
+
     try {
-      await rootReference.child(path).set(value);
+      await reference.set(value);
       print('Data successfully added');
     } catch (e) {
       print('Error adding data: $e');
+    }
+  }
+
+  Future<void> addWithoutIDToDataBase(String path, dynamic value) async {
+    DatabaseReference reference = rootReference.child(path);
+
+    try {
+      await reference.set(value);
+      print('Data successfully added');
+    } catch (e) {
+      print('Error adding data: $e');
+    }
+  }
+
+  Future<String> addJustID(String path) async {
+    DatabaseReference reference = rootReference.child(path).push();
+
+    try {
+      await reference.set(true);
+      print('Data successfully added');
+      return reference.key!;
+    } catch (e) {
+      print('Error adding data: $e');
+      return 'Error adding data';
     }
   }
 

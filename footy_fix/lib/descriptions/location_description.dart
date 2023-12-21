@@ -78,7 +78,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
       DatabaseServices().removeFromDatabase(
           'User Preferences/$userID/Liked Venues/$locationID');
     } else {
-      DatabaseServices().addToDataBase(
+      DatabaseServices().addWithoutIDToDataBase(
           'User Preferences/$userID/Liked Venues/$locationID',
           widget.locationName);
     }

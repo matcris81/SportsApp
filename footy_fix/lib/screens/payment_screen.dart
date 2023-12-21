@@ -128,7 +128,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     Object? data = await DatabaseServices().retrieveFromDatabase(
         'Location Details/${widget.locationName}/Games/${widget.gameID}');
 
-    await DatabaseServices().addToDataBase(
+    await DatabaseServices().addWithoutIDToDataBase(
         'User Preferences/$userID/Games joined/${widget.locationName}/${widget.gameID}',
         data);
 
