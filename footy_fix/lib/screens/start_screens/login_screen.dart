@@ -257,9 +257,9 @@ class _LoginPageState extends State<LoginPage> {
                         if (!mounted) return;
 
                         if (credential != null) {
-                          var firstTime = await DatabaseServices()
-                              .retrieveFromDatabase(
-                                  'users/${credential.user!.uid}');
+                          // var firstTime = await DatabaseServices()
+                          //     .retrieveFromDatabase(
+                          //         'users/${credential.user!.uid}');
 
                           if (!mounted) return;
 

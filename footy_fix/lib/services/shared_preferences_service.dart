@@ -34,29 +34,29 @@ class PreferencesService {
     await prefs.setString('location_data', jsonString);
   }
 
-  Future<List<MyListItem>> loadLocationDataList(BuildContext context) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? jsonString = prefs.getString('location_data');
-    if (jsonString == null) return [];
+  // Future<List<MyListItem>> loadLocationDataList(BuildContext context) async {
+  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String? jsonString = prefs.getString('location_data');
+  //   if (jsonString == null) return [];
 
-    List<dynamic> jsonList = jsonDecode(jsonString);
-    List<LocationData> locationDataList =
-        jsonList.map((json) => LocationData.fromJson(json)).toList();
+  //   List<dynamic> jsonList = jsonDecode(jsonString);
+  //   List<LocationData> locationDataList =
+  //       jsonList.map((json) => LocationData.fromJson(json)).toList();
 
-    return locationDataList
-        .map((data) => MyListItem(
-              locationName: data.locationName,
-              distance: data.distance,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        LocationDescription(locationName: data.locationName),
-                  ),
-                );
-              },
-            ))
-        .toList();
-  }
+  //   return locationDataList
+  //       .map((data) => MyListItem(
+  //             locationName: data.locationName,
+  //             distance: data.distance,
+  //             onTap: () {
+  //               Navigator.push(
+  //                 context,
+  //                 MaterialPageRoute(
+  //                   builder: (context) =>
+  //                       LocationDescription(locationName: data.locationName),
+  //                 ),
+  //               );
+  //             },
+  //           ))
+  //       .toList();
+  // }
 }

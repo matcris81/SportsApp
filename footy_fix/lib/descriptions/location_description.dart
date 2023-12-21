@@ -11,9 +11,11 @@ import 'dart:io' show Platform;
 
 class LocationDescription extends StatefulWidget {
   final String locationName;
+  final String locationID;
 
   // Constructor to accept a string
-  const LocationDescription({Key? key, required this.locationName})
+  const LocationDescription(
+      {Key? key, required this.locationName, required this.locationID})
       : super(key: key);
 
   @override
@@ -32,7 +34,8 @@ class _LocationDescriptionState extends State<LocationDescription> {
   }
 
   void getLocationID() async {
-    Object? locations = await DatabaseServices().retrieveLocal('Locations');
+    Object? locations =
+        await DatabaseServices().retrieveLocal('Venues/$locationID');
 
     if (locations is Map) {
       locations.forEach((key, value) {
@@ -74,7 +77,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
     String userID = await PreferencesService().getUserId() ?? '';
 
     if (isHeartFilled) {
-      Object? received = await DatabaseServices().retrieveLocal('Locations');
+      // Object? received = await DatabaseServices().retrieveLocal('Locations');
       DatabaseServices().removeFromDatabase(
           'User Preferences/$userID/Liked Venues/$locationID');
     } else {
@@ -141,7 +144,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
         backgroundColor: Colors.grey[300],
         body: FutureBuilder<Object?>(
             future: DatabaseServices()
-                .retrieveMultiple('Location Details/${widget.locationName}'),
+                .retrieveMultiple('Venues/${widget.locationID}'),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
@@ -150,43 +153,15 @@ class _LocationDescriptionState extends State<LocationDescription> {
                 // Replace this line with a CircularProgressIndicator
                 return const Center(child: CircularProgressIndicator());
               }
-              Map gamesMap = {};
-              Map<dynamic, dynamic> sortedGamesMap = {};
-              Map<Object?, Object?> dataMap = {};
-
-              var nextGameID;
-              var nextGameDetails;
-              bool hasGames = false;
-
-              if (snapshot.data is Map) {
-                dataMap = snapshot.data as Map<Object?, Object?>;
-
-                if (dataMap.containsKey('Games') && dataMap['Games'] is Map) {
-                  gamesMap = dataMap['Games'] as Map;
-
-                  sortedGamesMap = sortAndCreateSortedGamesMap(gamesMap);
-
-                  if (sortedGamesMap.isNotEmpty) {
-                    MapEntry<dynamic, dynamic>? nextGameEntry =
-                        getNextUpcomingGame(sortedGamesMap);
-
-                    if (nextGameEntry != null) {
-                      // Safely use nextGameDetails to display the next upcoming game
-                      nextGameID = nextGameEntry.key;
-                      nextGameDetails = nextGameEntry.value;
-                      hasGames = true;
-                    }
-                  }
-                }
-              } else {
-                // Handle the case where data is not a map
-                return const Center(
-                    child: Text('Data is not in the expected format'));
-              }
-              //extract address and description from games
-              var address = dataMap['Address'].toString();
-              var description = dataMap['About Venue'].toString();
-              print("nextGameDetails: $nextGameDetails");
+              var data = snapshot.data as Map<dynamic, dynamic>;
+              var idDetails = data[widget.locationID] as Map<dynamic, dynamic>;
+              var venueDetails =
+                  idDetails[widget.locationName] as Map<dynamic, dynamic>;
+              var address =
+                  venueDetails['Address'] as String? ?? 'No address available';
+              var description = venueDetails['About Venue'] as String? ??
+                  'No description available';
+              var games = venueDetails['Games'] as Map<dynamic, dynamic>? ?? {};
 
               return CustomScrollView(
                 slivers: [
@@ -300,116 +275,116 @@ class _LocationDescriptionState extends State<LocationDescription> {
                             ),
                           ),
                         ),
-                        hasGames
-                            ? Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0), // Add horizontal padding
-                                child: Container(
-                                  height: 310,
-                                  child: GameTile(
-                                    location: widget.locationName,
-                                    date:
-                                        nextGameDetails!['Date']?.toString() ??
-                                            '',
-                                    gameID:
-                                        nextGameDetails['gameID']?.toString() ??
-                                            '',
-                                    time: nextGameDetails['Time']?.toString() ??
-                                        '',
-                                    size: nextGameDetails['Size']?.toString() ??
-                                        '',
-                                    price:
-                                        nextGameDetails['Price']?.toDouble() ??
-                                            0.0,
-                                    playersJoined:
-                                        nextGameDetails['Players joined']
-                                                ?.toString() ??
-                                            '',
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => GameDescription(
-                                            location: widget.locationName,
-                                            gameID:
-                                                nextGameID?.toString() ?? '',
-                                            date: nextGameDetails['Date']
-                                                    ?.toString() ??
-                                                '',
-                                            time: nextGameDetails!['Time']
-                                                    ?.toString() ??
-                                                '',
-                                            size: nextGameDetails['Size']
-                                                    ?.toString() ??
-                                                '',
-                                            price: (nextGameDetails['Price']
-                                                    is num)
-                                                ? nextGameDetails['Price']
-                                                    .toDouble()
-                                                : 0.0,
-                                            playersJoined: nextGameDetails[
-                                                        'Players joined']
-                                                    ?.toString() ??
-                                                '',
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ))
-                            : Container(
-                                padding: const EdgeInsets.all(20),
-                                margin: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  borderRadius: BorderRadius.circular(10),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      spreadRadius: 5,
-                                      blurRadius: 7,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
-                                ),
-                                child: const Text(
-                                  "No upcoming games",
-                                  style: TextStyle(fontSize: 18),
-                                ),
-                              ),
+                        // hasGames
+                        //     ? Padding(
+                        //         padding: const EdgeInsets.symmetric(
+                        //             horizontal: 16.0), // Add horizontal padding
+                        //         child: Container(
+                        //           height: 310,
+                        //           child: GameTile(
+                        //             location: widget.locationName,
+                        //             date:
+                        //                 nextGameDetails!['Date']?.toString() ??
+                        //                     '',
+                        //             gameID:
+                        //                 nextGameDetails['gameID']?.toString() ??
+                        //                     '',
+                        //             time: nextGameDetails['Time']?.toString() ??
+                        //                 '',
+                        //             size: nextGameDetails['Size']?.toString() ??
+                        //                 '',
+                        //             price:
+                        //                 nextGameDetails['Price']?.toDouble() ??
+                        //                     0.0,
+                        //             playersJoined:
+                        //                 nextGameDetails['Players joined']
+                        //                         ?.toString() ??
+                        //                     '',
+                        //             onTap: () {
+                        //               Navigator.push(
+                        //                 context,
+                        //                 MaterialPageRoute(
+                        //                   builder: (context) => GameDescription(
+                        //                     location: widget.locationName,
+                        //                     gameID:
+                        //                         nextGameID?.toString() ?? '',
+                        //                     date: nextGameDetails['Date']
+                        //                             ?.toString() ??
+                        //                         '',
+                        //                     time: nextGameDetails!['Time']
+                        //                             ?.toString() ??
+                        //                         '',
+                        //                     size: nextGameDetails['Size']
+                        //                             ?.toString() ??
+                        //                         '',
+                        //                     price: (nextGameDetails['Price']
+                        //                             is num)
+                        //                         ? nextGameDetails['Price']
+                        //                             .toDouble()
+                        //                         : 0.0,
+                        //                     playersJoined: nextGameDetails[
+                        //                                 'Players joined']
+                        //                             ?.toString() ??
+                        //                         '',
+                        //                   ),
+                        //                 ),
+                        //               );
+                        //             },
+                        //           ),
+                        //         ))
+                        //     : Container(
+                        //         padding: const EdgeInsets.all(20),
+                        //         margin: const EdgeInsets.all(20),
+                        //         decoration: BoxDecoration(
+                        //           color: Colors.grey[200],
+                        //           borderRadius: BorderRadius.circular(10),
+                        //           boxShadow: [
+                        //             BoxShadow(
+                        //               color: Colors.grey.withOpacity(0.5),
+                        //               spreadRadius: 5,
+                        //               blurRadius: 7,
+                        //               offset: const Offset(0, 3),
+                        //             ),
+                        //           ],
+                        //         ),
+                        //         child: const Text(
+                        //           "No upcoming games",
+                        //           style: TextStyle(fontSize: 18),
+                        //         ),
+                        //       ),
                         const SizedBox(height: 20),
                         Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16.0), // Increase horizontal padding
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) {
-                                  return UpcomingGamesList(
-                                    games: sortedGamesMap,
-                                    locationName: widget.locationName,
-                                  );
-                                }),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors
-                                  .black, // Set the button's background color
-                              minimumSize: const Size(double.infinity,
-                                  50), // Button width will be the width of the parent minus padding
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    5), // Less rounded corners
-                              ),
-                            ),
-                            child: const Text(
-                              'See Upcoming Games',
-                              style: TextStyle(
-                                  color:
-                                      Colors.white), // Set text color to white
-                            ),
-                          ),
+                          // child: ElevatedButton(
+                          //   onPressed: () {
+                          //     Navigator.push(
+                          //       context,
+                          //       MaterialPageRoute(builder: (context) {
+                          //         return UpcomingGamesList(
+                          //           games: sortedGamesMap,
+                          //           locationName: widget.locationName,
+                          //         );
+                          //       }),
+                          //     );
+                          //   },
+                          //   style: ElevatedButton.styleFrom(
+                          //     backgroundColor: Colors
+                          //         .black, // Set the button's background color
+                          //     minimumSize: const Size(double.infinity,
+                          //         50), // Button width will be the width of the parent minus padding
+                          //     shape: RoundedRectangleBorder(
+                          //       borderRadius: BorderRadius.circular(
+                          //           5), // Less rounded corners
+                          //     ),
+                          //   ),
+                          //   child: const Text(
+                          //     'See Upcoming Games',
+                          //     style: TextStyle(
+                          //         color:
+                          //             Colors.white), // Set text color to white
+                          //   ),
+                          // ),
                         ),
                         const SizedBox(height: 20.0),
                         const Padding(

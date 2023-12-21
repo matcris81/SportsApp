@@ -136,7 +136,7 @@ class DatabaseServices {
   }
 
   Future<void> removeFromDatabase(String path) async {
-    DatabaseReference referee = rootReference.child(path);
+    // DatabaseReference referee = rootReference.child(path);
     print(path);
 
     try {

@@ -116,6 +116,6 @@ class GeolocatorService {
     });
 
     // Don't forget to cancel the stream subscription when no longer needed
-    // positionStream.cancel();
+    positionStream.cancel();
   }
 }

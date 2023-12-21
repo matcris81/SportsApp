@@ -213,14 +213,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     showRating: false,
                     opacity: 0,
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LocationDescription(
-                            locationName: venuesList[index],
-                          ),
-                        ),
-                      );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => LocationDescription(
+                      //       locationName: venuesList[index],
+                      //     ),
+                      //   ),
+                      // );
                     },
                   );
                 },
