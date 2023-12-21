@@ -28,45 +28,41 @@ class _SearchScreenState extends State<SearchScreen> {
   Future<List<String>>? _loadItems(Position currentPosition) async {
     List<String> locationNamesList = [];
 
-    // Check if location data is stored in shared preferences
-    // items = await PreferencesService().loadLocationDataList(context);
-    // Object? locationNames = await DatabaseServices().retrieveLocal('Locations');
-
-    // if (items.isEmpty) {
-    // else fetch location names from the database
     try {
       Object? locationNames =
-          await DatabaseServices().retrieveMultiple('Locations');
+          await DatabaseServices().retrieveMultiple('Venues');
 
-      // Check if locationNames is a list
       if (locationNames is Map) {
-        locationNamesList =
-            locationNames.values.map((item) => item.toString()).toList();
-      } else {
-        print('locationNames is not a list');
-      }
+        for (var id in locationNames.keys) {
+          var venueDetails = locationNames[id];
+          if (venueDetails is Map) {
+            for (var venueName in venueDetails.keys) {
+              // Assuming each venue has an 'Address' field
+              var address = venueDetails[venueName]['Address'];
+              String addressString = address.toString();
 
-      for (String locationName in locationNamesList) {
-        // Fetch address from the database
-        var address = await DatabaseServices()
-            .retrieveLocal('Location Details/$locationName/Address');
-        String addressString = address.toString();
+              Map<double, double>? coordinates = await GeolocatorService()
+                  .getCoordinatesFromAddress(addressString);
 
-        Map<double, double>? coordinates =
-            await GeolocatorService().getCoordinatesFromAddress(addressString);
+              if (coordinates != null) {
+                distance = GeolocatorService().calculateDistance(
+                  currentPosition.latitude,
+                  currentPosition.longitude,
+                  coordinates.keys.first,
+                  coordinates.values.first,
+                );
 
-        print(currentPosition);
+                distance /= 1000; // Convert to km if necessary
+                // Handle the distance value as needed
+              }
 
-        if (coordinates != null) {
-          distance = GeolocatorService().calculateDistance(
-            currentPosition.latitude,
-            currentPosition.longitude,
-            coordinates.keys.first,
-            coordinates.values.first,
-          );
-
-          distance /= 1000;
+              // Add the venue name to the list
+              locationNamesList.add(venueName);
+            }
+          }
         }
+      } else {
+        print('locationNames is not a Map');
       }
     } catch (e) {
       print(e);

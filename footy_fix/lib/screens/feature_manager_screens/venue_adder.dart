@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:footy_fix/services/database_service.dart';
+import 'package:uuid/uuid.dart';
 
 class AddVenue extends StatefulWidget {
   const AddVenue({Key? key}) : super(key: key);
@@ -12,6 +14,8 @@ class _AddVenueState extends State<AddVenue> {
   String venueName = '';
   String address = '';
   String description = '';
+  String city = '';
+  String suburb = '';
 
   @override
   Widget build(BuildContext context) {
@@ -72,11 +76,65 @@ class _AddVenueState extends State<AddVenue> {
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter address';
+                            return 'Please enter Address';
                           }
                           return null;
                         },
                         onSaved: (value) => address = value!,
+                      ),
+                      const SizedBox(height: 16.0),
+                      TextFormField(
+                        decoration: const InputDecoration(
+                          labelText: 'Suburb',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Suburb';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) => suburb = value!,
+                      ),
+                      const SizedBox(height: 16.0),
+                      Row(
+                        children: <Widget>[
+                          Expanded(
+                            // Use Expanded to fill the available space
+                            child: TextFormField(
+                              decoration: const InputDecoration(
+                                labelText: 'City',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter City';
+                                }
+                                return null;
+                              },
+                              onSaved: (value) => city = value!,
+                            ),
+                          ),
+                          const SizedBox(
+                              width: 16.0), // Space between the TextFields
+                          Expanded(
+                            // Use Expanded for the second TextField
+                            child: TextFormField(
+                              decoration: const InputDecoration(
+                                labelText: 'Post Code',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter Post Code';
+                                }
+                                return null;
+                              },
+                              onSaved: (value) => city =
+                                  value!, // This should probably be a different variable, not 'city'
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16.0),
                       TextFormField(
@@ -98,7 +156,20 @@ class _AddVenueState extends State<AddVenue> {
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             _formKey.currentState!.save();
-                            // Process data or add your submit logic here
+                            String formattedAddress =
+                                '$address, $suburb, $city';
+
+                            var newLocation = {
+                              venueName: {
+                                'Address': formattedAddress,
+                                'About Venue': description,
+                              }
+                            };
+
+                            DatabaseServices()
+                                .addWithIDToDataBase('Venues/', newLocation);
+
+                            Navigator.pop(context);
                           }
                         },
                         child: Text('Submit'),
