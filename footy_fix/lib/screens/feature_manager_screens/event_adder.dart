@@ -178,7 +178,7 @@ class _AddEventState extends State<AddEvent> {
 
                             var game = {
                               'location': location,
-                              'date': formattedDate,
+                              'date': date,
                               'time': time,
                               'price': price,
                               'size': size,
@@ -189,13 +189,13 @@ class _AddEventState extends State<AddEvent> {
 
                             // add gameID to games Sorted
                             var gameID = await DatabaseServices()
-                                .addJustID('GamesSorted/$sport/$date');
+                                .addJustID('GamesSorted/$sport/$formattedDate');
 
                             // add game details to game
                             await DatabaseServices()
                                 .addWithoutIDToDataBase('Games/$gameID', game);
 
-                            // Navigator.pop(context);
+                            // Navigator.pop(context);Albany
                           }
                         },
                         child: Text('Submit'),
