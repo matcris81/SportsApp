@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:footy_fix/mongo/mongodb.dart';
+import 'package:footy_fix/services/db_services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -13,11 +13,11 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Enable Firebase Database persistence
+  // Enable Firebase Database persistence NOT NEEDED ANYMORE
   FirebaseDatabase.instance.setPersistenceEnabled(true);
 
-  // Initialize Mongo Database
-  await MongoDatabse.connect();
+  // initialize connection with postgres
+  await PostgresService().initDatabase();
 
   // Run the app
   runApp(const MyApp());

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/components/venues_tile.dart';
 import 'package:footy_fix/descriptions/game_description.dart';
+import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/geolocator_services.dart';
 import 'package:footy_fix/services/database_service.dart';
 import 'package:footy_fix/components/game_tile.dart';
@@ -174,6 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.all(10.0),
               child: ElevatedButton(
                 onPressed: () {
+                  PostgresService().initDatabase();
                   Navigator.push(
                       context,
                       MaterialPageRoute(

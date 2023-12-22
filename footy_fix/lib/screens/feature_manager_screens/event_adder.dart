@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/database_service.dart';
+import 'package:footy_fix/services/db_services.dart';
 
 class AddEvent extends StatefulWidget {
   const AddEvent({Key? key}) : super(key: key);
@@ -187,15 +188,21 @@ class _AddEventState extends State<AddEvent> {
 
                             print('game: $game');
 
-                            // add gameID to games Sorted
-                            var gameID = await DatabaseServices()
-                                .addJustID('GamesSorted/$sport/$formattedDate');
+                            // // add gameID to games Sorted
+                            // var gameID = await DatabaseServices()
+                            //     .addJustID('GamesSorted/$sport/$formattedDate');
 
-                            // add game details to game
-                            await DatabaseServices()
-                                .addWithoutIDToDataBase('Games/$gameID', game);
+                            // // add game details to game
+                            // await DatabaseServices()
+                            //     .addWithoutIDToDataBase('Games/$gameID', game);
 
-                            // Navigator.pop(context);Albany
+                            var venueid = PostgresService()
+                                .retrieve('venue_id', 'venues', location);
+                            print(venueid);
+
+                            // PostgresService().insert(
+                            //   'Games',
+                            // );
                           }
                         },
                         child: Text('Submit'),
