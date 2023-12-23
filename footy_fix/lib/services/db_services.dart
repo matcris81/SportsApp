@@ -3,6 +3,14 @@ import 'package:postgres/postgres.dart';
 class PostgresService {
   late Connection connection;
 
+  static final PostgresService _instance = PostgresService._internal();
+
+  factory PostgresService() {
+    return _instance;
+  }
+
+  PostgresService._internal();
+
   Future<void> initDatabase() async {
     connection = await Connection.open(
       Endpoint(
@@ -26,7 +34,6 @@ class PostgresService {
         data.values.map((e) => e is String ? "'$e'" : e.toString()).join(', ');
 
     final query = 'INSERT INTO $table ($columns) VALUES ($values)';
-    print(query);
     await connection.execute(query);
   }
 

@@ -175,7 +175,6 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.all(10.0),
               child: ElevatedButton(
                 onPressed: () {
-                  PostgresService().initDatabase();
                   Navigator.push(
                       context,
                       MaterialPageRoute(

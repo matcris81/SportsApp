@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/database_service.dart';
+import 'package:footy_fix/services/db_services.dart';
 
 class AddVenue extends StatefulWidget {
   const AddVenue({Key? key}) : super(key: key);
@@ -158,17 +159,18 @@ class _AddVenueState extends State<AddVenue> {
                             String formattedAddress =
                                 '$address, $suburb, $city';
 
-                            var newLocation = {
-                              venueName: {
-                                'Address': formattedAddress,
-                                'About Venue': description,
-                              }
+                            var newVenue = {
+                              'name': venueName,
+                              'address': formattedAddress,
+                              'description': description,
                             };
 
-                            DatabaseServices()
-                                .addWithIDToDataBase('Venues/', newLocation);
+                            // DatabaseServices()
+                            //     .addWithIDToDataBase('Venues/', newVenue);
 
-                            Navigator.pop(context);
+                            PostgresService().insert('venues', newVenue);
+
+                            // Navigator.pop(context);
                           }
                         },
                         child: Text('Submit'),

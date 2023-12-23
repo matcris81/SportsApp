@@ -23,7 +23,7 @@ class _AddEventState extends State<AddEvent> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Add Venue',
+          'Add Event',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -186,7 +186,7 @@ class _AddEventState extends State<AddEvent> {
                               'sport': sport,
                             };
 
-                            print('game: $game');
+                            // print('game: $game');
 
                             // // add gameID to games Sorted
                             // var gameID = await DatabaseServices()
