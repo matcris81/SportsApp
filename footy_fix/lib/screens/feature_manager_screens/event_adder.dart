@@ -17,6 +17,7 @@ class _AddEventState extends State<AddEvent> {
   double price = 0;
   int size = 0;
   String sport = '';
+  String description = '';
 
   @override
   Widget build(BuildContext context) {
@@ -169,40 +170,49 @@ class _AddEventState extends State<AddEvent> {
                         },
                         onSaved: (value) => sport = value!,
                       ),
+                      const SizedBox(height: 16.0),
+                      TextFormField(
+                        decoration: const InputDecoration(
+                          labelText: 'Description',
+                          border: OutlineInputBorder(),
+                        ),
+                        maxLines: 3,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a description';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) => description = value!,
+                      ),
                       const SizedBox(height: 24.0),
                       ElevatedButton(
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             _formKey.currentState!.save();
 
-                            var formattedDate = date.replaceAll('/', ' ');
+                            var venueIDResult = await PostgresService()
+                                .retrieveSingle('venues', 'venue_id', location);
+
+                            var venueid = venueIDResult[0][0];
+
+                            var sportIDResult = await PostgresService()
+                                .retrieveSingle('sports', 'sport_id', sport);
+                            var sport_id = sportIDResult[0][0];
+
+                            // print()
 
                             var game = {
-                              'location': location,
-                              'date': date,
-                              'time': time,
+                              'venue_id': venueid,
+                              'sport_id': sport_id,
+                              'game_date': date,
+                              'start_time': time,
+                              'description': description,
+                              'max_players': size,
                               'price': price,
-                              'size': size,
-                              'sport': sport,
                             };
 
-                            // print('game: $game');
-
-                            // // add gameID to games Sorted
-                            // var gameID = await DatabaseServices()
-                            //     .addJustID('GamesSorted/$sport/$formattedDate');
-
-                            // // add game details to game
-                            // await DatabaseServices()
-                            //     .addWithoutIDToDataBase('Games/$gameID', game);
-
-                            var venueid = PostgresService()
-                                .retrieve('venue_id', 'venues', location);
-                            print(venueid);
-
-                            // PostgresService().insert(
-                            //   'Games',
-                            // );
+                            await PostgresService().insert('games', game);
                           }
                         },
                         child: Text('Submit'),
