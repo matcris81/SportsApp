@@ -213,6 +213,10 @@ class _AddEventState extends State<AddEvent> {
                             };
 
                             await PostgresService().insert('games', game);
+
+                            if (!mounted) return;
+
+                            Navigator.pop(context);
                           }
                         },
                         child: Text('Submit'),

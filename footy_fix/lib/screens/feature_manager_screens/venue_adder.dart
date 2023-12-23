@@ -153,7 +153,7 @@ class _AddVenueState extends State<AddVenue> {
                       ),
                       const SizedBox(height: 24.0),
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             _formKey.currentState!.save();
                             String formattedAddress =
@@ -168,9 +168,11 @@ class _AddVenueState extends State<AddVenue> {
                             // DatabaseServices()
                             //     .addWithIDToDataBase('Venues/', newVenue);
 
-                            PostgresService().insert('venues', newVenue);
+                            await PostgresService().insert('venues', newVenue);
 
-                            // Navigator.pop(context);
+                            if (!mounted) return;
+
+                            Navigator.pop(context);
                           }
                         },
                         child: Text('Submit'),

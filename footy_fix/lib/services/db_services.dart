@@ -60,6 +60,13 @@ class PostgresService {
     return result;
   }
 
+  Future<Result> retrieveRows(String table, String coloumns) async {
+    final query = 'SELECT $coloumns FROM $table';
+    print(query);
+    var result = await connection.execute(query);
+    return result;
+  }
+
   Future<Result> retrieveSingle(
       String table, String coloumn, String whereClause) async {
     final query = "SELECT $coloumn FROM $table WHERE name = '$whereClause'";

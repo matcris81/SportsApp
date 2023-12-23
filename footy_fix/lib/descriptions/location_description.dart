@@ -30,25 +30,25 @@ class _LocationDescriptionState extends State<LocationDescription> {
   void initState() {
     super.initState();
     checkIfLiked();
-    getLocationID();
+    // getLocationID();
   }
 
-  void getLocationID() async {
-    Object? locations =
-        await DatabaseServices().retrieveLocal('Venues/$locationID');
+  // void getLocationID() async {
+  //   Object? locations =
+  //       await DatabaseServices().retrieveLocal('Venues/$locationID');
 
-    if (locations is Map) {
-      locations.forEach((key, value) {
-        if (value == widget.locationName) {
-          locationID = key;
-        }
-      });
-    } else if (locations is String) {
-      if (locations == widget.locationName) {
-        locationID = locations;
-      }
-    }
-  }
+  //   if (locations is Map) {
+  //     locations.forEach((key, value) {
+  //       if (value == widget.locationName) {
+  //         locationID = key;
+  //       }
+  //     });
+  //   } else if (locations is String) {
+  //     if (locations == widget.locationName) {
+  //       locationID = locations;
+  //     }
+  //   }
+  // }
 
   void checkIfLiked() async {
     String userID = await PreferencesService().getUserId() ?? '';
