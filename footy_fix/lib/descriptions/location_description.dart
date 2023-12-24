@@ -294,7 +294,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
                                           time: startTime.substring(
                                               0, 5), // format as needed
                                           size: maxPlayers.toString(),
-                                          price: price.toDouble,
+                                          price: price,
                                           playersJoined:
                                               currentPlayers.toString(),
                                           // description:
