@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/database_service.dart';
+import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:pay/pay.dart';
 import 'dart:io' show Platform;
 import 'package:footy_fix/payment_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PaymentScreen extends StatefulWidget {
   final String locationName;
@@ -79,6 +81,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
         loadingIndicator: const Center(child: CircularProgressIndicator()));
   }
 
+  void tempAction() async {
+    var userID = await PreferencesService().getUserId();
+
+    await PostgresService().executeQuery(
+        "INSERT INTO user_game_participation (user_id, game_id, status) "
+        "VALUES ('$userID', ${widget.gameID}, 'Pending')");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,9 +122,30 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
             const Spacer(),
             Center(
-                child: Platform.isIOS
-                    ? _buildApplePayButton()
-                    : _buildGooglePayButton()),
+              child: ElevatedButton(
+                onPressed: () {
+                  tempAction();
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.blue, // Button color
+                  onPrimary: Colors.white, // Text color
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8), // Rounded corners
+                  ),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: 30, vertical: 15), // Button padding
+                ),
+                child: Text(
+                  'Proceed to Pay',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            )
+
+            // Center(
+            //     child: Platform.isIOS
+            //         ? _buildApplePayButton()
+            //         : _buildGooglePayButton()),
           ],
         ),
       ),

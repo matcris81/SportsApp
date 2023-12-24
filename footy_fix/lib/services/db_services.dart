@@ -29,6 +29,10 @@ class PostgresService {
   }
 
   Future<void> insert(String table, Map<String, dynamic> data) async {
+    if (connection.isOpen == false) {
+      initDatabase();
+    }
+
     final columns = data.keys.join(', ');
     final values =
         data.values.map((e) => e is String ? "'$e'" : e.toString()).join(', ');
@@ -68,11 +72,23 @@ class PostgresService {
   }
 
   Future<Result> retrieveSingle(
-      String table, String coloumn, String whereClause) async {
-    final query = "SELECT $coloumn FROM $table WHERE name = '$whereClause'";
+      String table, String coloumn, String row, String whereClause) async {
+    final query = "SELECT $coloumn FROM $table WHERE $row = '$whereClause'";
     print(query);
     var result = await connection.execute(query);
     return result;
+  }
+
+  Future<void> executeQuery(String query) async {
+    await connection.execute(query);
+  }
+
+  Future<Result> retrieve(String query) {
+    if (connection.isOpen == false) {
+      initDatabase();
+    }
+
+    return connection.execute(query);
   }
 
   Future<void> increment(
@@ -83,6 +99,7 @@ class PostgresService {
   }
 
   void closeConnection() {
+    print('Closing connection');
     connection.close();
   }
 }

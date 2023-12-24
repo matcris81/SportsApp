@@ -1,20 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:footy_fix/services/db_services.dart';
 import 'package:intl/intl.dart';
 import 'package:footy_fix/screens/payment_screen.dart';
 
 class GameTile extends StatelessWidget {
+  final int locationID;
   final String location;
-  final String date;
-  final String gameID;
+  final DateTime date;
+  final int gameID;
   final String time;
   final String playersJoined;
   final double price;
   final String size;
+  final int sportID;
+  final String description;
   final Function()? onTap;
 
   const GameTile({
     Key? key,
-    required this.location,
+    this.locationID = 0,
+    this.location = '',
+    this.sportID = 0,
     required this.date,
     required this.gameID,
     required this.time,
@@ -22,16 +28,15 @@ class GameTile extends StatelessWidget {
     required this.price,
     required this.size,
     required this.onTap,
+    required this.description,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    DateTime dateTime = DateFormat('dd MM yyyy').parse(date);
-    String dayOfWeek = DateFormat('EEEE').format(dateTime);
+    String dayOfWeek = DateFormat('EEEE').format(date);
     String abbreviatedDayName = dayOfWeek.substring(0, 3).toUpperCase();
-    String abbreviatedMonthName = DateFormat('MMM')
-        .format(dateTime)
-        .toUpperCase(); // Abbreviated month name
+    String abbreviatedMonthName =
+        DateFormat('MMM').format(date).toUpperCase(); // Abbreviated month name
 
     return GestureDetector(
       onTap: onTap,
@@ -82,18 +87,41 @@ class GameTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    location.toUpperCase(),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                    overflow: TextOverflow.ellipsis, // Add this line
-                    maxLines: 1, // Ensure it's only one line
-                  ),
+                  locationID != 0
+                      ? FutureBuilder<String>(
+                          future: fetchVenueName(locationID),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Text('Loading...');
+                            }
+                            if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            }
+                            String venueName = snapshot.data ?? 'Unknown Venue';
+                            return Text(
+                              venueName.toUpperCase(),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                              overflow: TextOverflow.ellipsis, // Add this line
+                              maxLines: 1, // Ensure it's only one line
+                            );
+                          },
+                        )
+                      : Text(
+                          location.toUpperCase(),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                          overflow: TextOverflow.ellipsis, // Add this line
+                          maxLines: 1, // Ensure it's only one line
+                        ),
                   const SizedBox(height: 4),
                   Text(
-                    '$abbreviatedDayName, $abbreviatedMonthName ${dateTime.day} • $time',
+                    '$abbreviatedDayName, $abbreviatedMonthName ${date.day} • ${time.substring(0, 5)}',
                     style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -140,9 +168,9 @@ class GameTile extends StatelessWidget {
                         MaterialPageRoute(
                             builder: (context) => PaymentScreen(
                                   locationName: location,
-                                  gameID: gameID,
+                                  gameID: gameID.toString(),
                                   price: price,
-                                  date: date,
+                                  date: date.toString(),
                                 )));
                   }, // Use the onTap passed to the widget
                   child: Text(
@@ -154,5 +182,15 @@ class GameTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<String> fetchVenueName(int venueId) async {
+    // Placeholder for database call
+    // Replace with your actual database service call to fetch the venue name
+
+    var venueName = await PostgresService()
+        .retrieve("SELECT name FROM venues WHERE venue_id = $venueId");
+
+    return venueName[0][0].toString();
   }
 }

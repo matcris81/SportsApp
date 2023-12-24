@@ -16,9 +16,6 @@ class AuthService {
         password: password,
       );
 
-      print('User ${userCredential.user?.uid} registered');
-      PreferencesService().saveUserId(userCredential.user!.uid);
-
       DatabaseServices().createUser(userCredential, email);
 
       return userCredential;
@@ -37,8 +34,6 @@ class AuthService {
         email: email,
         password: password,
       );
-
-      PreferencesService().saveUserId(userCredential.user!.uid);
 
       await auth.currentUser!.getIdToken(true);
 
@@ -75,7 +70,6 @@ class AuthService {
       print('Google Sign-In successful, User UID: ${userCredential.user?.uid}');
 
       // store userID locally
-      PreferencesService().saveUserId(userCredential.user!.uid);
 
       return userCredential;
     } catch (e) {
@@ -102,8 +96,6 @@ class AuthService {
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
 
-      PreferencesService().saveUserId(userCredential.user!.uid);
-
       return userCredential;
     } catch (error) {
       print("Error signing in with Apple: $error");
@@ -122,8 +114,6 @@ class AuthService {
 
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
-
-      PreferencesService().saveUserId(userCredential.user!.uid);
 
       return userCredential;
     } catch (e) {

@@ -192,12 +192,14 @@ class _AddEventState extends State<AddEvent> {
                             _formKey.currentState!.save();
 
                             var venueIDResult = await PostgresService()
-                                .retrieveSingle('venues', 'venue_id', location);
+                                .retrieveSingle(
+                                    'venues', 'venue_id', 'name', location);
 
                             var venueid = venueIDResult[0][0];
 
                             var sportIDResult = await PostgresService()
-                                .retrieveSingle('sports', 'sport_id', sport);
+                                .retrieveSingle(
+                                    'sports', 'sport_id', 'name', sport);
                             var sport_id = sportIDResult[0][0];
 
                             // print()

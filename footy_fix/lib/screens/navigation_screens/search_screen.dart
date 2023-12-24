@@ -99,9 +99,6 @@ class _SearchScreenState extends State<SearchScreen> {
                     String id = snapshot.data!.keys.elementAt(index);
                     String venueName = snapshot.data![id]!['name'];
                     double distance = snapshot.data![id]!['distance'];
-                    print('id: $id');
-                    print('venueName: $venueName');
-                    print('distance: $distance');
 
                     return Container(
                       margin: const EdgeInsets.symmetric(vertical: 5),

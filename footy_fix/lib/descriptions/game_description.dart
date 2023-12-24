@@ -7,17 +7,21 @@ import 'package:footy_fix/services/database_service.dart';
 import 'package:footy_fix/screens/payment_screen.dart';
 
 class GameDescription extends StatefulWidget {
+  final int locationID;
   final String location;
   final String gameID;
-  final String date;
+  final DateTime date;
   final String time;
   final String playersJoined;
   final double price;
   final String size;
+  final int sportID;
 
   const GameDescription({
     Key? key,
-    required this.location,
+    this.locationID = 0,
+    this.location = '',
+    this.sportID = 0,
     required this.gameID,
     required this.date,
     required this.time,
@@ -33,10 +37,9 @@ class GameDescription extends StatefulWidget {
 class _GameDescriptionState extends State<GameDescription> {
   @override
   Widget build(BuildContext context) {
-    DateTime dateTime = DateFormat('dd MM yyyy').parse(widget.date);
-    String dayName = DateFormat('EEEE').format(dateTime).substring(0, 3);
-    String monthName = DateFormat('MMMM').format(dateTime);
-    int dayNumber = dateTime.day;
+    String dayName = DateFormat('EEEE').format(widget.date).substring(0, 3);
+    String monthName = DateFormat('MMMM').format(widget.date);
+    int dayNumber = widget.date.day;
 
     return Scaffold(
       backgroundColor: Colors.grey[300],
@@ -113,7 +116,7 @@ class _GameDescriptionState extends State<GameDescription> {
                           builder: (context) => PaymentScreen(
                                 locationName: widget.location,
                                 gameID: widget.gameID,
-                                date: widget.date,
+                                date: widget.date.toString(),
                                 price: widget.price,
                               )),
                     );

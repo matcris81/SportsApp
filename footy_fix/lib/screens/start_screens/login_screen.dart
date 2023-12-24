@@ -5,8 +5,9 @@ import 'package:footy_fix/components/my_textfield.dart';
 import 'package:footy_fix/components/square_tile.dart';
 import 'package:footy_fix/services/auth_service.dart';
 import 'package:footy_fix/screens/start_screens/register.dart';
-import 'package:footy_fix/services/database_service.dart';
 import 'package:footy_fix/components/navigation.dart';
+import 'package:footy_fix/services/db_services.dart';
+import 'package:footy_fix/services/shared_preferences_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -48,10 +49,13 @@ class _LoginPageState extends State<LoginPage> {
 
       // pop the loading circle
       Navigator.pop(context);
-      // navigate to home screen
+      // navigate to home
       if (credential != null) {
-        // var firstTime = await DatabaseServices()
-        //     .retrieveFromDatabase('users/${credential.user!.uid}');
+        var uid = credential.user!.uid;
+
+        await PreferencesService().saveUserId(uid);
+
+        addUserifDoesntExist(uid, emailController.text);
 
         if (!mounted) return;
 
@@ -110,6 +114,24 @@ class _LoginPageState extends State<LoginPage> {
         );
       },
     );
+  }
+
+  void addUserifDoesntExist(String userID, String? email) async {
+    var result = await PostgresService().retrieve(
+        "SELECT EXISTS (SELECT 1 FROM users WHERE user_id = '$userID') AS user_exists");
+
+    var existance = result[0][0];
+
+    if (existance == true) {
+      print('user: $userID');
+    } else {
+      var userMap = {
+        'user_id': userID,
+        'email': email,
+      };
+
+      await PostgresService().insert('users', userMap);
+    }
   }
 
   @override
@@ -226,11 +248,11 @@ class _LoginPageState extends State<LoginPage> {
                         if (!mounted) return;
 
                         if (credential != null) {
-                          var firstTime = await DatabaseServices()
-                              .retrieveFromDatabase(
-                                  'users/${credential.user!.uid}');
+                          var uid = credential.user!.uid;
+                          var email = credential.user!.email;
 
-                          print(firstTime);
+                          await PreferencesService().saveUserId(uid);
+                          addUserifDoesntExist(uid, email);
 
                           if (!mounted) return;
 
@@ -257,9 +279,12 @@ class _LoginPageState extends State<LoginPage> {
                         if (!mounted) return;
 
                         if (credential != null) {
-                          // var firstTime = await DatabaseServices()
-                          //     .retrieveFromDatabase(
-                          //         'users/${credential.user!.uid}');
+                          var uid = credential.user!.uid;
+                          var email = credential.user!.email;
+
+                          await PreferencesService().saveUserId(uid);
+
+                          addUserifDoesntExist(uid, email);
 
                           if (!mounted) return;
 
@@ -286,11 +311,12 @@ class _LoginPageState extends State<LoginPage> {
                         if (!mounted) return;
 
                         if (credential != null) {
-                          var firstTime = await DatabaseServices()
-                              .retrieveFromDatabase(
-                                  'users/${credential.user!.uid}');
+                          var uid = credential.user!.uid;
+                          await PreferencesService().saveUserId(uid);
 
-                          print(firstTime);
+                          var email = credential.user!.email;
+
+                          addUserifDoesntExist(uid, email);
 
                           if (!mounted) return;
 
