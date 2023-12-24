@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/screens/upcoming_games_screen.dart';
-import 'package:footy_fix/services/database_service.dart';
 import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:intl/intl.dart';
@@ -275,14 +274,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
                               child: Container(
                                 height: 310, // Adjust the height as necessary
                                 child: GameTile(
-                                  location: widget.locationName,
-                                  date: gameDate,
                                   gameID: gameId,
-                                  time: startTime.substring(0, 5),
-                                  size: maxPlayers.toString(),
-                                  price: price,
-                                  playersJoined: currentPlayers.toString(),
-                                  description: description,
                                   onTap: () {
                                     Navigator.push(
                                       context,
@@ -312,36 +304,36 @@ class _LocationDescriptionState extends State<LocationDescription> {
                         const SizedBox(height: 20),
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0), // Increase horizontal padding
-                          // child: ElevatedButton(
-                          //   onPressed: () {
-                          //     Navigator.push(
-                          //       context,
-                          //       MaterialPageRoute(builder: (context) {
-                          //         return UpcomingGamesList(
-                          //           games: sortedGamesMap,
-                          //           locationName: widget.locationName,
-                          //         );
-                          //       }),
-                          //     );
-                          //   },
-                          //   style: ElevatedButton.styleFrom(
-                          //     backgroundColor: Colors
-                          //         .black, // Set the button's background color
-                          //     minimumSize: const Size(double.infinity,
-                          //         50), // Button width will be the width of the parent minus padding
-                          //     shape: RoundedRectangleBorder(
-                          //       borderRadius: BorderRadius.circular(
-                          //           5), // Less rounded corners
-                          //     ),
-                          //   ),
-                          //   child: const Text(
-                          //     'See Upcoming Games',
-                          //     style: TextStyle(
-                          //         color:
-                          //             Colors.white), // Set text color to white
-                          //   ),
-                          // ),
+                              horizontal: 20.0), // Increase horizontal padding
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) {
+                                  return UpcomingGamesList(
+                                    locationName: widget.locationName,
+                                    venueID: widget.locationID,
+                                  );
+                                }),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors
+                                  .black, // Set the button's background color
+                              minimumSize: const Size(double.infinity,
+                                  50), // Button width will be the width of the parent minus padding
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    15), // Less rounded corners
+                              ),
+                            ),
+                            child: const Text(
+                              'See Upcoming Games',
+                              style: TextStyle(
+                                  color:
+                                      Colors.white), // Set text color to white
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 20.0),
                         const Padding(

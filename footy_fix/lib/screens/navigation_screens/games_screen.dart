@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:footy_fix/services/database_service.dart';
 
 class GamesScreen extends StatefulWidget {
   const GamesScreen({Key? key}) : super(key: key);
@@ -33,15 +32,7 @@ class _GamesScreenState extends State<GamesScreen> {
         daysCount, (index) => DateTime.now().add(Duration(days: index)));
   }
 
-  Future<void> _loadGamesForSelectedDay(DateTime day) async {
-    // Fetch games for the selected day and update _selectedGames
-    DateTime myDateTime = DateTime.parse(day.toString());
-    String formattedDate = DateFormat('dd MM yyyy').format(myDateTime);
-    print(formattedDate);
-    Object? games = await DatabaseServices()
-        .retrieveMultiple('GamesSorted/Football/$formattedDate');
-    print(games);
-  }
+  Future<void> _loadGamesForSelectedDay(DateTime day) async {}
 
   @override
   Widget build(BuildContext context) {

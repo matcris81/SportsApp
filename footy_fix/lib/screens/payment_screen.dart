@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:footy_fix/services/database_service.dart';
 import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:pay/pay.dart';
@@ -8,7 +7,6 @@ import 'package:footy_fix/payment_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PaymentScreen extends StatefulWidget {
-  final String locationName;
   final String gameID;
   final String date;
   final double price;
@@ -17,7 +15,6 @@ class PaymentScreen extends StatefulWidget {
     Key? key,
     required this.gameID,
     required this.date,
-    required this.locationName,
     required this.price,
   }) : super(key: key);
 
@@ -34,7 +31,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             PaymentConfiguration.fromJsonString(defaultApplePay),
         paymentItems: [
           PaymentItem(
-            label: widget.locationName,
+            label: widget.gameID,
             amount: widget.price.toStringAsFixed(2),
             status: PaymentItemStatus.final_price,
           ),
@@ -47,7 +44,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         onPaymentResult: (result) async {
           debugPrint('Payment Result: $result');
           if (result['status'] == 'success') {
-            _updateDatabaseAfterPayment();
+            // _updateDatabaseAfterPayment();
           } else {
             debugPrint('Payment failed or cancelled');
           }
@@ -61,7 +58,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             PaymentConfiguration.fromJsonString(defaultGooglePay),
         paymentItems: [
           PaymentItem(
-            label: widget.locationName,
+            label: widget.gameID,
             amount: widget.price.toStringAsFixed(2),
             status: PaymentItemStatus.final_price,
           ),
@@ -73,7 +70,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         onPaymentResult: (result) {
           debugPrint('Payment Result: $result');
           if (result['status'] == 'success') {
-            _updateDatabaseAfterPayment();
+            // _updateDatabaseAfterPayment();
           } else {
             debugPrint('Payment failed or cancelled');
           }
@@ -152,19 +149,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  void _updateDatabaseAfterPayment() async {
-    // Your logic to update the database
-    String userID = await PreferencesService().getUserId() ?? '';
+  // void _updateDatabaseAfterPayment() async {
+  //   // Your logic to update the database
+  //   String userID = await PreferencesService().getUserId() ?? '';
 
-    Object? data = await DatabaseServices().retrieveFromDatabase(
-        'Location Details/${widget.locationName}/Games/${widget.gameID}');
+  //   Object? data = await DatabaseServices().retrieveFromDatabase(
+  //       'Location Details/${widget.locationName}/Games/${widget.gameID}');
 
-    await DatabaseServices().addWithoutIDToDataBase(
-        'User Preferences/$userID/Games joined/${widget.locationName}/${widget.gameID}',
-        data);
+  //   await DatabaseServices().addWithoutIDToDataBase(
+  //       'User Preferences/$userID/Games joined/${widget.locationName}/${widget.gameID}',
+  //       data);
 
-    await DatabaseServices().incrementValue(
-        'Location Details/${widget.locationName}/Games/${widget.gameID}/',
-        'Players joined');
-  }
+  //   await DatabaseServices().incrementValue(
+  //       'Location Details/${widget.locationName}/Games/${widget.gameID}/',
+  //       'Players joined');
+  // }
 }

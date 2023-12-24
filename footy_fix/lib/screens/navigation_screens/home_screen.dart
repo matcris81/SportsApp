@@ -42,14 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return games.map((game) {
       return GameTile(
           locationID: game['venue_id'],
-          date: game['game_date'],
           gameID: game['game_id'],
-          time: game['time'],
-          playersJoined: game['current_players'],
-          price: game['price'],
-          size: game['max_players'],
-          sportID: game['sport_id'],
-          description: game['description'],
           onTap: () {
             Navigator.push(
                 context,

@@ -5,7 +5,6 @@ import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:intl/intl.dart';
 import 'dart:io' show Platform;
 import 'package:url_launcher/url_launcher.dart';
-import 'package:footy_fix/services/database_service.dart';
 import 'package:footy_fix/screens/payment_screen.dart';
 
 class GameDescription extends StatefulWidget {
@@ -116,7 +115,6 @@ class _GameDescriptionState extends State<GameDescription> {
                       context,
                       MaterialPageRoute(
                           builder: (context) => PaymentScreen(
-                                locationName: widget.location,
                                 gameID: widget.gameID.toString(),
                                 date: widget.date.toString(),
                                 price: widget.price,

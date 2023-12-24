@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/screens/profile_screens/account_screen.dart';
-import 'package:footy_fix/services/database_service.dart';
+import 'package:footy_fix/services/auth_service.dart';
 import 'package:footy_fix/screens/start_screens/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -52,7 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 leading: const Icon(Icons.logout),
                 title: const Text('Sign out'),
                 onTap: () async {
-                  await DatabaseServices().signOut();
+                  await AuthService().signOut();
 
                   if (!mounted) return;
 

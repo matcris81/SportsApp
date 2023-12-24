@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:footy_fix/services/database_service.dart';
 import 'package:footy_fix/services/db_services.dart';
 
 class AddEvent extends StatefulWidget {
