@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:footy_fix/services/db_services.dart';
+import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:intl/intl.dart';
 import 'dart:io' show Platform;
 import 'package:url_launcher/url_launcher.dart';
@@ -9,8 +11,8 @@ import 'package:footy_fix/screens/payment_screen.dart';
 class GameDescription extends StatefulWidget {
   final int locationID;
   final String location;
-  final String gameID;
   final DateTime date;
+  final int gameID;
   final String time;
   final String playersJoined;
   final double price;
@@ -83,8 +85,8 @@ class _GameDescriptionState extends State<GameDescription> {
 
   Widget buildJoinButton(BuildContext context) {
     return FutureBuilder<Object?>(
-      future: DatabaseServices().retrieveFromDatabase(
-          'Location Details/${widget.location}/Games/${widget.date}/${widget.gameID}/Players joined'),
+      future: PostgresService().retrieve(
+          "SELECT current_players FROM games WHERE game_id = your_game_id"),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator(); // Show loading indicator while waiting
@@ -115,7 +117,7 @@ class _GameDescriptionState extends State<GameDescription> {
                       MaterialPageRoute(
                           builder: (context) => PaymentScreen(
                                 locationName: widget.location,
-                                gameID: widget.gameID,
+                                gameID: widget.gameID.toString(),
                                 date: widget.date.toString(),
                                 price: widget.price,
                               )),
@@ -144,15 +146,20 @@ class _GameDescriptionState extends State<GameDescription> {
   Widget buildGameInfoBox(
       BuildContext context, String dayName, String monthName, int dayNumber) {
     // Use a FutureBuilder to wait for the address Future to complete
-    return FutureBuilder<Object?>(
+    return FutureBuilder<List<dynamic>>(
       future: getAddress(), // The async getAddress function is called here
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
           } else if (snapshot.hasData) {
-            // Cast the data to String, or handle it accordingly if it's not a String
-            final address = snapshot.data as String? ?? 'Address not available';
+            var gameDetails = snapshot.data!.first;
+            print(gameDetails);
+
+            var gameID = gameDetails[0];
+            var venueName = gameDetails[1];
+            var address = gameDetails[2];
+            var description = gameDetails[3];
 
             return Card(
               margin: const EdgeInsets.all(16.0),
@@ -166,8 +173,7 @@ class _GameDescriptionState extends State<GameDescription> {
                   children: [
                     Center(
                       child: Text(
-                        widget
-                            .location, // Assuming 'locationName' is a String containing the game's location name
+                        venueName, // Assuming 'locationName' is a String containing the game's location name
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                               fontSize: 24,
@@ -198,7 +204,15 @@ class _GameDescriptionState extends State<GameDescription> {
                     const Divider(),
                     ListTile(
                       leading: const Icon(Icons.location_on),
-                      title: Text(widget.location), // Display the address here
+                      title: Text(
+                        address, // Display the address here
+                        style: const TextStyle(
+                          fontSize: 14, // Reduce the font size as needed
+                          overflow: TextOverflow
+                              .ellipsis, // Add this to prevent text overflow
+                        ),
+                        maxLines: 1, // Ensure the address is on a single line
+                      ),
                       subtitle: const Text(
                           'Click for map'), // Optional: if you want to add functionality to navigate to a map view
                       onTap: () {
@@ -217,9 +231,16 @@ class _GameDescriptionState extends State<GameDescription> {
     );
   }
 
-  Future<Object?> getAddress() {
-    return DatabaseServices()
-        .retrieveFromDatabase('Location Details/${widget.location}/Address');
+  Future<List<dynamic>> getAddress() async {
+    String query = "";
+    if (widget.locationID != 0) {
+      query = "SELECT * FROM venues WHERE venue_id = ${widget.locationID}";
+    } else if (widget.location != "") {
+      query = "SELECT * FROM venues WHERE name = '${widget.location}'";
+    }
+    var address = await PostgresService().retrieve(query);
+
+    return address;
   }
 
   void _showActionSheet(BuildContext context, String location) {

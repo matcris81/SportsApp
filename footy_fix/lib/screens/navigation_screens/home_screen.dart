@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/components/venues_tile.dart';
 import 'package:footy_fix/descriptions/game_description.dart';
+import 'package:footy_fix/descriptions/location_description.dart';
 import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/geolocator_services.dart';
 import 'package:footy_fix/components/game_tile.dart';
@@ -49,22 +50,20 @@ class _HomeScreenState extends State<HomeScreen> {
           size: game['max_players'],
           sportID: game['sport_id'],
           description: game['description'],
-          onTap: () async {
-            var y = await getLikedVenueID();
-            print(y);
-            // Navigator.push(
-            //     context,
-            //     MaterialPageRoute(
-            //         builder: (context) => GameDescription(
-            //               locationID: game['venue_id'],
-            //               date: game['game_date'],
-            //               gameID: game['game_id'],
-            //               time: game['time'],
-            //               playersJoined: game['current_players'],
-            //               price: game['price'],
-            //               size: game['max_players'],
-            //               sportID: game['sport_id'],
-            //             )));
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => GameDescription(
+                          locationID: game['venue_id'],
+                          date: game['game_date'],
+                          gameID: game['game_id'],
+                          time: game['time'],
+                          playersJoined: game['current_players'],
+                          price: game['price'],
+                          size: game['max_players'],
+                          sportID: game['sport_id'],
+                        )));
           });
     }).toList();
   }
@@ -241,7 +240,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             showRating: false,
                             opacity: 0.4,
                             onTap: () {
-                              // Handle the onTap event
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => LocationDescription(
+                                          locationName: venue['name'],
+                                          locationID:
+                                              venue['venue_id'].toString())));
                             },
                           );
                         },

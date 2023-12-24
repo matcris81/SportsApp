@@ -289,7 +289,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
                                       MaterialPageRoute(
                                         builder: (context) => GameDescription(
                                           location: widget.locationName,
-                                          gameID: gameId.toString(),
+                                          gameID: gameId,
                                           date: gameDate, // format as needed
                                           time: startTime.substring(
                                               0, 5), // format as needed
