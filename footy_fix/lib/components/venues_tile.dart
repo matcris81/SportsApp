@@ -112,6 +112,7 @@ class LocationTile extends StatelessWidget {
                         ],
                       ),
                       overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
                     if (showDistance) // Conditionally display distance
                       Text(

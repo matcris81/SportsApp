@@ -1,4 +1,3 @@
-import 'package:footy_fix/services/database_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -16,11 +15,6 @@ class AuthService {
         password: password,
       );
 
-      print('User ${userCredential.user?.uid} registered');
-      PreferencesService().saveUserId(userCredential.user!.uid);
-
-      DatabaseServices().createUser(userCredential, email);
-
       return userCredential;
     } on FirebaseAuthException {
       // Handle error
@@ -37,8 +31,6 @@ class AuthService {
         email: email,
         password: password,
       );
-
-      PreferencesService().saveUserId(userCredential.user!.uid);
 
       await auth.currentUser!.getIdToken(true);
 
@@ -75,7 +67,6 @@ class AuthService {
       print('Google Sign-In successful, User UID: ${userCredential.user?.uid}');
 
       // store userID locally
-      PreferencesService().saveUserId(userCredential.user!.uid);
 
       return userCredential;
     } catch (e) {
@@ -102,8 +93,6 @@ class AuthService {
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
 
-      PreferencesService().saveUserId(userCredential.user!.uid);
-
       return userCredential;
     } catch (error) {
       print("Error signing in with Apple: $error");
@@ -122,8 +111,6 @@ class AuthService {
 
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
-
-      PreferencesService().saveUserId(userCredential.user!.uid);
 
       return userCredential;
     } catch (e) {

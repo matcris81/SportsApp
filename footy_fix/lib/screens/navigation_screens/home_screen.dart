@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/components/venues_tile.dart';
 import 'package:footy_fix/descriptions/game_description.dart';
-import 'package:footy_fix/services/geolocator_services.dart';
-import 'package:footy_fix/services/database_service.dart';
-import 'package:footy_fix/components/game_tile.dart';
 import 'package:footy_fix/descriptions/location_description.dart';
+import 'package:footy_fix/services/db_services.dart';
+import 'package:footy_fix/services/geolocator_services.dart';
+import 'package:footy_fix/components/game_tile.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
-import 'package:intl/intl.dart';
 import 'package:footy_fix/screens/profile_screen.dart';
 import 'package:footy_fix/screens/notification_screen.dart';
 import 'package:footy_fix/screens/feature_manager_screens/game_venue_manager.dart';
@@ -19,112 +18,100 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<String> venuesList = [];
-  List<Widget> gamesList = [];
+  String userID = '';
 
   @override
   void initState() {
     super.initState();
     GeolocatorService().determinePosition();
-    _loadPreferences();
+    _retrieveUserId();
   }
 
-  List<Widget> createGameTiles(Map data) {
-    List<Widget> gameTiles = [];
-
-    if (data.isNotEmpty) {
-      data.forEach((location, games) {
-        if (games is Map) {
-          games.forEach((gameID, gameDetails) {
-            if (gameDetails is Map) {
-              // Extract game details safely
-              String size = gameDetails['Size']?.toString() ?? 'Unknown size';
-              String time = gameDetails['Time'] ?? 'Unknown time';
-              String playersJoined =
-                  gameDetails['Players joined']?.toString() ?? '0';
-              double price =
-                  double.tryParse(gameDetails['Price']?.toString() ?? '0') ??
-                      0.0;
-
-              // Correctly parse the date
-              String date = gameDetails['Date'] != null
-                  ? DateFormat('dd MM yyyy').format(
-                      DateFormat('dd MM yyyy').parse(gameDetails['Date']))
-                  : DateFormat('dd MM yyyy').format(DateTime.now());
-
-              // Create a GameTile
-              Widget gameTile = GameTile(
-                location: location,
-                date: date,
-                gameID: gameID.toString(),
-                time: time,
-                playersJoined: playersJoined,
-                price: price,
-                size: size,
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => GameDescription(
-                              location: location,
-                              gameID: gameID.toString(),
-                              date: date,
-                              time: time,
-                              playersJoined: playersJoined,
-                              price: price,
-                              size: size)));
-                },
-              );
-              gameTiles.add(gameTile);
-            }
-          });
-        }
-      });
-    }
-
-    return gameTiles;
-  }
-
-  void populateLists(dynamic data) {
-    if (data is Map) {
-      var likedVenuesMap = data['Liked Venues'];
-      var joinedGamesMap = data['Games joined'];
-
-      List<String> venueNames = [];
-      List<Widget> gameNames = [];
-
-      if (likedVenuesMap is Map) {
-        venueNames = likedVenuesMap.values.map((v) => v.toString()).toList();
-      } else {
-        print('Liked Venues is not a map');
-      }
-
-      if (joinedGamesMap is Map) {
-        gameNames = createGameTiles(joinedGamesMap);
-      } else {
-        print('Games joined is not a map');
-      }
-
+  Future<void> _retrieveUserId() async {
+    String? fetchedUserId = await PreferencesService().getUserId();
+    if (fetchedUserId != null) {
       setState(() {
-        venuesList = venueNames;
-        gamesList = gameNames;
+        userID = fetchedUserId;
       });
-    } else {
-      print('Data is not a map');
     }
   }
 
-  Future<void> _loadPreferences() async {
-    String userID = await PreferencesService().getUserId() ?? '';
+  Future<List<Widget>> buildGameTiles() async {
+    List<Map<String, dynamic>> games = await _loadGamesToList();
 
-    var data =
-        await DatabaseServices().retrieveLocal('User Preferences/$userID/');
+    return games.map((game) {
+      return GameTile(
+          locationID: game['venue_id'],
+          gameID: game['game_id'],
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => GameDescription(
+                          locationID: game['venue_id'],
+                          date: game['game_date'],
+                          gameID: game['game_id'],
+                          time: game['time'],
+                          playersJoined: game['current_players'],
+                          price: game['price'],
+                          size: game['max_players'],
+                          sportID: game['sport_id'],
+                        )));
+          });
+    }).toList();
+  }
 
-    if (data is Map) {
-      populateLists(data);
-    } else {
-      print('Data is not a map');
-    }
+  Future<List<Map<String, dynamic>>> _loadGamesToList() async {
+    List<List<dynamic>> games = await PostgresService().retrieve(
+        "SELECT g.game_id, g.venue_id, g.sport_id, g.game_date, g.start_time::text, g.description, g.max_players, g.current_players, g.price "
+        "FROM games g "
+        "INNER JOIN user_game_participation ugp ON g.game_id = ugp.game_id "
+        "WHERE ugp.user_id = '$userID'");
+
+    return games.map((row) {
+      return {
+        'game_id': row[0],
+        'venue_id': row[1],
+        'sport_id': row[2],
+        'game_date': row[3] as DateTime,
+        'time': row[4], // Assuming this is text now
+        'description': row[5],
+        'max_players': row[6].toString(),
+        'current_players': row[7].toString(),
+        'price': row[8]
+      };
+    }).toList();
+  }
+
+  Future<List<int>> getLikedVenueID() async {
+    List<List<dynamic>> results = await PostgresService().retrieve(
+        "SELECT likeable_id FROM user_likes WHERE user_id = '$userID' AND likeable_type = 'venue'");
+
+    return results.map((row) => row[0] as int).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> getVenueDetails(List<int> venueIds) async {
+    // List<int> venueIds = await getLikedVenueID();
+
+    // Convert the list of IDs to a comma-separated string
+    String idsString = venueIds.join(', ');
+
+    // Build the SQL query
+    String query = 'SELECT * FROM venues WHERE venue_id IN ($idsString)';
+
+    // Execute the query
+    List<List<dynamic>> results = await PostgresService().retrieve(query);
+
+    // Convert the results to a list of maps for easier usage
+    return results.map((row) {
+      return {
+        'venue_id': row[0],
+        'name': row[1],
+        'address': row[2],
+        'description': row[3],
+        // Add other fields as needed
+      };
+    }).toList();
   }
 
   @override
@@ -201,30 +188,66 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            Container(
-              height: 150,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: venuesList.length,
-                itemBuilder: (context, index) {
-                  return LocationTile(
-                    locationName: venuesList[index].toString(),
-                    showDistance: false,
-                    showRating: false,
-                    opacity: 0,
-                    onTap: () {
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => LocationDescription(
-                      //       locationName: venuesList[index],
-                      //     ),
-                      //   ),
-                      // );
-                    },
-                  );
-                },
-              ),
+            FutureBuilder<List<int>>(
+              future: getLikedVenueID(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(child: Text('No liked venues found'));
+                }
+
+                return FutureBuilder<List<Map<String, dynamic>>>(
+                  future: getVenueDetails(snapshot.data!),
+                  builder: (context, venueSnapshot) {
+                    if (venueSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+
+                    if (venueSnapshot.hasError) {
+                      return Center(
+                          child: Text('Error: ${venueSnapshot.error}'));
+                    }
+
+                    if (!venueSnapshot.hasData || venueSnapshot.data!.isEmpty) {
+                      return Center(child: Text('Venue details not found'));
+                    }
+
+                    return Container(
+                      height: 150, // Adjust the height as needed
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: venueSnapshot.data!.length,
+                        itemBuilder: (context, index) {
+                          var venue = venueSnapshot.data![index];
+                          return LocationTile(
+                            locationName: venue['name'],
+                            showDistance: false,
+                            showRating: false,
+                            opacity: 0.4,
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => LocationDescription(
+                                          locationName: venue['name'],
+                                          locationID:
+                                              venue['venue_id'].toString())));
+                            },
+                          );
+                        },
+                      ),
+                    );
+                  },
+                );
+              },
             ),
             const SizedBox(height: 10),
             const Padding(
@@ -238,20 +261,35 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            Container(
-              height: 310, // Adjusted height
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: gamesList.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                    width: 300, // Width of each game tile
-                    margin: const EdgeInsets.all(8),
-                    child: gamesList[index], // Your GameTile widget
-                  );
-                },
-              ),
-            ),
+            FutureBuilder<List<Widget>>(
+              future: buildGameTiles(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('No games found'));
+                }
+
+                return Container(
+                  height: 310, // Adjusted height for the container
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        width: 300, // Width of each game tile
+                        margin: const EdgeInsets.all(8),
+                        child: snapshot.data![index], // Each GameTile widget
+                      );
+                    },
+                  ),
+                );
+              },
+            )
           ],
         ),
       ),

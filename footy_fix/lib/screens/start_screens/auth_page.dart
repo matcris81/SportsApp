@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/geolocator_services.dart';
 import 'package:footy_fix/screens/start_screens/login_screen.dart';
 import 'package:footy_fix/components/navigation.dart';
@@ -16,13 +17,6 @@ class _AuthPageState extends State<AuthPage> {
   final GeolocatorService _geolocatorService = GeolocatorService();
   final PreferencesService _sharedPreferencesService =
       PreferencesService(); // Instance of your shared preferences service
-
-  @override
-  void initState() {
-    super.initState();
-    // Perform necessary initializations if needed
-    print("wtf");
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +46,8 @@ class _AuthPageState extends State<AuthPage> {
     // Start location updates
     _geolocatorService.startPeriodicLocationUpdates(const Duration(minutes: 5));
 
+    _checkForUser(user.uid);
+
     // Navigate to NavBar
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Navigator.of(context).pushReplacement(
@@ -60,6 +56,16 @@ class _AuthPageState extends State<AuthPage> {
     });
 
     return const Center(child: CircularProgressIndicator());
+  }
+
+  void _checkForUser(String userID) async {
+    var user = await PostgresService().retrieve(
+        "SELECT EXISTS (SELECT 1 FROM users WHERE user_id = '$userID') AS user_exists");
+
+    print('user: $user');
+    // if (user[0][0] == false) {
+
+    // }
   }
 
   void _updateUserLocation() {

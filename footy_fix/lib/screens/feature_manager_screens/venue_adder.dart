@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:footy_fix/services/database_service.dart';
+import 'package:footy_fix/services/db_services.dart';
 
 class AddVenue extends StatefulWidget {
   const AddVenue({Key? key}) : super(key: key);
@@ -152,21 +152,24 @@ class _AddVenueState extends State<AddVenue> {
                       ),
                       const SizedBox(height: 24.0),
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             _formKey.currentState!.save();
                             String formattedAddress =
                                 '$address, $suburb, $city';
 
-                            var newLocation = {
-                              venueName: {
-                                'Address': formattedAddress,
-                                'About Venue': description,
-                              }
+                            var newVenue = {
+                              'name': venueName,
+                              'address': formattedAddress,
+                              'description': description,
                             };
 
-                            DatabaseServices()
-                                .addWithIDToDataBase('Venues/', newLocation);
+                            // DatabaseServices()
+                            //     .addWithIDToDataBase('Venues/', newVenue);
+
+                            await PostgresService().insert('venues', newVenue);
+
+                            if (!mounted) return;
 
                             Navigator.pop(context);
                           }

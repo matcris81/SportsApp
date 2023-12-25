@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/descriptions/location_description.dart';
-import 'package:footy_fix/services/database_service.dart';
+import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/geolocator_services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:footy_fix/components/venues_tile.dart';
@@ -29,15 +29,15 @@ class _SearchScreenState extends State<SearchScreen> {
     Map<String, Map<String, dynamic>> venues = {};
 
     try {
-      Object? locationNames =
-          await DatabaseServices().retrieveMultiple('Venues');
+      var result = await PostgresService()
+          .retrieve("SELECT venue_id, address, name FROM venues");
 
-      if (locationNames is Map) {
-        for (var id in locationNames.keys) {
-          var venueDetails = locationNames[id];
-          if (venueDetails is Map) {
-            String venueName = venueDetails.keys.first;
-            String address = venueDetails[venueName]['Address'];
+      if (result is List) {
+        for (var venue in result) {
+          if (venue is List && venue.length >= 3) {
+            String venueID = venue[0]?.toString() ?? 'Unknown ID';
+            String address = venue[1] as String? ?? 'Unknown Address';
+            String venueName = venue[2] as String? ?? 'Unknown Name';
 
             // get address coordinates
             Map<double, double>? coordinates =
@@ -55,7 +55,7 @@ class _SearchScreenState extends State<SearchScreen> {
               // Handle the distance value as needed
             }
 
-            venues[id] = {'name': venueName, 'distance': distance};
+            venues[venueID] = {'name': venueName, 'distance': distance};
           }
         }
       }

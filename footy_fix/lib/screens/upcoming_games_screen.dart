@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/components/game_tile.dart';
-import 'package:footy_fix/descriptions/game_description.dart';
+import 'package:footy_fix/services/db_services.dart';
 
 class UpcomingGamesList extends StatefulWidget {
-  final Map<dynamic, dynamic> games;
+  final String venueID;
   final String locationName;
 
   const UpcomingGamesList(
-      {Key? key, this.locationName = '', required this.games})
+      {Key? key, required this.venueID, this.locationName = ''})
       : super(key: key);
 
   @override
@@ -17,8 +17,6 @@ class UpcomingGamesList extends StatefulWidget {
 class _UpcomingGamesListState extends State<UpcomingGamesList> {
   @override
   Widget build(BuildContext context) {
-    var gameIDs = widget.games.keys.toList(); // Get all game IDs
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -36,54 +34,58 @@ class _UpcomingGamesListState extends State<UpcomingGamesList> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: Container(
-        color: Colors.grey[300],
-        child: ListView.builder(
-          itemCount: gameIDs.length,
-          itemBuilder: (context, index) {
-            var gameID = gameIDs[index];
-            var gameDetails = widget.games[gameID];
-            if (gameDetails is! Map) {
-              return const SizedBox.shrink();
-            }
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: fetchGamesByVenue(widget.venueID),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No upcoming games'));
+          }
 
-            return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Container(
-                  height: 310,
-                  child: GameTile(
-                    location: widget.locationName,
-                    date: gameDetails['Date']?.toString() ?? '',
-                    gameID: gameID.toString(),
-                    time: gameDetails['Time']?.toString() ?? '',
-                    size: gameDetails['Size']?.toString() ?? '',
-                    price: gameDetails['Price']?.toDouble() ?? 0.0,
-                    playersJoined:
-                        gameDetails['Players joined']?.toString() ?? '',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => GameDescription(
-                            location: widget.locationName,
-                            gameID: gameID.toString(),
-                            date: gameDetails['Date']?.toString() ?? '',
-                            time: gameDetails['Time']?.toString() ?? '',
-                            size: gameDetails['Size']?.toString() ?? '',
-                            price: (gameDetails['Price'] is num)
-                                ? gameDetails['Price'].toDouble()
-                                : 0.0,
-                            playersJoined:
-                                gameDetails['Players joined']?.toString() ?? '',
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ));
-          },
-        ),
+          List<Map<String, dynamic>> games = snapshot.data!;
+
+          return ListView.builder(
+            itemCount: games.length,
+            itemBuilder: (context, index) {
+              var gameDetails = games[index];
+              return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Container(
+                    height: 310,
+                    child: GameTile(
+                      gameID: gameDetails['game_id'],
+                      locationID: gameDetails['venue_id'],
+                    ),
+                  ));
+            },
+          );
+        },
       ),
     );
+  }
+
+  Future<List<Map<String, dynamic>>> fetchGamesByVenue(String venueID) async {
+    var results = await PostgresService().retrieve(
+        "SELECT game_id, venue_id, sport_id, game_date, start_time::text, "
+        "description, max_players, current_players, price FROM games WHERE venue_id = $venueID");
+
+    return results.map((row) {
+      return {
+        'game_id': row[0],
+        'venue_id': row[1],
+        'sport_id': row[2],
+        'game_date': row[3],
+        'start_time': row[4],
+        'description': row[5],
+        'max_players': row[6],
+        'current_players': row[7],
+        'price': row[8]
+      };
+    }).toList();
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:footy_fix/services/database_service.dart';
+import 'package:footy_fix/services/db_services.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter/cupertino.dart';
 
 class AddEvent extends StatefulWidget {
   const AddEvent({Key? key}) : super(key: key);
@@ -16,13 +18,71 @@ class _AddEventState extends State<AddEvent> {
   double price = 0;
   int size = 0;
   String sport = '';
+  String description = '';
+
+  Future<List<String>> fetchVenueNames() async {
+    var result = await PostgresService().retrieve("SELECT name FROM venues");
+    return result.map((row) => row[0] as String).toList();
+  }
+
+  Future<void> _showVenuePicker() async {
+    String selectedVenue = '';
+    await showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) {
+        return FutureBuilder<List<String>>(
+          future: fetchVenueNames(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (snapshot.hasData) {
+              List<String> venues = snapshot.data!;
+              int selectedIdx = 0;
+              selectedVenue = venues[selectedIdx];
+
+              return CupertinoActionSheet(
+                message: Container(
+                  height: 200, // Height of picker
+                  child: CupertinoPicker(
+                    itemExtent: 32,
+                    onSelectedItemChanged: (int index) {
+                      selectedIdx = index;
+                      selectedVenue = venues[selectedIdx];
+                    },
+                    children: venues.map((name) => Text(name)).toList(),
+                  ),
+                ),
+                cancelButton: CupertinoActionSheetAction(
+                  child: const Text("Cancel"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              );
+            } else {
+              return Center(child: Text('No venues available'));
+            }
+          },
+        );
+      },
+    ).then((_) {
+      if (mounted) {
+        setState(() {
+          location =
+              selectedVenue; // Update the selected venue when the picker is closed
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Add Venue',
+          'Add Event',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -55,18 +115,10 @@ class _AddEventState extends State<AddEvent> {
                         MainAxisAlignment.center, // Center vertically
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
-                      TextFormField(
-                        decoration: const InputDecoration(
-                          labelText: 'Venue Name',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter Venue Name';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) => location = value!,
+                      Text('Selected Venue: $location'),
+                      ElevatedButton(
+                        onPressed: _showVenuePicker,
+                        child: Text('Select Venue'),
                       ),
                       const SizedBox(height: 16.0),
                       TextFormField(
@@ -168,34 +220,59 @@ class _AddEventState extends State<AddEvent> {
                         },
                         onSaved: (value) => sport = value!,
                       ),
+                      const SizedBox(height: 16.0),
+                      TextFormField(
+                        decoration: const InputDecoration(
+                          labelText: 'Description',
+                          border: OutlineInputBorder(),
+                        ),
+                        maxLines: 3,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a description';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) => description = value!,
+                      ),
                       const SizedBox(height: 24.0),
                       ElevatedButton(
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             _formKey.currentState!.save();
 
-                            var formattedDate = date.replaceAll('/', ' ');
+                            // Parse the date from DD/MM/YYYY format and reformat to YYYY-MM-DD
+                            DateTime parsedDate =
+                                DateFormat('dd/MM/yyyy').parse(date);
+                            String formattedDate =
+                                DateFormat('yyyy-MM-dd').format(parsedDate);
+
+                            var venueIDResult = await PostgresService().retrieve(
+                                "SELECT venue_id FROM venues WHERE name = '$location'");
+                            var venueID = venueIDResult[0][0];
+
+                            var sportIDResult = await PostgresService().retrieve(
+                                "SELECT sport_id FROM sports WHERE name = '$sport'");
+                            var sportID = sportIDResult[0][0];
 
                             var game = {
-                              'location': location,
-                              'date': date,
-                              'time': time,
+                              'venue_id': venueID,
+                              'sport_id': sportID,
+                              'game_date':
+                                  formattedDate, // Use the correctly formatted date
+                              'start_time': time,
+                              'description': description,
+                              'max_players': size,
                               'price': price,
-                              'size': size,
-                              'sport': sport,
                             };
 
-                            print('game: $game');
+                            print(game);
 
-                            // add gameID to games Sorted
-                            var gameID = await DatabaseServices()
-                                .addJustID('GamesSorted/$sport/$formattedDate');
+                            await PostgresService().insert('games', game);
 
-                            // add game details to game
-                            await DatabaseServices()
-                                .addWithoutIDToDataBase('Games/$gameID', game);
+                            if (!mounted) return;
 
-                            // Navigator.pop(context);Albany
+                            Navigator.pop(context);
                           }
                         },
                         child: Text('Submit'),
