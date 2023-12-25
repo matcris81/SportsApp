@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/db_services.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/cupertino.dart';
 
 class AddEvent extends StatefulWidget {
   const AddEvent({Key? key}) : super(key: key);
@@ -18,6 +19,63 @@ class _AddEventState extends State<AddEvent> {
   int size = 0;
   String sport = '';
   String description = '';
+
+  Future<List<String>> fetchVenueNames() async {
+    var result = await PostgresService().retrieve("SELECT name FROM venues");
+    return result.map((row) => row[0] as String).toList();
+  }
+
+  Future<void> _showVenuePicker() async {
+    String selectedVenue = '';
+    await showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) {
+        return FutureBuilder<List<String>>(
+          future: fetchVenueNames(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (snapshot.hasData) {
+              List<String> venues = snapshot.data!;
+              int selectedIdx = 0;
+              selectedVenue = venues[selectedIdx];
+
+              return CupertinoActionSheet(
+                message: Container(
+                  height: 200, // Height of picker
+                  child: CupertinoPicker(
+                    itemExtent: 32,
+                    onSelectedItemChanged: (int index) {
+                      selectedIdx = index;
+                      selectedVenue = venues[selectedIdx];
+                    },
+                    children: venues.map((name) => Text(name)).toList(),
+                  ),
+                ),
+                cancelButton: CupertinoActionSheetAction(
+                  child: const Text("Cancel"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              );
+            } else {
+              return Center(child: Text('No venues available'));
+            }
+          },
+        );
+      },
+    ).then((_) {
+      if (mounted) {
+        setState(() {
+          location =
+              selectedVenue; // Update the selected venue when the picker is closed
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,18 +115,10 @@ class _AddEventState extends State<AddEvent> {
                         MainAxisAlignment.center, // Center vertically
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
-                      TextFormField(
-                        decoration: const InputDecoration(
-                          labelText: 'Venue Name',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter Venue Name';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) => location = value!,
+                      Text('Selected Venue: $location'),
+                      ElevatedButton(
+                        onPressed: _showVenuePicker,
+                        child: Text('Select Venue'),
                       ),
                       const SizedBox(height: 16.0),
                       TextFormField(
