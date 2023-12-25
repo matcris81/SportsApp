@@ -1,7 +1,8 @@
 import 'package:postgres/postgres.dart';
+import 'dart:io';
 
 class PostgresService {
-  late Connection connection;
+  Connection? connection;
 
   static final PostgresService _instance = PostgresService._internal();
 
@@ -12,94 +13,80 @@ class PostgresService {
   PostgresService._internal();
 
   Future<void> initDatabase() async {
-    connection = await Connection.open(
-      Endpoint(
-        host: '192.168.3.11',
-        database: 'football_fix',
-        username: 'mat',
-        password: 'pass',
-      ),
-      // The postgres server hosted locally doesn't have SSL by default. If you're
-      // accessing a postgres server over the Internet, the server should support
-      // SSL and you should swap out the mode with `SslMode.verifyFull`.
-      settings: ConnectionSettings(sslMode: SslMode.disable),
-    );
+    try {
+      connection = await Connection.open(
+        Endpoint(
+          host: '192.168.3.11',
+          database: 'football_fix',
+          username: 'mat',
+          password: 'pass',
+        ),
+        // The postgres server hosted locally doesn't have SSL by default. If you're
+        // accessing a postgres server over the Internet, the server should support
+        // SSL and you should swap out the mode with `SslMode.verifyFull`.
+        settings: ConnectionSettings(sslMode: SslMode.disable),
+      );
 
-    print('Connected to the db');
+      print('Connected to the db');
+    } on SocketException catch (e) {
+      // Handle network-related issues here
+      print('Network error: $e');
+      // Possibly alert the user or handle the situation appropriately
+    } catch (e) {
+      print('Error connecting to the db: $e');
+    }
   }
 
   Future<void> insert(String table, Map<String, dynamic> data) async {
-    if (connection.isOpen == false) {
-      initDatabase();
-    }
+    checkConnection();
 
     final columns = data.keys.join(', ');
     final values =
         data.values.map((e) => e is String ? "'$e'" : e.toString()).join(', ');
 
     final query = 'INSERT INTO $table ($columns) VALUES ($values)';
-    await connection.execute(query);
-  }
-
-  Future<void> update(
-      String table, Map<String, dynamic> data, String whereClause) async {
-    final updates = data.entries
-        .map(
-            (e) => "${e.key} = ${e.value is String ? "'${e.value}'" : e.value}")
-        .join(', ');
-
-    final query = 'UPDATE $table SET $updates WHERE $whereClause';
-    await connection.execute(query);
-  }
-
-  Future<void> delete(String table, String whereClause) async {
-    final query = 'DELETE FROM $table WHERE $whereClause';
-    await connection.execute(query);
-  }
-
-  Future<Result> retrieveMultiple(
-      String table, String coloumn, String whereClause) async {
-    final query = 'SELECT $coloumn FROM $table WHERE $whereClause';
-    var result = await connection.execute(query);
-    return result;
-  }
-
-  Future<Result> retrieveRows(String table, String coloumns) async {
-    final query = 'SELECT $coloumns FROM $table';
     print(query);
-    var result = await connection.execute(query);
-    return result;
-  }
-
-  Future<Result> retrieveSingle(
-      String table, String coloumn, String row, String whereClause) async {
-    final query = "SELECT $coloumn FROM $table WHERE $row = '$whereClause'";
-    print(query);
-    var result = await connection.execute(query);
-    return result;
+    await connection!.execute(query);
   }
 
   Future<void> executeQuery(String query) async {
-    await connection.execute(query);
+    checkConnection();
+    print(query);
+    await connection!.execute(query);
   }
 
-  Future<Result> retrieve(String query) {
-    if (connection.isOpen == false) {
-      initDatabase();
-    }
+  Future<Result> retrieve(String query) async {
+    checkConnection();
+    print(query);
 
-    return connection.execute(query);
+    return await connection!.execute(query);
   }
 
   Future<void> increment(
       String table, String column, String whereClause, int incrementBy) async {
+    checkConnection();
+
     final query =
         'UPDATE $table SET $column = $column + $incrementBy WHERE $whereClause';
-    await connection.execute(query);
+    await connection!.execute(query);
   }
 
   void closeConnection() {
     print('Closing connection');
-    connection.close();
+    connection!.close();
+  }
+
+  void checkConnection() async {
+    if (connection == null || !connection!.isOpen) {
+      await initDatabase();
+      if (connection == null) {
+        // Handle the error: connection couldn't be established
+        throw Exception('Database connection could not be established');
+      }
+    }
+
+    if (connection?.isOpen == false) {
+      await initDatabase();
+    }
   }
 }

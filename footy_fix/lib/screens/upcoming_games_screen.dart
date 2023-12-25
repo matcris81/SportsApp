@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/components/game_tile.dart';
-import 'package:footy_fix/descriptions/game_description.dart';
 import 'package:footy_fix/services/db_services.dart';
 
 class UpcomingGamesList extends StatefulWidget {
@@ -54,7 +53,6 @@ class _UpcomingGamesListState extends State<UpcomingGamesList> {
             itemCount: games.length,
             itemBuilder: (context, index) {
               var gameDetails = games[index];
-              print(gameDetails);
               return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Container(

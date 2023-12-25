@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/db_services.dart';
+import 'package:intl/intl.dart';
 
 class AddEvent extends StatefulWidget {
   const AddEvent({Key? key}) : super(key: key);
@@ -190,28 +191,32 @@ class _AddEventState extends State<AddEvent> {
                           if (_formKey.currentState!.validate()) {
                             _formKey.currentState!.save();
 
-                            var venueIDResult = await PostgresService()
-                                .retrieveSingle(
-                                    'venues', 'venue_id', 'name', location);
+                            // Parse the date from DD/MM/YYYY format and reformat to YYYY-MM-DD
+                            DateTime parsedDate =
+                                DateFormat('dd/MM/yyyy').parse(date);
+                            String formattedDate =
+                                DateFormat('yyyy-MM-dd').format(parsedDate);
 
-                            var venueid = venueIDResult[0][0];
+                            var venueIDResult = await PostgresService().retrieve(
+                                "SELECT venue_id FROM venues WHERE name = '$location'");
+                            var venueID = venueIDResult[0][0];
 
-                            var sportIDResult = await PostgresService()
-                                .retrieveSingle(
-                                    'sports', 'sport_id', 'name', sport);
-                            var sport_id = sportIDResult[0][0];
-
-                            // print()
+                            var sportIDResult = await PostgresService().retrieve(
+                                "SELECT sport_id FROM sports WHERE name = '$sport'");
+                            var sportID = sportIDResult[0][0];
 
                             var game = {
-                              'venue_id': venueid,
-                              'sport_id': sport_id,
-                              'game_date': date,
+                              'venue_id': venueID,
+                              'sport_id': sportID,
+                              'game_date':
+                                  formattedDate, // Use the correctly formatted date
                               'start_time': time,
                               'description': description,
                               'max_players': size,
                               'price': price,
                             };
+
+                            print(game);
 
                             await PostgresService().insert('games', game);
 

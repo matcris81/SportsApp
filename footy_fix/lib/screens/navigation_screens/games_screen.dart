@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:footy_fix/services/db_services.dart';
+import 'package:footy_fix/components/game_tile.dart';
 
 class GamesScreen extends StatefulWidget {
   const GamesScreen({Key? key}) : super(key: key);
@@ -10,15 +12,16 @@ class GamesScreen extends StatefulWidget {
 
 class _GamesScreenState extends State<GamesScreen> {
   DateTime _selectedDate = DateTime.now();
+  // DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
   late final List<DateTime> _dates;
-  late final ValueNotifier<List<String>> _selectedGames;
+  late final ValueNotifier<List<int>> _selectedGames;
 
   @override
   void initState() {
     super.initState();
     _dates = _generateDatesList(30); // Generate dates for the next 30 days
-    _selectedGames = ValueNotifier<List<String>>([]);
-    _loadGamesForSelectedDay(_selectedDate);
+    _selectedGames = ValueNotifier<List<int>>([]);
+    // _loadGamesForSelectedDay(_selectedDate);
   }
 
   @override
@@ -32,7 +35,15 @@ class _GamesScreenState extends State<GamesScreen> {
         daysCount, (index) => DateTime.now().add(Duration(days: index)));
   }
 
-  Future<void> _loadGamesForSelectedDay(DateTime day) async {}
+  Future<Map<int, int>> _getGamesForDay(String day) async {
+    var result = await PostgresService().retrieve(
+        "SELECT game_id, venue_id FROM games WHERE game_date = '$day'");
+
+    Map<int, int> games = {
+      for (var row in result) row[0] as int: row[1] as int
+    };
+    return games;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +70,6 @@ class _GamesScreenState extends State<GamesScreen> {
                   onTap: () {
                     setState(() {
                       _selectedDate = date;
-                      _loadGamesForSelectedDay(date);
                     });
                   },
                   child: Container(
@@ -93,15 +103,38 @@ class _GamesScreenState extends State<GamesScreen> {
             ),
           ),
           Expanded(
-            child: ValueListenableBuilder<List<String>>(
-              valueListenable: _selectedGames,
-              builder: (context, games, _) {
+            child: FutureBuilder<Map<int, int>>(
+              future: _getGamesForDay(_selectedDate.toString()),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('No upcoming games'));
+                }
+
+                var gameInfo = snapshot.data!;
                 return ListView.builder(
-                  itemCount: games.length,
+                  itemCount: gameInfo.length,
                   itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(games[index]), // Display game details
-                      // Add onTap or other interactive elements
+                    var entry = gameInfo.entries.elementAt(index);
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Container(
+                        height: 310,
+                        child: GameTile(
+                          gameID: entry.key,
+                          locationID: entry.value,
+                          onTap: () {
+                            // Handle tap event, e.g., navigate to a game detail screen
+                            // You might want to pass the game ID to the detail screen
+                          },
+                        ),
+                      ),
                     );
                   },
                 );

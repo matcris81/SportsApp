@@ -30,7 +30,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
     try {
       var result = await PostgresService()
-          .retrieveRows('venues', 'venue_id, address, name');
+          .retrieve("SELECT venue_id, address, name FROM venues");
 
       if (result is List) {
         for (var venue in result) {
