@@ -49,12 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(
                     builder: (context) => GameDescription(
                           locationID: game['venue_id'],
-                          date: game['game_date'],
                           gameID: game['game_id'],
-                          time: game['time'],
-                          playersJoined: game['current_players'],
-                          price: game['price'],
-                          size: game['max_players'],
                           sportID: game['sport_id'],
                         )));
           });
@@ -238,8 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   MaterialPageRoute(
                                       builder: (context) => LocationDescription(
                                           locationName: venue['name'],
-                                          locationID:
-                                              venue['venue_id'].toString())));
+                                          locationID: venue['venue_id'])));
                             },
                           );
                         },

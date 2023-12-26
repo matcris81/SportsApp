@@ -3,16 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:footy_fix/screens/upcoming_games_screen.dart';
 import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
-import 'package:intl/intl.dart';
 import 'package:footy_fix/components/game_tile.dart';
-import 'package:footy_fix/descriptions/game_description.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io' show Platform;
-import 'dart:convert';
+import 'package:footy_fix/descriptions/game_description.dart';
 
 class LocationDescription extends StatefulWidget {
   final String locationName;
-  final String locationID;
+  final int locationID;
 
   // Constructor to accept a string
   const LocationDescription(
@@ -76,8 +74,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
 
   Future<List<dynamic>> getNextUpcomingGame() async {
     var result = await PostgresService().retrieve(
-        'SELECT game_id, venue_id, sport_id, game_date, start_time::text, description, max_players, current_players, price'
-        ' FROM games WHERE venue_id = ${widget.locationID} AND '
+        'SELECT game_id FROM games WHERE venue_id = ${widget.locationID} AND '
         '(game_date > current_date OR (game_date = current_date AND '
         'start_time > current_time)) ORDER BY game_date, start_time LIMIT 1');
 
@@ -261,12 +258,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
                             // Extract the game details from gameRow
                             // Assuming gameRow contains all necessary fields
                             var gameId = gameRow[0];
-                            var gameDate = gameRow[3] as DateTime;
-                            var startTime = gameRow[4];
-                            var description = gameRow[5];
-                            var maxPlayers = gameRow[6];
-                            var currentPlayers = gameRow[7];
-                            var price = gameRow[8];
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(
@@ -275,22 +266,14 @@ class _LocationDescriptionState extends State<LocationDescription> {
                                 height: 310, // Adjust the height as necessary
                                 child: GameTile(
                                   gameID: gameId,
+                                  locationID: widget.locationID,
                                   onTap: () {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => GameDescription(
-                                          location: widget.locationName,
                                           gameID: gameId,
-                                          date: gameDate, // format as needed
-                                          time: startTime.substring(
-                                              0, 5), // format as needed
-                                          size: maxPlayers.toString(),
-                                          price: price,
-                                          playersJoined:
-                                              currentPlayers.toString(),
-                                          // description:
-                                          //     description, // If you have a description field in GameDescription
+                                          locationID: widget.locationID,
                                         ),
                                       ),
                                     );

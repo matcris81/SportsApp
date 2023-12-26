@@ -3,7 +3,7 @@ import 'package:footy_fix/components/game_tile.dart';
 import 'package:footy_fix/services/db_services.dart';
 
 class UpcomingGamesList extends StatefulWidget {
-  final String venueID;
+  final int venueID;
   final String locationName;
 
   const UpcomingGamesList(
@@ -69,7 +69,7 @@ class _UpcomingGamesListState extends State<UpcomingGamesList> {
     );
   }
 
-  Future<List<Map<String, dynamic>>> fetchGamesByVenue(String venueID) async {
+  Future<List<Map<String, dynamic>>> fetchGamesByVenue(int venueID) async {
     var results = await PostgresService().retrieve(
         "SELECT game_id, venue_id, sport_id, game_date, start_time::text, "
         "description, max_players, current_players, price FROM games WHERE venue_id = $venueID");
