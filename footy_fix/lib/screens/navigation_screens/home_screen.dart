@@ -44,19 +44,14 @@ class _HomeScreenState extends State<HomeScreen> {
           locationID: game['venue_id'],
           gameID: game['game_id'],
           onTap: () {
-            // Navigator.push(
-            //     context,
-            //     MaterialPageRoute(
-            //         builder: (context) => GameDescription(
-            //               locationID: game['venue_id'],
-            //               date: game['game_date'],
-            //               gameID: game['game_id'],
-            //               time: game['time'],
-            //               playersJoined: game['current_players'],
-            //               price: game['price'],
-            //               size: game['max_players'],
-            //               sportID: game['sport_id'],
-            //             )));
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => GameDescription(
+                          locationID: game['venue_id'],
+                          gameID: game['game_id'],
+                          sportID: game['sport_id'],
+                        )));
           });
     }).toList();
   }

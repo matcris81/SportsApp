@@ -65,12 +65,18 @@ class _GameDescriptionState extends State<GameDescription> {
                           var gameDetails = snapshot.data;
                           print(gameDetails);
 
-                          // var date = gameDetails[3];
-                          // var time = gameDetails[4];
-                          // var description = gameDetails[5];
-                          // var size = gameDetails[6];
-                          // var currentPlayers = gameDetails[7];
-                          // var price = gameDetails[8];
+                          var venueName = gameDetails!['venueName'];
+                          var address = gameDetails['address'];
+                          var description = gameDetails['description'];
+                          var size = gameDetails['size'];
+                          var playersJoined = gameDetails['currentPlayers'];
+                          var price = gameDetails['price'];
+                          var time = gameDetails['time'];
+                          var date = gameDetails['date'];
+
+                          var dayName = DateFormat('EEEE').format(date);
+                          var dayNumber = DateFormat('d').format(date);
+                          var monthName = DateFormat('MMMM').format(date);
 
                           return Card(
                             margin: const EdgeInsets.all(16.0),
@@ -82,60 +88,61 @@ class _GameDescriptionState extends State<GameDescription> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Center(
-                                  //   child: Text(
-                                  //     venueName, // Assuming 'locationName' is a String containing the game's location name
-                                  //     style: Theme.of(context)
-                                  //         .textTheme
-                                  //         .titleLarge
-                                  //         ?.copyWith(
-                                  //           fontWeight: FontWeight.bold,
-                                  //           fontSize: 24,
-                                  //         ),
-                                  //     textAlign: TextAlign.center,
-                                  //   ),
-                                  // ),
-                                  // const SizedBox(height: 8),
-                                  // const Divider(),
-                                  // ListTile(
-                                  //   leading: const Icon(Icons.date_range),
-                                  //   // title: Text(
-                                  //   //     'Date: $dayName, $dayNumber $monthName'),
-                                  // ),
-                                  // ListTile(
-                                  //   leading: const Icon(Icons.access_time),
-                                  //   title: Text('Time: $time'),
-                                  // ),
-                                  // ListTile(
-                                  //   leading: const Icon(Icons.group),
-                                  //   title: Text(
-                                  //       'Players Joined: $currentPlayers/$size'),
-                                  // ),
-                                  // ListTile(
-                                  //   leading: const Icon(Icons.attach_money),
-                                  //   title: Text(
-                                  //       'Price: \$${price.toStringAsFixed(2)}'),
-                                  // ),
-                                  // const Divider(),
-                                  // ListTile(
-                                  //   leading: const Icon(Icons.location_on),
-                                  //   // title: Text(
-                                  //   //   address, // Display the address here
-                                  //   //   style: const TextStyle(
-                                  //   //     fontSize:
-                                  //   //         14, // Reduce the font size as needed
-                                  //   //     overflow: TextOverflow
-                                  //   //         .ellipsis, // Add this to prevent text overflow
-                                  //   //   ),
-                                  //   //   maxLines:
-                                  //   //       1, // Ensure the address is on a single line
-                                  //   // ),
-                                  //   subtitle: const Text(
-                                  //       'Click for map'), // Optional: if you want to add functionality to navigate to a map view
-                                  //   onTap: () {
-                                  //     // _launchMaps(context, address);
-                                  //   },
-                                  // ),
+                                  Center(
+                                    child: Text(
+                                      venueName, // Assuming 'locationName' is a String containing the game's location name
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 24,
+                                          ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const Divider(),
+                                  ListTile(
+                                    leading: const Icon(Icons.date_range),
+                                    title: Text(
+                                        'Date: $dayName, $dayNumber $monthName'),
+                                  ),
+                                  ListTile(
+                                    leading: const Icon(Icons.access_time),
+                                    title:
+                                        Text('Time: ${time.substring(0, 5)}'),
+                                  ),
+                                  ListTile(
+                                    leading: const Icon(Icons.group),
+                                    title: Text(
+                                        'Players Joined: $playersJoined/$size'),
+                                  ),
+                                  ListTile(
+                                    leading: const Icon(Icons.attach_money),
+                                    title: Text(
+                                        'Price: \$${price.toStringAsFixed(2)}'),
+                                  ),
+                                  const Divider(),
+                                  ListTile(
+                                    leading: const Icon(Icons.location_on),
+                                    title: Text(
+                                      address, // Display the address here
+                                      style: const TextStyle(
+                                        fontSize:
+                                            14, // Reduce the font size as needed
+                                        overflow: TextOverflow
+                                            .ellipsis, // Add this to prevent text overflow
+                                      ),
+                                      maxLines:
+                                          1, // Ensure the address is on a single line
+                                    ),
+                                    subtitle: const Text(
+                                        'Click for map'), // Optional: if you want to add functionality to navigate to a map view
+                                    onTap: () {
+                                      _launchMaps(context, address);
+                                    },
+                                  ),
                                 ],
                               ),
                             ),
@@ -150,65 +157,63 @@ class _GameDescriptionState extends State<GameDescription> {
               ],
             ),
           ),
-          // buildJoinButton(context),
+          buildJoinButton(context),
         ],
       ),
     );
   }
 
-  // Widget buildJoinButton(BuildContext context) {
-  //   return FutureBuilder<Object?>(
-  //     future: PostgresService().retrieve(
-  //         "SELECT current_players FROM games WHERE game_id = your_game_id"),
-  //     builder: (context, snapshot) {
-  //       if (snapshot.connectionState == ConnectionState.waiting) {
-  //         return const CircularProgressIndicator(); // Show loading indicator while waiting
-  //       }
-  //       int joined = 0;
-  //       try {
-  //         // Attempt to cast or convert the data to an integer
-  //         joined = int.parse(snapshot.data.toString());
-  //       } catch (e) {
-  //         print('Error converting snapshot data to int: $e');
-  //         // Handle or report error as appropriate
-  //       }
+  Widget buildJoinButton(BuildContext context) {
+    return FutureBuilder<Object?>(
+      future: PostgresService().retrieve(
+          "SELECT current_players, game_date, price FROM games WHERE game_id = ${widget.gameID}"),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator(); // Show loading indicator while waiting
+        }
 
-  //       bool isFull = joined >= 10;
-  //       return Container(
-  //         padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 24.0),
-  //         child: ElevatedButton(
-  //           onPressed: isFull
-  //               ? null
-  //               : () {
-  //                   Navigator.push(
-  //                     context,
-  //                     MaterialPageRoute(
-  //                         builder: (context) => PaymentScreen(
-  //                               gameID: widget.gameID.toString(),
-  //                               date: widget.date.toString(),
-  //                               price: widget.price,
-  //                             )),
-  //                   );
-  //                 },
-  //           style: ElevatedButton.styleFrom(
-  //             backgroundColor:
-  //                 isFull ? Colors.grey : Colors.black, // Greyed out if full
-  //             padding: const EdgeInsets.symmetric(vertical: 12.0),
-  //             shape: RoundedRectangleBorder(
-  //               borderRadius: BorderRadius.circular(8.0),
-  //               side: const BorderSide(color: Colors.white, width: 2),
-  //             ),
-  //             minimumSize: const Size(double.infinity, 50),
-  //           ),
-  //           child: Text(
-  //             isFull ? 'Join (Full)' : 'Join',
-  //             style: const TextStyle(color: Colors.white, fontSize: 18),
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
+        var paymentDetails = snapshot.data as List<dynamic>;
+
+        var joined = paymentDetails.first[0] as int;
+        var date = paymentDetails.first[1] as DateTime;
+        var price = paymentDetails.first[2] as double;
+
+        bool isFull = joined >= 10;
+        return Container(
+          padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 24.0),
+          child: ElevatedButton(
+            onPressed: isFull
+                ? null
+                : () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => PaymentScreen(
+                                gameID: widget.gameID,
+                                date: date.toString(),
+                                price: price,
+                              )),
+                    );
+                  },
+            style: ElevatedButton.styleFrom(
+              backgroundColor:
+                  isFull ? Colors.grey : Colors.black, // Greyed out if full
+              padding: const EdgeInsets.symmetric(vertical: 12.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+                side: const BorderSide(color: Colors.white, width: 2),
+              ),
+              minimumSize: const Size(double.infinity, 50),
+            ),
+            child: Text(
+              isFull ? 'Join (Full)' : 'Join',
+              style: const TextStyle(color: Colors.white, fontSize: 18),
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   Future<Map<dynamic, dynamic>> getGameInfo() async {
     Map gameInfo = {};
@@ -244,6 +249,8 @@ class _GameDescriptionState extends State<GameDescription> {
     gameInfo['size'] = gameDetails[6];
     gameInfo['currentPlayers'] = gameDetails[7];
     gameInfo['price'] = gameDetails[8];
+    gameInfo['date'] = gameDetails[3];
+    gameInfo['time'] = gameDetails[4];
 
     return gameInfo;
   }

@@ -7,7 +7,7 @@ import 'package:footy_fix/payment_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PaymentScreen extends StatefulWidget {
-  final String gameID;
+  final int gameID;
   final String date;
   final double price;
 
@@ -31,7 +31,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             PaymentConfiguration.fromJsonString(defaultApplePay),
         paymentItems: [
           PaymentItem(
-            label: widget.gameID,
+            label: widget.gameID.toString(),
             amount: widget.price.toStringAsFixed(2),
             status: PaymentItemStatus.final_price,
           ),
@@ -58,7 +58,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             PaymentConfiguration.fromJsonString(defaultGooglePay),
         paymentItems: [
           PaymentItem(
-            label: widget.gameID,
+            label: widget.gameID.toString(),
             amount: widget.price.toStringAsFixed(2),
             status: PaymentItemStatus.final_price,
           ),
