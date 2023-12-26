@@ -276,24 +276,24 @@ class _LocationDescriptionState extends State<LocationDescription> {
                                 child: GameTile(
                                   gameID: gameId,
                                   onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => GameDescription(
-                                          location: widget.locationName,
-                                          gameID: gameId,
-                                          date: gameDate, // format as needed
-                                          time: startTime.substring(
-                                              0, 5), // format as needed
-                                          size: maxPlayers.toString(),
-                                          price: price,
-                                          playersJoined:
-                                              currentPlayers.toString(),
-                                          // description:
-                                          //     description, // If you have a description field in GameDescription
-                                        ),
-                                      ),
-                                    );
+                                    // Navigator.push(
+                                    //   context,
+                                    //   MaterialPageRoute(
+                                    //     builder: (context) => GameDescription(
+                                    //       location: widget.locationName,
+                                    //       gameID: gameId,
+                                    //       date: gameDate, // format as needed
+                                    //       time: startTime.substring(
+                                    //           0, 5), // format as needed
+                                    //       size: maxPlayers.toString(),
+                                    //       price: price,
+                                    //       playersJoined:
+                                    //           currentPlayers.toString(),
+                                    //       // description:
+                                    //       //     description, // If you have a description field in GameDescription
+                                    //     ),
+                                    //   ),
+                                    // );
                                   },
                                 ),
                               ),

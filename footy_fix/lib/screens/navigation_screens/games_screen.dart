@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/components/game_tile.dart';
+import 'package:footy_fix/descriptions/game_description.dart';
 
 class GamesScreen extends StatefulWidget {
   const GamesScreen({Key? key}) : super(key: key);
@@ -130,8 +131,13 @@ class _GamesScreenState extends State<GamesScreen> {
                           gameID: entry.key,
                           locationID: entry.value,
                           onTap: () {
-                            // Handle tap event, e.g., navigate to a game detail screen
-                            // You might want to pass the game ID to the detail screen
+                            //FIX THE GAME DESCRIPTION
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => GameDescription(
+                                        gameID: entry.key,
+                                        locationID: entry.value)));
                           },
                         ),
                       ),
