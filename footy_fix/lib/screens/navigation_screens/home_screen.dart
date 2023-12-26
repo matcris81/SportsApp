@@ -233,8 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   MaterialPageRoute(
                                       builder: (context) => LocationDescription(
                                           locationName: venue['name'],
-                                          locationID:
-                                              venue['venue_id'].toString())));
+                                          locationID: venue['venue_id'])));
                             },
                           );
                         },

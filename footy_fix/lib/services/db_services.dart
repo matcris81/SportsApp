@@ -45,19 +45,16 @@ class PostgresService {
         data.values.map((e) => e is String ? "'$e'" : e.toString()).join(', ');
 
     final query = 'INSERT INTO $table ($columns) VALUES ($values)';
-    print(query);
     await connection!.execute(query);
   }
 
   Future<void> executeQuery(String query) async {
     checkConnection();
-    print(query);
     await connection!.execute(query);
   }
 
   Future<Result> retrieve(String query) async {
     checkConnection();
-    print(query);
 
     return await connection!.execute(query);
   }

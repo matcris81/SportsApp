@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/db_services.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:intl/intl.dart';
 import 'dart:io' show Platform;
 import 'package:url_launcher/url_launcher.dart';
@@ -14,7 +13,7 @@ class GameDescription extends StatefulWidget {
 
   const GameDescription({
     Key? key,
-    this.locationID = 0,
+    required this.locationID,
     required this.gameID,
     this.sportID = 0,
   }) : super(key: key);

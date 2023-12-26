@@ -110,7 +110,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             builder: (context) {
                               return LocationDescription(
                                 locationName: venueName,
-                                locationID: id,
+                                locationID: int.parse(id),
                               );
                             },
                           ));

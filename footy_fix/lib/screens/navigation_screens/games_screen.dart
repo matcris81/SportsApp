@@ -131,7 +131,6 @@ class _GamesScreenState extends State<GamesScreen> {
                           gameID: entry.key,
                           locationID: entry.value,
                           onTap: () {
-                            //FIX THE GAME DESCRIPTION
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
