@@ -4,7 +4,6 @@ import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:pay/pay.dart';
 import 'dart:io' show Platform;
 import 'package:footy_fix/payment_config.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class PaymentScreen extends StatefulWidget {
   final int gameID;

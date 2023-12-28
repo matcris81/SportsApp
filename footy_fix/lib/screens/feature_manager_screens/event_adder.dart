@@ -241,10 +241,6 @@ class _AddEventState extends State<AddEvent> {
                           if (_formKey.currentState!.validate()) {
                             _formKey.currentState!.save();
 
-                            // var add = {
-                            //   'name': 'Football',
-                            // };
-                            // PostgresService().insert('sports', add);
                             // Parse the date from DD/MM/YYYY format and reformat to YYYY-MM-DD
                             DateTime parsedDate =
                                 DateFormat('dd/MM/yyyy').parse(date);
