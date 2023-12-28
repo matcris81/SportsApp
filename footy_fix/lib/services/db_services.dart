@@ -16,15 +16,15 @@ class PostgresService {
     try {
       connection = await Connection.open(
         Endpoint(
-          host: '192.168.3.11',
-          database: 'football_fix',
-          username: 'mat',
-          password: 'pass',
+          host: 'postgres-1.clymy8qkkowx.ap-southeast-2.rds.amazonaws.com',
+          database: 'postgres',
+          username: 'postgres',
+          password: 'Lewandowski9',
         ),
         // The postgres server hosted locally doesn't have SSL by default. If you're
         // accessing a postgres server over the Internet, the server should support
         // SSL and you should swap out the mode with `SslMode.verifyFull`.
-        settings: ConnectionSettings(sslMode: SslMode.disable),
+        settings: const ConnectionSettings(sslMode: SslMode.require),
       );
 
       print('Connected to the db');

@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:footy_fix/components/my_list_item.dart';
 import 'package:footy_fix/location_data.dart';
-import 'package:footy_fix/descriptions/location_description.dart';
 import 'dart:convert';
 
 class PreferencesService {
