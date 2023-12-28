@@ -13,16 +13,14 @@ class GamesScreen extends StatefulWidget {
 
 class _GamesScreenState extends State<GamesScreen> {
   DateTime _selectedDate = DateTime.now();
-  // DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
   late final List<DateTime> _dates;
   late final ValueNotifier<List<int>> _selectedGames;
 
   @override
   void initState() {
     super.initState();
-    _dates = _generateDatesList(30); // Generate dates for the next 30 days
+    _dates = _generateDatesList(30);
     _selectedGames = ValueNotifier<List<int>>([]);
-    // _loadGamesForSelectedDay(_selectedDate);
   }
 
   @override
@@ -114,7 +112,7 @@ class _GamesScreenState extends State<GamesScreen> {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No upcoming games'));
+                  return const Center(child: Text('No events this day'));
                 }
 
                 var gameInfo = snapshot.data!;

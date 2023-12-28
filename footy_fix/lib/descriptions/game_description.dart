@@ -10,12 +10,14 @@ class GameDescription extends StatefulWidget {
   final int locationID;
   final int gameID;
   final int sportID;
+  final bool userAlreadyJoined;
 
   const GameDescription({
     Key? key,
     required this.locationID,
     required this.gameID,
     this.sportID = 0,
+    this.userAlreadyJoined = false,
   }) : super(key: key);
 
   @override
@@ -181,7 +183,7 @@ class _GameDescriptionState extends State<GameDescription> {
         return Container(
           padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 24.0),
           child: ElevatedButton(
-            onPressed: isFull
+            onPressed: isFull || widget.userAlreadyJoined
                 ? null
                 : () {
                     Navigator.push(
@@ -205,7 +207,9 @@ class _GameDescriptionState extends State<GameDescription> {
               minimumSize: const Size(double.infinity, 50),
             ),
             child: Text(
-              isFull ? 'Join (Full)' : 'Join',
+              widget.userAlreadyJoined
+                  ? 'Joined'
+                  : (isFull ? 'Join (Full)' : 'Join'),
               style: const TextStyle(color: Colors.white, fontSize: 18),
             ),
           ),
