@@ -64,7 +64,8 @@ class _GameDescriptionState extends State<GameDescription> {
                           return Text('Error: ${snapshot.error}');
                         } else if (snapshot.hasData) {
                           var gameDetails = snapshot.data;
-                          print(gameDetails);
+                          print(
+                              'widget.userAlreadyJoined: ${widget.userAlreadyJoined}');
 
                           var venueName = gameDetails!['venueName'];
                           var address = gameDetails['address'];

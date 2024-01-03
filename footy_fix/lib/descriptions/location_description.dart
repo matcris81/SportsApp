@@ -267,17 +267,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
                                 child: GameTile(
                                   gameID: gameId,
                                   locationID: widget.locationID,
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => GameDescription(
-                                          gameID: gameId,
-                                          locationID: widget.locationID,
-                                        ),
-                                      ),
-                                    );
-                                  },
                                 ),
                               ),
                             );

@@ -41,40 +41,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return games.map((game) {
       return GameTile(
-          locationID: game['venue_id'],
-          gameID: game['game_id'],
-          onTap: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => GameDescription(
-                          locationID: game['venue_id'],
-                          gameID: game['game_id'],
-                          sportID: game['sport_id'],
-                        )));
-          });
+        locationID: game['venue_id'],
+        gameID: game['game_id'],
+      );
     }).toList();
   }
 
   Future<List<Map<String, dynamic>>> _loadGamesToList() async {
-    List<List<dynamic>> games = await PostgresService().retrieve(
-        "SELECT g.game_id, g.venue_id, g.sport_id, g.game_date, g.start_time::text, g.description, g.max_players, g.current_players, g.price "
-        "FROM games g "
-        "INNER JOIN user_game_participation ugp ON g.game_id = ugp.game_id "
-        "WHERE ugp.user_id = '$userID'");
+    List<List<dynamic>> games =
+        await PostgresService().retrieve("SELECT g.game_id, g.venue_id "
+            "FROM games g "
+            "INNER JOIN user_game_participation ugp ON g.game_id = ugp.game_id "
+            "WHERE ugp.user_id = '$userID'");
 
     return games.map((row) {
-      return {
-        'game_id': row[0],
-        'venue_id': row[1],
-        'sport_id': row[2],
-        'game_date': row[3] as DateTime,
-        'time': row[4], // Assuming this is text now
-        'description': row[5],
-        'max_players': row[6].toString(),
-        'current_players': row[7].toString(),
-        'price': row[8]
-      };
+      return {'game_id': row[0], 'venue_id': row[1]};
     }).toList();
   }
 

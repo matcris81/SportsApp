@@ -128,14 +128,6 @@ class _GamesScreenState extends State<GamesScreen> {
                         child: GameTile(
                           gameID: entry.key,
                           locationID: entry.value,
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => GameDescription(
-                                        gameID: entry.key,
-                                        locationID: entry.value)));
-                          },
                         ),
                       ),
                     );

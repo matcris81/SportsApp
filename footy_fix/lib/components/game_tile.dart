@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:footy_fix/descriptions/game_description.dart';
 import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:intl/intl.dart';
@@ -7,15 +8,11 @@ import 'package:footy_fix/screens/payment_screen.dart';
 class GameTile extends StatelessWidget {
   final int locationID;
   final int gameID;
-  final Function()? onTap;
 
-  const GameTile(
-      {Key? key, required this.gameID, this.locationID = 0, this.onTap})
+  const GameTile({Key? key, required this.gameID, this.locationID = 0})
       : super(key: key);
 
   Future<Map<String, dynamic>> fetchGameDetails(int gameId) async {
-    // Placeholder for database call
-    // Replace with your actual database service call to fetch game details
     var gameDetails = await PostgresService().retrieve(
         "SELECT game_id, venue_id, sport_id, game_date, start_time::text, description, max_players, current_players, price FROM games "
         "WHERE game_id = $gameId");
@@ -30,20 +27,31 @@ class GameTile extends StatelessWidget {
         'max_players': row[6].toString(),
         'current_players': row[7].toString(),
         'price': row[8],
-        // Add other game fields as required
       };
     }
     return {};
   }
 
   Future<bool> hasPlayerJoined(String gameID) async {
-    var userID = PreferencesService().getUserId();
+    var userID = await PreferencesService().getUserId();
 
-    var result = await PostgresService().retrieve(
-        "SELECT COUNT(*) FROM user_game_participation WHERE gameID = $gameID AND userID = '$userID' AND status IN ('Pending', 'Waitlisted', 'Completed', 'Checked In')");
+    var result = await PostgresService().retrieve("SELECT COUNT(*) "
+        "FROM user_game_participation "
+        "WHERE game_id = $gameID AND user_id = '$userID' "
+        "AND status IN ('Pending', 'Waitlisted', 'Completed', 'Checked In')");
 
-    print('result: $result');
     return result.isNotEmpty;
+  }
+
+  void tileTap(BuildContext context, bool userAlreadyJoined) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => GameDescription(
+                  gameID: gameID,
+                  locationID: locationID,
+                  userAlreadyJoined: userAlreadyJoined,
+                )));
   }
 
   @override
@@ -82,7 +90,7 @@ class GameTile extends StatelessWidget {
               bool hasJoined = hasJoinedSnapshot.data ?? false;
 
               return GestureDetector(
-                onTap: onTap,
+                onTap: () => tileTap(context, hasJoined),
                 child: Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -205,13 +213,13 @@ class GameTile extends StatelessWidget {
                               minimumSize: const Size.fromHeight(
                                   50), // Keeps the button height
                               backgroundColor:
-                                  !hasJoined ? Colors.grey : Colors.black,
+                                  hasJoined ? Colors.grey : Colors.black,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(
                                     30), // Very rounded edges
                               ),
                             ),
-                            onPressed: !hasJoined
+                            onPressed: hasJoined
                                 ? null
                                 : () {
                                     Navigator.push(
@@ -223,7 +231,7 @@ class GameTile extends StatelessWidget {
                                                   date: date.toString(),
                                                 )));
                                   },
-                            child: Text(!hasJoined
+                            child: Text(hasJoined
                                 ? 'Joined'
                                 : 'Join for \$${price.toStringAsFixed(2)}'),
                           ),
