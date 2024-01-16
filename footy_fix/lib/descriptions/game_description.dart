@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/db_services.dart';
@@ -5,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'dart:io' show Platform;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:footy_fix/screens/payment_screen.dart';
+import 'package:footy_fix/services/database_services.dart';
 
 class GameDescription extends StatefulWidget {
   final int locationID;
@@ -60,6 +63,7 @@ class _GameDescriptionState extends State<GameDescription> {
                         getGameInfo(), // The async getAddress function is called here
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.done) {
+                        print('snapshot.data: ${snapshot.data}}');
                         if (snapshot.hasError) {
                           return Text('Error: ${snapshot.error}');
                         } else if (snapshot.hasData) {
@@ -69,16 +73,20 @@ class _GameDescriptionState extends State<GameDescription> {
 
                           var venueName = gameDetails!['venueName'];
                           var address = gameDetails['address'];
+                          print('gameDetails');
                           var description = gameDetails['description'];
                           var size = gameDetails['size'];
-                          var playersJoined = gameDetails['currentPlayers'];
+                          // var playersJoined = gameDetails['currentPlayers'];
                           var price = gameDetails['price'];
-                          var time = gameDetails['time'];
-                          var date = gameDetails['date'];
+                          // var time = gameDetails['time'];
+                          var date = gameDetails['gameDate'];
 
-                          var dayName = DateFormat('EEEE').format(date);
-                          var dayNumber = DateFormat('d').format(date);
-                          var monthName = DateFormat('MMMM').format(date);
+                          DateTime parsedDate = DateTime.parse(date);
+                          String time =
+                              DateFormat('HH:mm:ss').format(parsedDate);
+                          var dayName = DateFormat('EEEE').format(parsedDate);
+                          var dayNumber = DateFormat('d').format(parsedDate);
+                          var monthName = DateFormat('MMMM').format(parsedDate);
 
                           return Card(
                             margin: const EdgeInsets.all(16.0),
@@ -117,8 +125,8 @@ class _GameDescriptionState extends State<GameDescription> {
                                   ),
                                   ListTile(
                                     leading: const Icon(Icons.group),
-                                    title: Text(
-                                        'Players Joined: $playersJoined/$size'),
+                                    title: Text('Players Joined: 0/$size'),
+                                    // 'Players Joined: $playersJoined/$size'),
                                   ),
                                   ListTile(
                                     leading: const Icon(Icons.attach_money),
@@ -159,104 +167,96 @@ class _GameDescriptionState extends State<GameDescription> {
               ],
             ),
           ),
-          buildJoinButton(context),
+          // buildJoinButton(context),
         ],
       ),
     );
   }
 
-  Widget buildJoinButton(BuildContext context) {
-    return FutureBuilder<Object?>(
-      future: PostgresService().retrieve(
-          "SELECT current_players, game_date, price FROM games WHERE game_id = ${widget.gameID}"),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator(); // Show loading indicator while waiting
-        }
+  // Widget buildJoinButton(BuildContext context) {
+  //   return FutureBuilder<Object?>(
+  //     future: PostgresService().retrieve(
+  //         "SELECT current_players, game_date, price FROM games WHERE game_id = ${widget.gameID}"),
+  //     builder: (context, snapshot) {
+  //       if (snapshot.connectionState == ConnectionState.waiting) {
+  //         return const CircularProgressIndicator(); // Show loading indicator while waiting
+  //       }
 
-        var paymentDetails = snapshot.data as List<dynamic>;
+  //       var paymentDetails = snapshot.data as List<dynamic>;
 
-        var joined = paymentDetails.first[0] as int;
-        var date = paymentDetails.first[1] as DateTime;
-        var price = paymentDetails.first[2] as double;
+  //       var joined = paymentDetails.first[0] as int;
+  //       var date = paymentDetails.first[1] as DateTime;
+  //       var price = paymentDetails.first[2] as double;
 
-        bool isFull = joined >= 10;
-        return Container(
-          padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 24.0),
-          child: ElevatedButton(
-            onPressed: isFull || widget.userAlreadyJoined
-                ? null
-                : () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => PaymentScreen(
-                                gameID: widget.gameID,
-                                date: date.toString(),
-                                price: price,
-                              )),
-                    );
-                  },
-            style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  isFull ? Colors.grey : Colors.black, // Greyed out if full
-              padding: const EdgeInsets.symmetric(vertical: 12.0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                side: const BorderSide(color: Colors.white, width: 2),
-              ),
-              minimumSize: const Size(double.infinity, 50),
-            ),
-            child: Text(
-              widget.userAlreadyJoined
-                  ? 'Joined'
-                  : (isFull ? 'Join (Full)' : 'Join'),
-              style: const TextStyle(color: Colors.white, fontSize: 18),
-            ),
-          ),
-        );
-      },
-    );
-  }
+  //       bool isFull = joined >= 10;
+  //       return Container(
+  //         padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 24.0),
+  //         child: ElevatedButton(
+  //           onPressed: isFull || widget.userAlreadyJoined
+  //               ? null
+  //               : () {
+  //                   Navigator.push(
+  //                     context,
+  //                     MaterialPageRoute(
+  //                         builder: (context) => PaymentScreen(
+  //                               gameID: widget.gameID,
+  //                               date: date.toString(),
+  //                               price: price,
+  //                             )),
+  //                   );
+  //                 },
+  //           style: ElevatedButton.styleFrom(
+  //             backgroundColor:
+  //                 isFull ? Colors.grey : Colors.black, // Greyed out if full
+  //             padding: const EdgeInsets.symmetric(vertical: 12.0),
+  //             shape: RoundedRectangleBorder(
+  //               borderRadius: BorderRadius.circular(8.0),
+  //               side: const BorderSide(color: Colors.white, width: 2),
+  //             ),
+  //             minimumSize: const Size(double.infinity, 50),
+  //           ),
+  //           child: Text(
+  //             widget.userAlreadyJoined
+  //                 ? 'Joined'
+  //                 : (isFull ? 'Join (Full)' : 'Join'),
+  //             style: const TextStyle(color: Colors.white, fontSize: 18),
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   Future<Map<dynamic, dynamic>> getGameInfo() async {
     Map gameInfo = {};
-    String query =
-        "SELECT game_id, venue_id, sport_id, game_date, start_time::text, "
-        "description, max_players, current_players, price FROM games WHERE game_id = ${widget.gameID}";
 
-    var gameDetails = await PostgresService().retrieve(query);
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
-    var venueInfo = await getVenueInfo(gameDetails.first[1] as int);
+    var result = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/games/${widget.gameID}', token);
 
-    gameInfo = formatGameInfo(gameDetails.first, venueInfo.first);
+    Map<String, dynamic> gameDetails = jsonDecode(result.body);
+    print('gameDetails[venueId]: ${gameDetails}');
+
+    Map<String, dynamic> venueInfo = await getVenueInfo(gameDetails['venueId']);
+
+    gameInfo.addAll(gameDetails);
+    gameInfo.addAll(venueInfo);
 
     return gameInfo;
   }
 
-  Future<List<dynamic>> getVenueInfo(int venueID) async {
-    String query = "SELECT name, address FROM venues WHERE venue_id = $venueID";
+  Future<Map<String, dynamic>> getVenueInfo(int venueID) async {
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
-    var venueInfo = await PostgresService().retrieve(query);
+    var result = await DatabaseServices()
+        .getData('${DatabaseServices().backendUrl}/api/venues/$venueID', token);
+
+    Map<String, dynamic> venueInfo = jsonDecode(result.body);
 
     return venueInfo;
-  }
-
-  Map<dynamic, dynamic> formatGameInfo(
-      List<dynamic> gameDetails, List<dynamic> venueInfo) {
-    Map gameInfo = {};
-
-    gameInfo['gameID'] = gameDetails[0];
-    gameInfo['venueName'] = venueInfo[0];
-    gameInfo['address'] = venueInfo[1];
-    gameInfo['description'] = gameDetails[5];
-    gameInfo['size'] = gameDetails[6];
-    gameInfo['currentPlayers'] = gameDetails[7];
-    gameInfo['price'] = gameDetails[8];
-    gameInfo['date'] = gameDetails[3];
-    gameInfo['time'] = gameDetails[4];
-
-    return gameInfo;
   }
 
   void _showActionSheet(BuildContext context, String location) {

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:footy_fix/components/venues_tile.dart';
 import 'package:footy_fix/descriptions/game_description.dart';
@@ -9,6 +11,7 @@ import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:footy_fix/screens/profile_screen.dart';
 import 'package:footy_fix/screens/notification_screen.dart';
 import 'package:footy_fix/screens/feature_manager_screens/game_venue_manager.dart';
+import 'package:footy_fix/services/database_services.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -39,6 +42,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<List<Widget>> buildGameTiles() async {
     List<Map<String, dynamic>> games = await _loadGamesToList();
 
+    if (games.isEmpty) {
+      return []; // Return null if no games are found
+    }
+
     return games.map((game) {
       return GameTile(
         locationID: game['venue_id'],
@@ -48,46 +55,36 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _loadGamesToList() async {
-    List<List<dynamic>> games =
-        await PostgresService().retrieve("SELECT g.game_id, g.venue_id "
-            "FROM games g "
-            "INNER JOIN user_game_participation ugp ON g.game_id = ugp.game_id "
-            "WHERE ugp.user_id = '$userID'");
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
-    return games.map((row) {
-      return {'game_id': row[0], 'venue_id': row[1]};
+    var response = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/games/by-user/$userID', token);
+
+    if (response.statusCode == 404) {
+      return []; // Return null if no games are found
+    }
+
+    List<dynamic> gamesData = json.decode(response.body);
+
+    return gamesData.map<Map<String, dynamic>>((game) {
+      return {'game_id': game['id'], 'venue_id': game['venueId']};
     }).toList();
   }
 
-  Future<List<int>> getLikedVenueID() async {
-    List<List<dynamic>> results = await PostgresService().retrieve(
-        "SELECT likeable_id FROM user_likes WHERE user_id = '$userID' AND likeable_type = 'venue'");
+  Future<List<Map<String, dynamic>>> fetchLikedVenues() async {
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
-    return results.map((row) => row[0] as int).toList();
-  }
+    var response = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/players/$userID/venues', token);
 
-  Future<List<Map<String, dynamic>>> getVenueDetails(List<int> venueIds) async {
-    // List<int> venueIds = await getLikedVenueID();
-
-    // Convert the list of IDs to a comma-separated string
-    String idsString = venueIds.join(', ');
-
-    // Build the SQL query
-    String query = 'SELECT * FROM venues WHERE venue_id IN ($idsString)';
-
-    // Execute the query
-    List<List<dynamic>> results = await PostgresService().retrieve(query);
-
-    // Convert the results to a list of maps for easier usage
-    return results.map((row) {
-      return {
-        'venue_id': row[0],
-        'name': row[1],
-        'address': row[2],
-        'description': row[3],
-        // Add other fields as needed
-      };
-    }).toList();
+    if (response.statusCode == 200) {
+      List<dynamic> venuesData = json.decode(response.body);
+      return venuesData.map<Map<String, dynamic>>((venue) => venue).toList();
+    } else {
+      throw Exception('Failed to load venues');
+    }
   }
 
   @override
@@ -136,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -164,8 +161,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            FutureBuilder<List<int>>(
-              future: getLikedVenueID(),
+            FutureBuilder<List<Map<String, dynamic>>>(
+              future: fetchLikedVenues(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -179,48 +176,29 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Center(child: Text('No liked venues found'));
                 }
 
-                return FutureBuilder<List<Map<String, dynamic>>>(
-                  future: getVenueDetails(snapshot.data!),
-                  builder: (context, venueSnapshot) {
-                    if (venueSnapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    }
-
-                    if (venueSnapshot.hasError) {
-                      return Center(
-                          child: Text('Error: ${venueSnapshot.error}'));
-                    }
-
-                    if (!venueSnapshot.hasData || venueSnapshot.data!.isEmpty) {
-                      return Center(child: Text('Venue details not found'));
-                    }
-
-                    return Container(
-                      height: 150, // Adjust the height as needed
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: venueSnapshot.data!.length,
-                        itemBuilder: (context, index) {
-                          var venue = venueSnapshot.data![index];
-                          return LocationTile(
-                            locationName: venue['name'],
-                            showDistance: false,
-                            showRating: false,
-                            opacity: 0.4,
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => LocationDescription(
-                                          locationName: venue['name'],
-                                          locationID: venue['venue_id'])));
-                            },
-                          );
+                return Container(
+                  height: 150, // Adjust the height as needed
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      var venue = snapshot.data![index];
+                      return LocationTile(
+                        locationName: venue['venueName'],
+                        showDistance: false,
+                        showRating: false,
+                        opacity: 0.4,
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LocationDescription(
+                                      locationName: venue['venueName'],
+                                      locationID: venue['id'])));
                         },
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 );
               },
             ),
@@ -246,7 +224,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No games found'));
+                  return const Center(
+                      child: Text(
+                          'No upcoming games')); // Display message when the list is empty
                 }
 
                 return Container(

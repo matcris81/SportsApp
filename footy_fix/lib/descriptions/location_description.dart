@@ -1,12 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/screens/upcoming_games_screen.dart';
+import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:footy_fix/components/game_tile.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io' show Platform;
 import 'package:footy_fix/descriptions/game_description.dart';
+import 'dart:convert';
 
 class LocationDescription extends StatefulWidget {
   final String locationName;
@@ -35,13 +37,14 @@ class _LocationDescriptionState extends State<LocationDescription> {
     String userID = await PreferencesService().getUserId() ?? '';
     bool liked = false;
 
-    print('locationID: ${widget.locationID}');
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
-    var received = await PostgresService().retrieve(
-        "SELECT EXISTS (SELECT 1 FROM user_likes WHERE user_id = '$userID' "
-        "AND likeable_id = ${widget.locationID} AND likeable_type = 'venue') AS user_likes_sport");
+    var response = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/players/$userID/likes-venue/${widget.locationID}',
+        token);
 
-    if (received[0][0] == true) {
+    if (response.body == "true") {
       liked = true;
     }
 
@@ -53,18 +56,27 @@ class _LocationDescriptionState extends State<LocationDescription> {
   void toggleLike() async {
     String userID = await PreferencesService().getUserId() ?? '';
 
-    if (isHeartFilled) {
-      await PostgresService().executeQuery(
-          "DELETE FROM user_likes WHERE user_id = '$userID'"
-          " AND likeable_id = ${widget.locationID} AND likeable_type = 'venue'");
-    } else {
-      var venueMap = {
-        'user_id': userID,
-        'likeable_id': widget.locationID,
-        'likeable_type': 'venue'
-      };
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
-      await PostgresService().insert("user_likes", venueMap);
+    var body = {
+      "id": userID,
+      "venues": [
+        {
+          "id": widget.locationID,
+        }
+      ]
+    };
+
+    String url = '${DatabaseServices().backendUrl}/api/players/$userID';
+
+    if (isHeartFilled) {
+      var result = await DatabaseServices().patchData(
+          '${DatabaseServices().backendUrl}/api/players/remove/$userID',
+          token,
+          body);
+    } else {
+      var result = await DatabaseServices().patchData(url, token, body);
     }
 
     setState(() {
@@ -72,22 +84,44 @@ class _LocationDescriptionState extends State<LocationDescription> {
     });
   }
 
-  Future<List<dynamic>> getNextUpcomingGame() async {
-    var result = await PostgresService().retrieve(
-        'SELECT game_id FROM games WHERE venue_id = ${widget.locationID} AND '
-        '(game_date > current_date OR (game_date = current_date AND '
-        'start_time > current_time)) ORDER BY game_date, start_time LIMIT 1');
+  Future<Map<String, dynamic>> getNextUpcomingGame() async {
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    var response = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/games/earliest-by-venue?venueId=${widget.locationID}',
+        token);
 
-    return result.isNotEmpty ? result.first : [];
+    Map<String, dynamic> earliestGame = json.decode(response.body);
+
+    // Check if the games list is empty
+    if (earliestGame.isEmpty) {
+      return {}; // Or handle this case as per your application's logic
+    }
+
+    return earliestGame; // Return the earliest game
+  }
+
+  Future<Map<String, dynamic>> getLocationDetails() async {
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    var result = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/venues/${widget.locationID}',
+        token);
+
+    var locationDetails = json.decode(result.body);
+
+    return locationDetails;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.grey[300],
-        body: FutureBuilder<List<List<dynamic>>>(
-            future: PostgresService().retrieve(
-                'SELECT * FROM venues WHERE venue_id = ${widget.locationID}'),
+        body: FutureBuilder<Map<String, dynamic>>(
+            // future: PostgresService().retrieve(
+            //     'SELECT * FROM venues WHERE venue_id = ${widget.locationID}'),
+            future: getLocationDetails(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
@@ -97,11 +131,11 @@ class _LocationDescriptionState extends State<LocationDescription> {
               }
 
               // Assuming that each row is a list of fields, and the first row is the venue
-              var venueRow = snapshot.data!.first;
+              var venueRow = snapshot.data!;
 
               // Extracting fields from the row
-              var venueAddress = venueRow[2];
-              var venueDescription = venueRow[3];
+              var venueAddress = venueRow['address'];
+              var venueDescription = 'description';
 
               return CustomScrollView(
                 slivers: [
@@ -216,7 +250,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
                           ),
                         ),
                         // Inside your build method
-                        FutureBuilder<List<dynamic>>(
+                        FutureBuilder<Map<String, dynamic>>(
                           future: getNextUpcomingGame(),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
@@ -254,10 +288,11 @@ class _LocationDescriptionState extends State<LocationDescription> {
 
                             // var gameRow = snapshot.data!.first;
                             var gameRow = snapshot.data!;
+                            print(gameRow);
 
                             // Extract the game details from gameRow
-                            // Assuming gameRow contains all necessary fields
-                            var gameId = gameRow[0];
+                            var gameId = gameRow['id'];
+                            print('gameID: $gameId');
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(

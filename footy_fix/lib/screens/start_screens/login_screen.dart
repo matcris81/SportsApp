@@ -6,6 +6,7 @@ import 'package:footy_fix/components/square_tile.dart';
 import 'package:footy_fix/services/auth_service.dart';
 import 'package:footy_fix/screens/start_screens/register.dart';
 import 'package:footy_fix/components/navigation.dart';
+import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 
@@ -117,20 +118,28 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void addUserifDoesntExist(String userID, String? email) async {
-    var result = await PostgresService().retrieve(
-        "SELECT EXISTS (SELECT 1 FROM users WHERE user_id = '$userID') AS user_exists");
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
-    var existance = result[0][0];
+    var response = await DatabaseServices()
+        .getData('${DatabaseServices().backendUrl}/api/players/$userID', token);
+    print('response.statusCode: ${response.statusCode}');
 
-    if (existance == true) {
-      print('user: $userID');
-    } else {
+    if (response.statusCode == 404) {
+      print('userID: $userID');
       var userMap = {
-        'user_id': userID,
-        'email': email,
+        "id": userID,
+        "email": email,
+        "username": email,
+        "password": "password",
       };
 
-      await PostgresService().insert('users', userMap);
+      print('userMap: $userMap');
+
+      var result = await DatabaseServices().postData(
+          '${DatabaseServices().backendUrl}/api/players', token, userMap);
+
+      print('result.body: ${result.body}');
     }
   }
 

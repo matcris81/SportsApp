@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:footy_fix/components/game_tile.dart';
+import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/services/db_services.dart';
 
 class UpcomingGamesList extends StatefulWidget {
@@ -58,8 +61,8 @@ class _UpcomingGamesListState extends State<UpcomingGamesList> {
                   child: Container(
                     height: 310,
                     child: GameTile(
-                      gameID: gameDetails['game_id'],
-                      locationID: gameDetails['venue_id'],
+                      gameID: gameDetails['id'],
+                      locationID: gameDetails['venueId'],
                     ),
                   ));
             },
@@ -70,22 +73,18 @@ class _UpcomingGamesListState extends State<UpcomingGamesList> {
   }
 
   Future<List<Map<String, dynamic>>> fetchGamesByVenue(int venueID) async {
-    var results = await PostgresService().retrieve(
-        "SELECT game_id, venue_id, sport_id, game_date, start_time::text, "
-        "description, max_players, current_players, price FROM games WHERE venue_id = $venueID");
+    List<Map<String, dynamic>> gamesList = [];
 
-    return results.map((row) {
-      return {
-        'game_id': row[0],
-        'venue_id': row[1],
-        'sport_id': row[2],
-        'game_date': row[3],
-        'start_time': row[4],
-        'description': row[5],
-        'max_players': row[6],
-        'current_players': row[7],
-        'price': row[8]
-      };
-    }).toList();
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    var response = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/games/by-venue/$venueID', token);
+
+    var games = jsonDecode(response.body);
+
+    gamesList = List<Map<String, dynamic>>.from(games);
+
+    return gamesList;
   }
 }

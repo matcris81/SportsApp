@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:footy_fix/services/db_services.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:footy_fix/services/database_services.dart';
+import 'package:footy_fix/screens/feature_manager_screens/select_venues_screen.dart';
 
 class AddEvent extends StatefulWidget {
   const AddEvent({Key? key}) : super(key: key);
@@ -12,69 +14,89 @@ class AddEvent extends StatefulWidget {
 
 class _AddEventState extends State<AddEvent> {
   final _formKey = GlobalKey<FormState>(); // Add a key for the form
-  String location = '';
-  String date = '';
+  String locationName = '';
+  int locationID = 0;
   String time = '';
   double price = 0;
   int size = 0;
   String sport = '';
   String description = '';
+  DateTime? selectedDate;
+  TimeOfDay? selectedTime;
+
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: selectedTime ?? TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedTime != null && pickedTime != selectedTime) {
+      setState(() {
+        selectedTime = pickedTime;
+      });
+    }
+  }
 
   Future<List<String>> fetchVenueNames() async {
     var result = await PostgresService().retrieve("SELECT name FROM venues");
     return result.map((row) => row[0] as String).toList();
   }
 
-  Future<void> _showVenuePicker() async {
-    String selectedVenue = '';
-    await showCupertinoModalPopup(
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
       context: context,
-      builder: (BuildContext context) {
-        return FutureBuilder<List<String>>(
-          future: fetchVenueNames(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else if (snapshot.hasData) {
-              List<String> venues = snapshot.data!;
-              int selectedIdx = 0;
-              selectedVenue = venues[selectedIdx];
+      initialDate: selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2025),
+    );
 
-              return CupertinoActionSheet(
-                message: Container(
-                  height: 200, // Height of picker
-                  child: CupertinoPicker(
-                    itemExtent: 32,
-                    onSelectedItemChanged: (int index) {
-                      selectedIdx = index;
-                      selectedVenue = venues[selectedIdx];
-                    },
-                    children: venues.map((name) => Text(name)).toList(),
-                  ),
-                ),
-                cancelButton: CupertinoActionSheetAction(
-                  child: const Text("Cancel"),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              );
-            } else {
-              return Center(child: Text('No venues available'));
-            }
-          },
+    if (picked != null) {
+      DateTime now = DateTime.now();
+      DateTime today = DateTime(now.year, now.month, now.day);
+      DateTime pickedDate = DateTime(picked.year, picked.month, picked.day);
+
+      if (!mounted) return;
+
+      if (pickedDate.isBefore(today)) {
+        // Show error message if picked date is before today
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('You cannot select a past date.'),
+            backgroundColor: Colors.red,
+          ),
         );
-      },
-    ).then((_) {
-      if (mounted) {
+      } else if (pickedDate != selectedDate) {
         setState(() {
-          location =
-              selectedVenue; // Update the selected venue when the picker is closed
+          selectedDate = picked;
         });
       }
-    });
+    }
+  }
+
+  String timeOfDayToString(TimeOfDay time) {
+    final hours = time.hour.toString().padLeft(2, '0');
+    final minutes = time.minute.toString().padLeft(2, '0');
+    return '$hours:$minutes';
+  }
+
+  void navigateAndDisplaySelection(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SelectVenue()),
+    );
+
+    if (result != null) {
+      setState(() {
+        locationID = result[0];
+        locationName = result[1];
+      });
+    }
   }
 
   @override
@@ -115,38 +137,22 @@ class _AddEventState extends State<AddEvent> {
                         MainAxisAlignment.center, // Center vertically
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
-                      Text('Selected Venue: $location'),
+                      Text('Selected Venue: $locationName'),
                       ElevatedButton(
-                        onPressed: _showVenuePicker,
-                        child: Text('Select Venue'),
+                        onPressed: () => navigateAndDisplaySelection(context),
+                        child: const Text('Select Venue'),
                       ),
                       const SizedBox(height: 16.0),
-                      TextFormField(
-                        decoration: const InputDecoration(
-                          labelText: 'Date',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter Date';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) => date = value!,
+                      ElevatedButton(
+                        onPressed: () => _selectDate(context),
+                        child: const Text('Select Date'),
                       ),
                       const SizedBox(height: 16.0),
-                      TextFormField(
-                        decoration: const InputDecoration(
-                          labelText: 'Time',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter Time';
-                          }
-                          return null;
-                        },
-                        onSaved: (value) => time = value!,
+                      ElevatedButton(
+                        onPressed: () => _selectTime(context),
+                        child: Text(selectedTime == null
+                            ? 'Select Time'
+                            : 'Time: ${selectedTime!.format(context)}'),
                       ),
                       const SizedBox(height: 16.0),
                       Row(
@@ -241,34 +247,65 @@ class _AddEventState extends State<AddEvent> {
                           if (_formKey.currentState!.validate()) {
                             _formKey.currentState!.save();
 
-                            // Parse the date from DD/MM/YYYY format and reformat to YYYY-MM-DD
-                            DateTime parsedDate =
-                                DateFormat('dd/MM/yyyy').parse(date);
+                            DateTime combinedDateTime = DateTime(
+                              selectedDate!.year,
+                              selectedDate!.month,
+                              selectedDate!.day,
+                              selectedTime!.hour,
+                              selectedTime!.minute,
+                            );
+
+                            var formatter =
+                                DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
                             String formattedDate =
-                                DateFormat('yyyy-MM-dd').format(parsedDate);
+                                formatter.format(combinedDateTime!);
 
-                            var venueIDResult = await PostgresService().retrieve(
-                                "SELECT venue_id FROM venues WHERE name = '$location'");
-                            var venueID = venueIDResult[0][0];
+                            print(
+                                'location: $locationName'); // Output: "2024-01-06T00:00:00Z"
 
-                            var sportIDResult = await PostgresService().retrieve(
-                                "SELECT sport_id FROM sports WHERE name = '$sport'");
-                            var sportID = sportIDResult[0][0];
+                            // String formattedTime =
+                            //     timeOfDayToString(selectedTime!);
+
+                            // Parse the date from DD/MM/YYYY format and reformat to YYYY-MM-DD
+                            // print(selectedDate);
+                            // DateTime parsedDate = DateFormat('dd/MM/yyyy')
+                            //     .parse(selectedDate.toString());
+                            // String formattedDate =
+                            //     DateFormat('yyyy-MM-dd').format(parsedDate);
+
+                            // var venueIDResult = await PostgresService().retrieve(
+                            //     "SELECT venue_id FROM venues WHERE name = '$location'");
+                            // var venueID = venueIDResult[0][0];
+
+                            // var sportIDResult = await PostgresService().retrieve(
+                            //     "SELECT sport_id FROM sports WHERE name = '$sport'");
+                            // var sportID = sportIDResult[0][0];
+
+                            var token = await DatabaseServices()
+                                .authenticateAndGetToken('admin', 'admin');
+
+                            // var sportID = DatabaseServices().getData(
+                            //     'http://localhost:4242/api/venues/by-name/$location',
+                            //     token);
+
+                            // // print(sportID);
 
                             var game = {
-                              'venue_id': venueID,
-                              'sport_id': sportID,
-                              'game_date':
-                                  formattedDate, // Use the correctly formatted date
-                              'start_time': time,
+                              'venueId': locationID,
+                              // 'sportId': sportID,
+                              'gameDate': formattedDate,
+                              // 'startTime': formattedDate,
                               'description': description,
-                              'max_players': size,
+                              'size': size,
                               'price': price,
                             };
 
-                            print(game);
+                            // print(game);
 
-                            await PostgresService().insert('games', game);
+                            // // await PostgresService().insert('games', game);
+
+                            await DatabaseServices().postData(
+                                'http://localhost:4242/api/games', token, game);
 
                             if (!mounted) return;
 

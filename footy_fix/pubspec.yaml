@@ -47,8 +47,9 @@ dependencies:
   intl: ^0.18.1
   url_launcher: ^6.2.1
   pay: ^1.1.2
-  postgres: ^3.0.4
   connectivity_plus: ^5.0.2
+  postgres: ^3.0.4
+  http: ^1.1.2
 
 dev_dependencies:
   flutter_test:

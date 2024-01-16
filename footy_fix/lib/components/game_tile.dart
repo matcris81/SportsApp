@@ -4,6 +4,8 @@ import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:intl/intl.dart';
 import 'package:footy_fix/screens/payment_screen.dart';
+import 'package:footy_fix/services/database_services.dart';
+import 'dart:convert';
 
 class GameTile extends StatelessWidget {
   final int locationID;
@@ -13,21 +15,16 @@ class GameTile extends StatelessWidget {
       : super(key: key);
 
   Future<Map<String, dynamic>> fetchGameDetails(int gameId) async {
-    var gameDetails = await PostgresService().retrieve(
-        "SELECT game_id, venue_id, sport_id, game_date, start_time::text, description, max_players, current_players, price FROM games "
-        "WHERE game_id = $gameId");
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    var result = await DatabaseServices()
+        .getData('${DatabaseServices().backendUrl}/api/games/$gameID', token);
+
+    Map<String, dynamic> gameDetails = json.decode(result.body);
 
     if (gameDetails.isNotEmpty) {
-      var row = gameDetails.first;
-      return {
-        'venue_id': row[1],
-        'game_date': row[3] as DateTime,
-        'time': row[4],
-        'description': row[5],
-        'max_players': row[6].toString(),
-        'current_players': row[7].toString(),
-        'price': row[8],
-      };
+      return gameDetails;
     }
     return {};
   }
@@ -35,15 +32,19 @@ class GameTile extends StatelessWidget {
   Future<bool> hasPlayerJoined(String gameID) async {
     var userID = await PreferencesService().getUserId();
 
-    var result = await PostgresService().retrieve("SELECT COUNT(*) "
-        "FROM user_game_participation "
-        "WHERE game_id = $gameID AND user_id = '$userID' "
-        "AND status IN ('Pending', 'Waitlisted', 'Completed', 'Checked In')");
+    // var result = await PostgresService().retrieve("SELECT COUNT(*) "
+    //     "FROM user_game_participation "
+    //     "WHERE game_id = $gameID AND user_id = '$userID' "
+    //     "AND status IN ('Pending', 'Waitlisted', 'Completed', 'Checked In')");
 
-    return result.isNotEmpty;
+    return false;
+
+    // return result.isNotEmpty;
   }
 
   void tileTap(BuildContext context, bool userAlreadyJoined) {
+    print('locationID: $locationID');
+    print('gmaeID: $gameID');
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -70,14 +71,18 @@ class GameTile extends StatelessWidget {
         }
 
         var gameDetails = snapshot.data!;
-        var date = gameDetails['game_date'] as DateTime;
-        var dayOfWeek = DateFormat('EEEE').format(date);
+        var dateString = gameDetails['gameDate'] as String;
+        DateTime dateTime = DateTime.parse(dateString);
+        var dayOfWeek = DateFormat('EEEE').format(dateTime);
         var abbreviatedDayName = dayOfWeek.substring(0, 3).toUpperCase();
-        var abbreviatedMonthName = DateFormat('MMM').format(date).toUpperCase();
-        var time = gameDetails['time'] as String;
-        var playersJoined = int.parse(gameDetails['current_players'] as String);
-        var size = int.parse(gameDetails['max_players'] as String);
+        var abbreviatedMonthName =
+            DateFormat('MMM').format(dateTime).toUpperCase();
+        var time = DateFormat('HH:mm:ss').format(dateTime);
+
+        // var playersJoined = int.parse(gameDetails['current_players'] as String); NEED TO IMPLEMENT THIS BACK IN ASAP
+        var size = gameDetails['size'];
         var price = gameDetails['price'];
+        // print(time);
 
         return FutureBuilder<bool>(
             future: hasPlayerJoined(gameID.toString()),
@@ -177,7 +182,7 @@ class GameTile extends StatelessWidget {
                                   ),
                             const SizedBox(height: 4),
                             Text(
-                              '$abbreviatedDayName, $abbreviatedMonthName ${date.day} • ${time.substring(0, 5)}',
+                              '$abbreviatedDayName, $abbreviatedMonthName ${dateTime.day} • ${time.substring(0, 5)}',
                               style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
@@ -186,7 +191,8 @@ class GameTile extends StatelessWidget {
                             const SizedBox(height: 4),
                             const Divider(),
                             Text(
-                              '$playersJoined/$size spots left',
+                              '0/$size spots left',
+                              // '$playersJoined/$size spots left',
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -228,7 +234,7 @@ class GameTile extends StatelessWidget {
                                             builder: (context) => PaymentScreen(
                                                   gameID: gameID,
                                                   price: price,
-                                                  date: date.toString(),
+                                                  date: dateTime.toString(),
                                                 )));
                                   },
                             child: Text(hasJoined
@@ -247,9 +253,16 @@ class GameTile extends StatelessWidget {
   }
 
   Future<String> fetchVenueName(int venueId) async {
-    var venueName = await PostgresService()
-        .retrieve("SELECT name FROM venues WHERE venue_id = $venueId");
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
-    return venueName[0][0].toString();
+    var result = await DatabaseServices()
+        .getData('${DatabaseServices().backendUrl}/api/venues/$venueId', token);
+
+    Map<String, dynamic> resultJson = jsonDecode(result.body);
+
+    String venueName = resultJson['venueName'];
+
+    return venueName;
   }
 }
