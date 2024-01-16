@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/services/db_services.dart';
 
 class AddVenue extends StatefulWidget {
@@ -35,13 +36,10 @@ class _AddVenueState extends State<AddVenue> {
         ),
       ),
       body: SingleChildScrollView(
-        // Add SingleChildScrollView
         child: Center(
-          // Center the content
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: ConstrainedBox(
-              // Constrain the size of the Column
               constraints: const BoxConstraints(
                   maxWidth:
                       600), // Set a max width for better look on wide screens
@@ -159,15 +157,18 @@ class _AddVenueState extends State<AddVenue> {
                                 '$address, $suburb, $city';
 
                             var newVenue = {
-                              'name': venueName,
+                              'venueName': venueName,
                               'address': formattedAddress,
-                              'description': description,
+                              // 'description': description,
                             };
 
-                            // DatabaseServices()
-                            //     .addWithIDToDataBase('Venues/', newVenue);
+                            String token = await DatabaseServices()
+                                .authenticateAndGetToken('admin', 'admin');
 
-                            await PostgresService().insert('venues', newVenue);
+                            await DatabaseServices().postData(
+                                '${DatabaseServices().backendUrl}/api/venues',
+                                token,
+                                newVenue);
 
                             if (!mounted) return;
 

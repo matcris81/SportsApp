@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:footy_fix/services/database_services.dart';
 import 'package:intl/intl.dart';
 import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/components/game_tile.dart';
@@ -34,14 +37,30 @@ class _GamesScreenState extends State<GamesScreen> {
         daysCount, (index) => DateTime.now().add(Duration(days: index)));
   }
 
-  Future<Map<int, int>> _getGamesForDay(String day) async {
-    var result = await PostgresService().retrieve(
-        "SELECT game_id, venue_id FROM games WHERE game_date = '$day'");
+  Future<List<dynamic>> _getGamesForDay(String day) async {
+    // Parse the day string to DateTime and format it as yyyy-MM-dd
+    DateTime dateTime = DateTime.parse(day);
+    String formattedDate =
+        "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
 
-    Map<int, int> games = {
-      for (var row in result) row[0] as int: row[1] as int
-    };
-    return games;
+    // Authenticate and get the token
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    print('formattedDate: $formattedDate');
+
+    // Make the API call
+    var response = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/games/by-date?date=$formattedDate',
+        token);
+
+    // Check the response status and decode the body
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception(
+          'Failed to load games. Status Code: ${response.statusCode}');
+    }
   }
 
   @override
@@ -102,7 +121,7 @@ class _GamesScreenState extends State<GamesScreen> {
             ),
           ),
           Expanded(
-            child: FutureBuilder<Map<int, int>>(
+            child: FutureBuilder<List<dynamic>>(
               future: _getGamesForDay(_selectedDate.toString()),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -116,18 +135,19 @@ class _GamesScreenState extends State<GamesScreen> {
                 }
 
                 var gameInfo = snapshot.data!;
+                print(gameInfo);
                 return ListView.builder(
                   itemCount: gameInfo.length,
                   itemBuilder: (context, index) {
-                    var entry = gameInfo.entries.elementAt(index);
+                    var game = gameInfo[index];
 
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Container(
                         height: 310,
                         child: GameTile(
-                          gameID: entry.key,
-                          locationID: entry.value,
+                          gameID: game['id'],
+                          locationID: game['venueId'],
                         ),
                       ),
                     );

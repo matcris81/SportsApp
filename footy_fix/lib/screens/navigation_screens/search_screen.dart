@@ -4,6 +4,8 @@ import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/geolocator_services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:footy_fix/components/venues_tile.dart';
+import 'package:footy_fix/services/database_services.dart';
+import 'dart:convert';
 
 class SearchScreen extends StatefulWidget {
   // Constructor to accept a string
@@ -29,35 +31,43 @@ class _SearchScreenState extends State<SearchScreen> {
     Map<String, Map<String, dynamic>> venues = {};
 
     try {
-      var result = await PostgresService()
-          .retrieve("SELECT venue_id, address, name FROM venues");
+      String token =
+          await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
-      if (result is List) {
-        for (var venue in result) {
-          if (venue is List && venue.length >= 3) {
-            String venueID = venue[0]?.toString() ?? 'Unknown ID';
-            String address = venue[1] as String? ?? 'Unknown Address';
-            String venueName = venue[2] as String? ?? 'Unknown Name';
+      var result = await DatabaseServices()
+          .getData('http://localhost:4242/api/venues', token);
 
-            // get address coordinates
-            Map<double, double>? coordinates =
-                await GeolocatorService().getCoordinatesFromAddress(address);
+      List<dynamic> venueList = json.decode(result.body);
 
-            if (coordinates != null) {
-              distance = GeolocatorService().calculateDistance(
-                currentPosition.latitude,
-                currentPosition.longitude,
-                coordinates.keys.first,
-                coordinates.values.first,
-              );
+      for (var venue in venueList) {
+        int id = venue['id'];
+        String venueName = venue['venueName'];
+        String address = venue['address'];
 
-              distance /= 1000; // Convert to km if necessary
-              // Handle the distance value as needed
-            }
+        // get address coordinates
+        Map<double, double>? coordinates =
+            await GeolocatorService().getCoordinatesFromAddress(address);
 
-            venues[venueID] = {'name': venueName, 'distance': distance};
-          }
+        if (coordinates != null) {
+          distance = GeolocatorService().calculateDistance(
+            currentPosition.latitude,
+            currentPosition.longitude,
+            coordinates.keys.first,
+            coordinates.values.first,
+          );
+
+          distance /= 1000; // Convert to km if necessary
+          // Handle the distance value as needed
         }
+
+        // Create an inner map with id and address
+        Map<String, dynamic> details = {
+          'name': venueName,
+          'distance': distance
+        };
+
+        // Add the inner map to the outer map with the venueName as key
+        venues[id.toString()] = details;
       }
     } catch (e) {
       print(e);

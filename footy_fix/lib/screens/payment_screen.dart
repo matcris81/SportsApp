@@ -4,6 +4,7 @@ import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:pay/pay.dart';
 import 'dart:io' show Platform;
 import 'package:footy_fix/payment_config.dart';
+import 'package:footy_fix/services/database_services.dart';
 
 class PaymentScreen extends StatefulWidget {
   final int gameID;
@@ -80,9 +81,26 @@ class _PaymentScreenState extends State<PaymentScreen> {
   void tempAction() async {
     var userID = await PreferencesService().getUserId();
 
-    await PostgresService().executeQuery(
-        "INSERT INTO user_game_participation (user_id, game_id, status) "
-        "VALUES ('$userID', ${widget.gameID}, 'Pending')");
+    // await PostgresService().executeQuery(
+    //     "INSERT INTO user_game_participation (user_id, game_id, status) "
+    //     "VALUES ('$userID', ${widget.gameID}, 'Pending')");
+
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    var body = {
+      "id": userID,
+      "games": [
+        {
+          "id": widget.gameID,
+        }
+      ]
+    };
+
+    print(body);
+
+    var result = await DatabaseServices().patchData(
+        '${DatabaseServices().backendUrl}/api/players/$userID', token, body);
   }
 
   @override
