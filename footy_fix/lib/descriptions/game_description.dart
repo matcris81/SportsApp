@@ -28,6 +28,52 @@ class GameDescription extends StatefulWidget {
 }
 
 class _GameDescriptionState extends State<GameDescription> {
+  double price = 0.0;
+  bool isFull = false;
+  int size = 0;
+  int numberOfPlayers = 0;
+  String time = '';
+  var dayName;
+  var dayNumber;
+  var monthName;
+  bool isLoading = true; // Added isLoading flag
+  String address = '';
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch game info when the screen initializes
+    _fetchGameInfo();
+  }
+
+  // Function to fetch game info
+  Future<void> _fetchGameInfo() async {
+    try {
+      Map<dynamic, dynamic> gameInfo = await getGameInfo();
+
+      setState(() {
+        var venueName = gameInfo['venueName'];
+        address = gameInfo['address'];
+        var description = gameInfo['description'];
+        size = gameInfo['size'];
+        numberOfPlayers = gameInfo['players'].length;
+        price = gameInfo['price'];
+        var date = gameInfo['gameDate'];
+
+        DateTime parsedDate = DateTime.parse(date);
+        time = DateFormat('HH:mm:ss').format(parsedDate);
+        dayName = DateFormat('EEEE').format(parsedDate);
+        dayNumber = DateFormat('d').format(parsedDate);
+        monthName = DateFormat('MMMM').format(parsedDate);
+
+        isFull = numberOfPlayers >= size;
+        isLoading = false; // Set isLoading to false when data is fetched
+      });
+    } catch (error) {
+      print('Error fetching game info: $error');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,12 +84,12 @@ class _GameDescriptionState extends State<GameDescription> {
             child: CustomScrollView(
               slivers: [
                 SliverAppBar(
-                  expandedHeight: 200.0,
+                  expandedHeight: 150.0,
                   floating: false,
                   pinned: true,
                   flexibleSpace: FlexibleSpaceBar(
                     background: Image.asset(
-                      'assets/albany.png',
+                      'assets/football.jpg',
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -58,174 +104,235 @@ class _GameDescriptionState extends State<GameDescription> {
                   ),
                 ),
                 SliverToBoxAdapter(
-                  child: FutureBuilder<Map<dynamic, dynamic>>(
-                    future:
-                        getGameInfo(), // The async getAddress function is called here
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        print('snapshot.data: ${snapshot.data}}');
-                        if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        } else if (snapshot.hasData) {
-                          var gameDetails = snapshot.data;
-                          print(
-                              'widget.userAlreadyJoined: ${widget.userAlreadyJoined}');
-
-                          var venueName = gameDetails!['venueName'];
-                          var address = gameDetails['address'];
-                          print('gameDetails');
-                          var description = gameDetails['description'];
-                          var size = gameDetails['size'];
-                          // var playersJoined = gameDetails['currentPlayers'];
-                          var price = gameDetails['price'];
-                          // var time = gameDetails['time'];
-                          var date = gameDetails['gameDate'];
-
-                          DateTime parsedDate = DateTime.parse(date);
-                          String time =
-                              DateFormat('HH:mm:ss').format(parsedDate);
-                          var dayName = DateFormat('EEEE').format(parsedDate);
-                          var dayNumber = DateFormat('d').format(parsedDate);
-                          var monthName = DateFormat('MMMM').format(parsedDate);
-
-                          return Card(
-                            margin: const EdgeInsets.all(16.0),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Center(
-                                    child: Text(
-                                      venueName, // Assuming 'locationName' is a String containing the game's location name
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge
-                                          ?.copyWith(
+                  child: isLoading
+                      ? Center(child: CircularProgressIndicator())
+                      : isFull
+                          ? SizedBox.shrink()
+                          : Column(
+                              children: [
+                                Card(
+                                  margin: const EdgeInsets.fromLTRB(
+                                      16.0, 16.0, 16.0, 8.0),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Text(
+                                          "8v8 Football",
+                                          style: TextStyle(
+                                            fontSize: 20,
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 24,
                                           ),
-                                      textAlign: TextAlign.center,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          children: <Widget>[
+                                            Text(
+                                              '$dayName, $dayNumber $monthName',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            Container(
+                                              height: 16,
+                                              width:
+                                                  1, // Width of the divider line
+                                              color: Colors
+                                                  .grey, // Color of the divider line
+                                              margin:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8),
+                                            ),
+                                            Text(
+                                              time.substring(0, 5),
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 16),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: <Widget>[
+                                            _buildButton(Icons.directions,
+                                                "Get Directions", () {
+                                              _launchMaps(context, address);
+                                            }),
+                                            _buildButton(Icons.share, "Share",
+                                                () {
+                                              print("share button pressed");
+                                            }),
+                                            _buildButton(
+                                                Icons.help_outline, "Anything",
+                                                () {
+                                              print("anything button pressed");
+                                            }),
+                                          ],
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
-                                  const Divider(),
-                                  ListTile(
-                                    leading: const Icon(Icons.date_range),
-                                    title: Text(
-                                        'Date: $dayName, $dayNumber $monthName'),
+                                ),
+                                Card(
+                                  margin: const EdgeInsets.symmetric(
+                                      vertical: 0.0, horizontal: 16.0),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  ListTile(
-                                    leading: const Icon(Icons.access_time),
-                                    title:
-                                        Text('Time: ${time.substring(0, 5)}'),
-                                  ),
-                                  ListTile(
-                                    leading: const Icon(Icons.group),
-                                    title: Text('Players Joined: 0/$size'),
-                                    // 'Players Joined: $playersJoined/$size'),
-                                  ),
-                                  ListTile(
-                                    leading: const Icon(Icons.attach_money),
-                                    title: Text(
-                                        'Price: \$${price.toStringAsFixed(2)}'),
-                                  ),
-                                  const Divider(),
-                                  ListTile(
-                                    leading: const Icon(Icons.location_on),
-                                    title: Text(
-                                      address, // Display the address here
-                                      style: const TextStyle(
-                                        fontSize:
-                                            14, // Reduce the font size as needed
-                                        overflow: TextOverflow
-                                            .ellipsis, // Add this to prevent text overflow
-                                      ),
-                                      maxLines:
-                                          1, // Ensure the address is on a single line
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        _buildInfoSection(
+                                          "Spots Left",
+                                          "${size - numberOfPlayers} / $size", // Calculate spots left
+                                        ),
+                                        _buildInfoSection("Game Length",
+                                            "2 hours"), // Replace with actual game length
+                                        _buildInfoSection("Sport",
+                                            "Football"), // Replace with actual sport name
+                                      ],
                                     ),
-                                    subtitle: const Text(
-                                        'Click for map'), // Optional: if you want to add functionality to navigate to a map view
-                                    onTap: () {
-                                      _launchMaps(context, address);
-                                    },
                                   ),
-                                ],
-                              ),
+                                ),
+                                Card(
+                                  margin: const EdgeInsets.fromLTRB(0.0, 8.0,
+                                      0.0, 0.0), // Adjust the horizontal margin
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Text(
+                                          "About the Game",
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          "Your game description goes here.", // Replace with your game description
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          );
-                        }
-                      }
-                      // By default, show a loading spinner while the Future is incomplete
-                      return const Center(child: CircularProgressIndicator());
-                    },
-                  ),
                 ),
               ],
             ),
           ),
-          // buildJoinButton(context),
+          Container(
+            padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 30.0),
+            child: ElevatedButton(
+              onPressed: isLoading || isFull || widget.userAlreadyJoined
+                  ? null
+                  : () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PaymentScreen(
+                                  gameID: widget.gameID,
+                                )),
+                      );
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isLoading || isFull
+                    ? Colors.grey
+                    : Colors.black, // Greyed out if full
+                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  side: const BorderSide(color: Colors.white, width: 2),
+                ),
+                minimumSize: const Size(double.infinity, 50),
+              ),
+              child: Text(
+                widget.userAlreadyJoined
+                    ? 'Joined'
+                    : (isLoading
+                        ? 'Loading...'
+                        : (isFull
+                            ? 'Join (Full)'
+                            : 'Join for \$${price.toStringAsFixed(2)}')),
+                style: const TextStyle(color: Colors.white, fontSize: 18),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  // Widget buildJoinButton(BuildContext context) {
-  //   return FutureBuilder<Object?>(
-  //     future: PostgresService().retrieve(
-  //         "SELECT current_players, game_date, price FROM games WHERE game_id = ${widget.gameID}"),
-  //     builder: (context, snapshot) {
-  //       if (snapshot.connectionState == ConnectionState.waiting) {
-  //         return const CircularProgressIndicator(); // Show loading indicator while waiting
-  //       }
+  Widget _buildInfoSection(String title, String value) {
+    return Column(
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.black,
+          ),
+        ),
+        SizedBox(height: 4), // Add spacing between title and value
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.blue, // Text color set to blue
+          ),
+        ),
+      ],
+    );
+  }
 
-  //       var paymentDetails = snapshot.data as List<dynamic>;
-
-  //       var joined = paymentDetails.first[0] as int;
-  //       var date = paymentDetails.first[1] as DateTime;
-  //       var price = paymentDetails.first[2] as double;
-
-  //       bool isFull = joined >= 10;
-  //       return Container(
-  //         padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 24.0),
-  //         child: ElevatedButton(
-  //           onPressed: isFull || widget.userAlreadyJoined
-  //               ? null
-  //               : () {
-  //                   Navigator.push(
-  //                     context,
-  //                     MaterialPageRoute(
-  //                         builder: (context) => PaymentScreen(
-  //                               gameID: widget.gameID,
-  //                               date: date.toString(),
-  //                               price: price,
-  //                             )),
-  //                   );
-  //                 },
-  //           style: ElevatedButton.styleFrom(
-  //             backgroundColor:
-  //                 isFull ? Colors.grey : Colors.black, // Greyed out if full
-  //             padding: const EdgeInsets.symmetric(vertical: 12.0),
-  //             shape: RoundedRectangleBorder(
-  //               borderRadius: BorderRadius.circular(8.0),
-  //               side: const BorderSide(color: Colors.white, width: 2),
-  //             ),
-  //             minimumSize: const Size(double.infinity, 50),
-  //           ),
-  //           child: Text(
-  //             widget.userAlreadyJoined
-  //                 ? 'Joined'
-  //                 : (isFull ? 'Join (Full)' : 'Join'),
-  //             style: const TextStyle(color: Colors.white, fontSize: 18),
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
+  Widget _buildButton(IconData icon, String label, VoidCallback onPressed) {
+    return TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        primary: Colors.blue, // Text and icon color
+        padding: EdgeInsets.symmetric(vertical: 10), // Add padding
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min, // Fit content in the column
+        children: <Widget>[
+          Icon(icon, color: Colors.blue), // Icon color set to blue
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14, // Text style
+              color: Colors.blue, // Text color set to blue
+              fontWeight: FontWeight.bold, // Make text bold
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Future<Map<dynamic, dynamic>> getGameInfo() async {
     Map gameInfo = {};
@@ -237,12 +344,12 @@ class _GameDescriptionState extends State<GameDescription> {
         '${DatabaseServices().backendUrl}/api/games/${widget.gameID}', token);
 
     Map<String, dynamic> gameDetails = jsonDecode(result.body);
-    print('gameDetails[venueId]: ${gameDetails}');
 
     Map<String, dynamic> venueInfo = await getVenueInfo(gameDetails['venueId']);
 
-    gameInfo.addAll(gameDetails);
     gameInfo.addAll(venueInfo);
+    // gameDetails has to be second because it retrieves the players joined for the game (venue would return the players that have liked the venue)
+    gameInfo.addAll(gameDetails);
 
     return gameInfo;
   }

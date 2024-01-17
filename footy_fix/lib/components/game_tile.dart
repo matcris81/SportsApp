@@ -233,8 +233,6 @@ class GameTile extends StatelessWidget {
                                         MaterialPageRoute(
                                             builder: (context) => PaymentScreen(
                                                   gameID: gameID,
-                                                  price: price,
-                                                  date: dateTime.toString(),
                                                 )));
                                   },
                             child: Text(hasJoined
