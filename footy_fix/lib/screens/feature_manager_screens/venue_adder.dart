@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/database_services.dart';
-import 'package:footy_fix/services/db_services.dart';
 
 class AddVenue extends StatefulWidget {
   const AddVenue({Key? key}) : super(key: key);
@@ -177,10 +176,8 @@ class _AddVenueState extends State<AddVenue> {
                         },
                         child: Text('Submit'),
                         style: ElevatedButton.styleFrom(
-                          primary:
-                              Colors.black, // Set the background color to black
-                          onPrimary:
-                              Colors.white, // Set the text color to white
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.white,
                         ),
                       ),
                     ],

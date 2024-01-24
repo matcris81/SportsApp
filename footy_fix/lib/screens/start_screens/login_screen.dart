@@ -7,7 +7,6 @@ import 'package:footy_fix/services/auth_service.dart';
 import 'package:footy_fix/screens/start_screens/register.dart';
 import 'package:footy_fix/components/navigation.dart';
 import 'package:footy_fix/services/database_services.dart';
-import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 
 class LoginPage extends StatefulWidget {
@@ -311,35 +310,35 @@ class _LoginPageState extends State<LoginPage> {
 
                   const SizedBox(width: 25),
 
-                  SquareTile(
-                      onTap: () async {
-                        var credential =
-                            await AuthService().signInWithFacebook();
+                  // SquareTile(
+                  //     onTap: () async {
+                  //       var credential =
+                  //           await AuthService().signInWithFacebook();
 
-                        // Check if the widget is still in the widget tree
-                        if (!mounted) return;
+                  //       // Check if the widget is still in the widget tree
+                  //       if (!mounted) return;
 
-                        if (credential != null) {
-                          var uid = credential.user!.uid;
-                          await PreferencesService().saveUserId(uid);
+                  //       if (credential != null) {
+                  //         var uid = credential.user!.uid;
+                  //         await PreferencesService().saveUserId(uid);
 
-                          var email = credential.user!.email;
+                  //         var email = credential.user!.email;
 
-                          addUserifDoesntExist(uid, email);
+                  //         addUserifDoesntExist(uid, email);
 
-                          if (!mounted) return;
+                  //         if (!mounted) return;
 
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const NavBar()),
-                          );
-                        } else {
-                          // Handle the case where sign-in was not successful
-                          // For example, show an error message
-                        }
-                      },
-                      imagePath: 'assets/icons/facebook.png'),
+                  //         Navigator.pushReplacement(
+                  //           context,
+                  //           MaterialPageRoute(
+                  //               builder: (context) => const NavBar()),
+                  //         );
+                  //       } else {
+                  //         // Handle the case where sign-in was not successful
+                  //         // For example, show an error message
+                  //       }
+                  //     },
+                  //     imagePath: 'assets/icons/facebook.png'),
                 ],
               ),
 

@@ -1,7 +1,5 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:pay/pay.dart';
 import 'dart:io' show Platform;
@@ -149,7 +147,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
               isLoading
                   ? 'Loading...'
                   : 'Total price: \$${price.toStringAsFixed(2)}',
-              // 'Total Price: \$${widget.price.toStringAsFixed(2)}',
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -163,8 +160,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   tempAction();
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.blue, // Button color
-                  onPrimary: Colors.white, // Text color
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8), // Rounded corners
                   ),

@@ -1,11 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:intl/intl.dart';
-import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/components/game_tile.dart';
-import 'package:footy_fix/descriptions/game_description.dart';
 
 class GamesScreen extends StatefulWidget {
   const GamesScreen({Key? key}) : super(key: key);
@@ -46,8 +43,6 @@ class _GamesScreenState extends State<GamesScreen> {
     // Authenticate and get the token
     var token =
         await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
-    print('formattedDate: $formattedDate');
 
     // Make the API call
     var response = await DatabaseServices().getData(

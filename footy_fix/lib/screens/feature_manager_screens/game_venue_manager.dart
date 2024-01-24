@@ -46,8 +46,8 @@ class _GameVenueManagerState extends State<GameVenueManager> {
                     MaterialPageRoute(builder: (context) => const AddVenue()));
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.black, // Button background color
-                onPrimary: Colors.blue, // Button text color
+                backgroundColor: Colors.black, // Button background color
+                foregroundColor: Colors.blue, // Button text color
                 padding: const EdgeInsets.symmetric(
                     horizontal: 100,
                     vertical: 15), // Increased horizontal padding
@@ -78,8 +78,8 @@ class _GameVenueManagerState extends State<GameVenueManager> {
                     MaterialPageRoute(builder: (context) => const AddEvent()));
               },
               style: ElevatedButton.styleFrom(
-                primary: Colors.black, // Button background color
-                onPrimary: Colors.green, // Button text color
+                backgroundColor: Colors.black,
+                foregroundColor: Colors.green,
                 padding: const EdgeInsets.symmetric(
                     horizontal: 100,
                     vertical: 15), // Increased horizontal padding

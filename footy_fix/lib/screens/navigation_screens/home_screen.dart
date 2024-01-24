@@ -2,9 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:footy_fix/components/venues_tile.dart';
-import 'package:footy_fix/descriptions/game_description.dart';
 import 'package:footy_fix/descriptions/location_description.dart';
-import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/geolocator_services.dart';
 import 'package:footy_fix/components/game_tile.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
@@ -140,8 +138,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           builder: (context) => const GameVenueManager()));
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.black,
-                  onPrimary: Colors.white,
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -169,6 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
 
                 if (snapshot.hasError) {
+                  print('Error: ${snapshot.error}');
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
 

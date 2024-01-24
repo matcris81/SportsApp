@@ -1,7 +1,7 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+// import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 
 class AuthService {
@@ -100,24 +100,24 @@ class AuthService {
     }
   }
 
-  Future<UserCredential?> signInWithFacebook() async {
-    try {
-      final LoginResult result = await FacebookAuth.instance.login(
-        permissions: ["public_profile", "email"],
-      );
+  // Future<UserCredential?> signInWithFacebook() async {
+  //   try {
+  //     final LoginResult result = await FacebookAuth.instance.login(
+  //       permissions: ["public_profile", "email"],
+  //     );
 
-      final AuthCredential credential =
-          FacebookAuthProvider.credential(result.accessToken!.token);
+  //     final AuthCredential credential =
+  //         FacebookAuthProvider.credential(result.accessToken!.token);
 
-      UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
+  //     UserCredential userCredential =
+  //         await FirebaseAuth.instance.signInWithCredential(credential);
 
-      return userCredential;
-    } catch (e) {
-      print("Error during Facebook Sign-In: $e");
-      return null;
-    }
-  }
+  //     return userCredential;
+  //   } catch (e) {
+  //     print("Error during Facebook Sign-In: $e");
+  //     return null;
+  //   }
+  // }
 
   Future<void> signOut() async {
     await FirebaseAuth.instance.signOut();

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:footy_fix/services/db_services.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/screens/feature_manager_screens/select_venues_screen.dart';
 
@@ -41,11 +39,6 @@ class _AddEventState extends State<AddEvent> {
         selectedTime = pickedTime;
       });
     }
-  }
-
-  Future<List<String>> fetchVenueNames() async {
-    var result = await PostgresService().retrieve("SELECT name FROM venues");
-    return result.map((row) => row[0] as String).toList();
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -258,28 +251,7 @@ class _AddEventState extends State<AddEvent> {
                             var formatter =
                                 DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
                             String formattedDate =
-                                formatter.format(combinedDateTime!);
-
-                            print(
-                                'location: $locationName'); // Output: "2024-01-06T00:00:00Z"
-
-                            // String formattedTime =
-                            //     timeOfDayToString(selectedTime!);
-
-                            // Parse the date from DD/MM/YYYY format and reformat to YYYY-MM-DD
-                            // print(selectedDate);
-                            // DateTime parsedDate = DateFormat('dd/MM/yyyy')
-                            //     .parse(selectedDate.toString());
-                            // String formattedDate =
-                            //     DateFormat('yyyy-MM-dd').format(parsedDate);
-
-                            // var venueIDResult = await PostgresService().retrieve(
-                            //     "SELECT venue_id FROM venues WHERE name = '$location'");
-                            // var venueID = venueIDResult[0][0];
-
-                            // var sportIDResult = await PostgresService().retrieve(
-                            //     "SELECT sport_id FROM sports WHERE name = '$sport'");
-                            // var sportID = sportIDResult[0][0];
+                                formatter.format(combinedDateTime);
 
                             var token = await DatabaseServices()
                                 .authenticateAndGetToken('admin', 'admin');
@@ -294,30 +266,25 @@ class _AddEventState extends State<AddEvent> {
                               'venueId': locationID,
                               // 'sportId': sportID,
                               'gameDate': formattedDate,
-                              // 'startTime': formattedDate,
                               'description': description,
                               'size': size,
                               'price': price,
                             };
 
-                            // print(game);
-
-                            // // await PostgresService().insert('games', game);
-
                             await DatabaseServices().postData(
-                                'http://localhost:4242/api/games', token, game);
+                                '${DatabaseServices().backendUrl}/api/games',
+                                token,
+                                game);
 
                             if (!mounted) return;
 
-                            Navigator.pop(context);
+                            // Navigator.pop(context);
                           }
                         },
-                        child: Text('Submit'),
+                        child: Text('Submit Event'),
                         style: ElevatedButton.styleFrom(
-                          primary:
-                              Colors.black, // Set the background color to black
-                          onPrimary:
-                              Colors.white, // Set the text color to white
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.white,
                         ),
                       ),
                     ],

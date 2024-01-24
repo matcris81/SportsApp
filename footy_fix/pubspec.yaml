@@ -38,7 +38,7 @@ dependencies:
   google_sign_in: ^6.1.6
   firebase_core: ^2.22.0
   firebase_auth: ^4.2.0
-  flutter_facebook_auth: ^6.0.3
+  # flutter_facebook_auth: ^6.0.4
   google_nav_bar: ^5.0.6
   line_icons: ^2.0.3
   shared_preferences: ^2.2.2
@@ -50,6 +50,9 @@ dependencies:
   connectivity_plus: ^5.0.2
   postgres: ^3.0.4
   http: ^1.1.2
+  firebase_messaging: ^14.7.10
+  # firebase_analytics: ^10.8.0
+  flutter_local_notifications: ^16.3.2
 
 dev_dependencies:
   flutter_test:
