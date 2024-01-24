@@ -2,7 +2,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert'; // for using jsonEncode and jsonDecode
 
 class DatabaseServices {
-  String backendUrl = 'http://localhost:4242';
+  // String backendUrl = 'http://10.0.2.2:4242';
+  // String backendUrl = 'http://localhost:4242';
+  String backendUrl = 'http://192.168.3.11:4242';
 
   Future<http.Response> fetchData(String url) async {
     final response = await http.get(Uri.parse(url));
@@ -17,8 +19,11 @@ class DatabaseServices {
 
   Future<String> authenticateAndGetToken(
       String username, String password) async {
+    // var url = Uri.parse(
+    //     'http://localhost:4242/api/authenticate'); // Replace with your API endpoint
+
     var url = Uri.parse(
-        'http://localhost:4242/api/authenticate'); // Replace with your API endpoint
+        'http://192.168.3.11:4242/api/authenticate'); // Replace with your API endpoint
 
     var response = await http.post(
       url,
@@ -35,8 +40,7 @@ class DatabaseServices {
 
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body);
-      String jwtToken = jsonResponse[
-          'id_token']; // Adjust the key according to your API response
+      String jwtToken = jsonResponse['id_token'];
       return jwtToken;
     } else {
       throw Exception('Failed to authenticate');

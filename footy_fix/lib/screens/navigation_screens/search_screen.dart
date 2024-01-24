@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/descriptions/location_description.dart';
-import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/geolocator_services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:footy_fix/components/venues_tile.dart';
@@ -35,7 +34,7 @@ class _SearchScreenState extends State<SearchScreen> {
           await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
       var result = await DatabaseServices()
-          .getData('http://localhost:4242/api/venues', token);
+          .getData('${DatabaseServices().backendUrl}/api/venues', token);
 
       List<dynamic> venueList = json.decode(result.body);
 

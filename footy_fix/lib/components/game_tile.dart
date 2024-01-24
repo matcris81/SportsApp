@@ -23,6 +23,8 @@ class GameTile extends StatelessWidget {
 
     Map<String, dynamic> gameDetails = json.decode(result.body);
 
+    print(gameDetails);
+
     if (gameDetails.isNotEmpty) {
       return gameDetails;
     }
@@ -32,19 +34,10 @@ class GameTile extends StatelessWidget {
   Future<bool> hasPlayerJoined(String gameID) async {
     var userID = await PreferencesService().getUserId();
 
-    // var result = await PostgresService().retrieve("SELECT COUNT(*) "
-    //     "FROM user_game_participation "
-    //     "WHERE game_id = $gameID AND user_id = '$userID' "
-    //     "AND status IN ('Pending', 'Waitlisted', 'Completed', 'Checked In')");
-
     return false;
-
-    // return result.isNotEmpty;
   }
 
   void tileTap(BuildContext context, bool userAlreadyJoined) {
-    print('locationID: $locationID');
-    print('gmaeID: $gameID');
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -71,6 +64,7 @@ class GameTile extends StatelessWidget {
         }
 
         var gameDetails = snapshot.data!;
+        print('gameDetails: ${gameDetails['players'].length}');
         var dateString = gameDetails['gameDate'] as String;
         DateTime dateTime = DateTime.parse(dateString);
         var dayOfWeek = DateFormat('EEEE').format(dateTime);
@@ -79,7 +73,7 @@ class GameTile extends StatelessWidget {
             DateFormat('MMM').format(dateTime).toUpperCase();
         var time = DateFormat('HH:mm:ss').format(dateTime);
 
-        // var playersJoined = int.parse(gameDetails['current_players'] as String); NEED TO IMPLEMENT THIS BACK IN ASAP
+        var playersJoined = gameDetails['players'].length;
         var size = gameDetails['size'];
         var price = gameDetails['price'];
         // print(time);
@@ -191,8 +185,7 @@ class GameTile extends StatelessWidget {
                             const SizedBox(height: 4),
                             const Divider(),
                             Text(
-                              '0/$size spots left',
-                              // '$playersJoined/$size spots left',
+                              '$playersJoined/$size spots left',
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -215,7 +208,7 @@ class GameTile extends StatelessWidget {
                                   0), // Increase horizontal padding to make the button narrower
                           child: TextButton(
                             style: TextButton.styleFrom(
-                              primary: Colors.white,
+                              foregroundColor: Colors.white,
                               minimumSize: const Size.fromHeight(
                                   50), // Keeps the button height
                               backgroundColor:
@@ -233,8 +226,6 @@ class GameTile extends StatelessWidget {
                                         MaterialPageRoute(
                                             builder: (context) => PaymentScreen(
                                                   gameID: gameID,
-                                                  price: price,
-                                                  date: dateTime.toString(),
                                                 )));
                                   },
                             child: Text(hasJoined

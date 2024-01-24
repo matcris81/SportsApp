@@ -107,7 +107,7 @@ class _SelectVenueState extends State<SelectVenue> {
         await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var response = await DatabaseServices().getData(
-        'http://localhost:4242/api/venues',
+        '${DatabaseServices().backendUrl}/api/venues',
         token); // Replace with your API endpoint
 
     print('response.body: ${response.body}');

@@ -1,5 +1,5 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:pay/pay.dart';
 import 'dart:io' show Platform;
@@ -8,14 +8,10 @@ import 'package:footy_fix/services/database_services.dart';
 
 class PaymentScreen extends StatefulWidget {
   final int gameID;
-  final String date;
-  final double price;
 
   const PaymentScreen({
     Key? key,
     required this.gameID,
-    required this.date,
-    required this.price,
   }) : super(key: key);
 
   @override
@@ -24,6 +20,31 @@ class PaymentScreen extends StatefulWidget {
 
 class _PaymentScreenState extends State<PaymentScreen> {
   String os = Platform.operatingSystem;
+  bool isLoading = true;
+  double price = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    getGameInfo();
+  }
+
+  void getGameInfo() async {
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    var response = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/games/${widget.gameID}', token);
+
+    Map<String, dynamic> gameInfo = jsonDecode(response.body);
+
+    setState(() {
+      // Update state with the fetched data
+      isLoading = false;
+      price = gameInfo['price'];
+      // Set other game info data here
+    });
+  }
 
   ApplePayButton _buildApplePayButton() {
     return ApplePayButton(
@@ -32,7 +53,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         paymentItems: [
           PaymentItem(
             label: widget.gameID.toString(),
-            amount: widget.price.toStringAsFixed(2),
+            amount: price.toStringAsFixed(2),
             status: PaymentItemStatus.final_price,
           ),
         ],
@@ -59,7 +80,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         paymentItems: [
           PaymentItem(
             label: widget.gameID.toString(),
-            amount: widget.price.toStringAsFixed(2),
+            amount: price.toStringAsFixed(2),
             status: PaymentItemStatus.final_price,
           ),
         ],
@@ -80,10 +101,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   void tempAction() async {
     var userID = await PreferencesService().getUserId();
-
-    // await PostgresService().executeQuery(
-    //     "INSERT INTO user_game_participation (user_id, game_id, status) "
-    //     "VALUES ('$userID', ${widget.gameID}, 'Pending')");
 
     var token =
         await DatabaseServices().authenticateAndGetToken('admin', 'admin');
@@ -127,7 +144,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Text(
-              'Total Price: \$${widget.price.toStringAsFixed(2)}',
+              isLoading
+                  ? 'Loading...'
+                  : 'Total price: \$${price.toStringAsFixed(2)}',
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -141,21 +160,20 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   tempAction();
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.blue, // Button color
-                  onPrimary: Colors.white, // Text color
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8), // Rounded corners
                   ),
-                  padding: EdgeInsets.symmetric(
+                  padding: const EdgeInsets.symmetric(
                       horizontal: 30, vertical: 15), // Button padding
                 ),
-                child: Text(
+                child: const Text(
                   'Proceed to Pay',
                   style: TextStyle(fontSize: 16),
                 ),
               ),
-            )
-
+            ),
             // Center(
             //     child: Platform.isIOS
             //         ? _buildApplePayButton()

@@ -2,13 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/screens/upcoming_games_screen.dart';
 import 'package:footy_fix/services/database_services.dart';
-import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:footy_fix/components/game_tile.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io' show Platform;
-import 'package:footy_fix/descriptions/game_description.dart';
 import 'dart:convert';
+import 'package:footy_fix/services/notifications_services.dart';
 
 class LocationDescription extends StatefulWidget {
   final String locationName;
@@ -55,7 +54,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
 
   void toggleLike() async {
     String userID = await PreferencesService().getUserId() ?? '';
-
+    print('userID: $userID');
     var token =
         await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
@@ -69,14 +68,21 @@ class _LocationDescriptionState extends State<LocationDescription> {
     };
 
     String url = '${DatabaseServices().backendUrl}/api/players/$userID';
+    print(token);
 
+    // update user preferences and notifications if liked
     if (isHeartFilled) {
-      var result = await DatabaseServices().patchData(
+      // remove venue from liked venues
+      await DatabaseServices().patchData(
           '${DatabaseServices().backendUrl}/api/players/remove/$userID',
           token,
           body);
+
+      await FirebaseAPI().unsubscribeFromTopic('Venue${widget.locationID}');
     } else {
-      var result = await DatabaseServices().patchData(url, token, body);
+      // add venue to liked venues
+      await DatabaseServices().patchData(url, token, body);
+      await FirebaseAPI().subscribeToTopic('Venue${widget.locationID}');
     }
 
     setState(() {
@@ -87,9 +93,17 @@ class _LocationDescriptionState extends State<LocationDescription> {
   Future<Map<String, dynamic>> getNextUpcomingGame() async {
     var token =
         await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
     var response = await DatabaseServices().getData(
         '${DatabaseServices().backendUrl}/api/games/earliest-by-venue?venueId=${widget.locationID}',
         token);
+
+    if (response.statusCode == 404) {
+      // throw Exception('No games');
+      return {};
+    }
+
+    print('response.body: ${response.statusCode}');
 
     Map<String, dynamic> earliestGame = json.decode(response.body);
 
@@ -119,8 +133,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
     return Scaffold(
         backgroundColor: Colors.grey[300],
         body: FutureBuilder<Map<String, dynamic>>(
-            // future: PostgresService().retrieve(
-            //     'SELECT * FROM venues WHERE venue_id = ${widget.locationID}'),
             future: getLocationDetails(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
@@ -288,11 +300,9 @@ class _LocationDescriptionState extends State<LocationDescription> {
 
                             // var gameRow = snapshot.data!.first;
                             var gameRow = snapshot.data!;
-                            print(gameRow);
 
                             // Extract the game details from gameRow
                             var gameId = gameRow['id'];
-                            print('gameID: $gameId');
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(
