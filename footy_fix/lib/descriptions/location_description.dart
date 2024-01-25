@@ -275,6 +275,8 @@ class _LocationDescriptionState extends State<LocationDescription> {
                                   child: Text('Error: ${snapshot.error}'));
                             }
 
+                            print('snapshot.data: ${snapshot.data}');
+
                             if (!snapshot.hasData || snapshot.data!.isEmpty) {
                               return Container(
                                 padding: const EdgeInsets.all(20),
