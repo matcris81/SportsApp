@@ -41,7 +41,7 @@ class _GameDescriptionState extends State<GameDescription> {
   var monthName;
   bool isLoading = true;
   String address = '';
-  var description;
+  String description = '';
   var venueName;
   List<String> imageUrls = [];
   List<dynamic> players = [];
@@ -87,355 +87,233 @@ class _GameDescriptionState extends State<GameDescription> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[300],
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
-            child: CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  expandedHeight: 150.0,
-                  floating: false,
-                  pinned: true,
-                  flexibleSpace: FlexibleSpaceBar(
-                    background: Image.asset(
-                      'assets/football.jpg',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  leading: IconButton(
-                    icon: const CircleAvatar(
-                      backgroundColor: Colors.white,
-                      child: Icon(Icons.arrow_back, color: Colors.black),
-                    ),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
+          CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 200.0,
+                floating: false,
+                pinned: true,
+                flexibleSpace: FlexibleSpaceBar(
+                  background:
+                      Image.asset('assets/football.jpg', fit: BoxFit.cover),
                 ),
-                SliverToBoxAdapter(
-                  child: isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : isFull
-                          ? const SizedBox.shrink()
-                          : Column(
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back, color: Colors.black),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Container(
+                  // This container takes the place of your card
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                  ),
+                  padding: const EdgeInsets.all(30),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        "8v8 Football",
+                        style: TextStyle(
+                          fontSize: 35,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: <Widget>[
+                          const Icon(
+                            Icons.calendar_today, // Replace with your date icon
+                            size: 16, // Adjust the size as needed
+                            color: Colors.black, // Adjust the color as needed
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            'Hosted by Joelene Maxwell',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 30),
+                      const Text(
+                        'About the game',
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        description ??
+                            'No description available', // Provide a default value
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      const Text(
+                        'Details',
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: <Widget>[
+                          const Icon(
+                            Icons.people, // Replace with your time icon
+                            size: 16, // Adjust the size as needed
+                            color: Colors.black, // Adjust the color as needed
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            "$numberOfPlayers/$size players",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: <Widget>[
+                          const Icon(
+                            Icons.calendar_today, // Replace with your date icon
+                            size: 16, // Adjust the size as needed
+                            color: Colors.black, // Adjust the color as needed
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            '$dayName, $dayNumber $monthName',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: <Widget>[
+                          const Icon(
+                            Icons.access_time, // Replace with your time icon
+                            size: 16, // Adjust the size as needed
+                            color: Colors.black, // Adjust the color as needed
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            time.substring(0, 5),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: <Widget>[
+                          const Icon(
+                            Icons
+                                .location_on_outlined, // Replace with your time icon
+                            size: 16, // Adjust the size as needed
+                            color: Colors.black, // Adjust the color as needed
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            venueName,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 30),
+                      const Text(
+                        'Players',
+                        style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => GamePlayers(
+                                players: players,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Row(
                               children: [
-                                Card(
-                                  margin: const EdgeInsets.fromLTRB(
-                                      16.0, 16.0, 16.0, 8.0),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                        16.0, 8.0, 16.0, 8.0),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        Text(
-                                          "8v8 Football",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Row(
-                                          children: <Widget>[
-                                            Text(
-                                              '$dayName, $dayNumber $monthName',
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                            Container(
-                                              height: 16,
-                                              width: 1,
-                                              color: Colors.grey,
-                                              margin:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 8),
-                                            ),
-                                            Text(
-                                              time.substring(0, 5),
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: <Widget>[
-                                            _buildButton(Icons.directions,
-                                                "Get Directions", () {
-                                              _launchMaps(context, address);
-                                            }),
-                                            _buildButton(
-                                                Icons.ios_share, "Share", () {
-                                              print("share button pressed");
-                                            }),
-                                            _buildButton(
-                                                Icons.help_outline, "Anything",
-                                                () {
-                                              print("anything button pressed");
-                                            }),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                Card(
-                                  margin: const EdgeInsets.symmetric(
-                                      vertical: 0.0, horizontal: 16.0),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        _buildInfoSection(
-                                          "${size - numberOfPlayers}",
-                                          title: "Spots Left",
-                                        ),
-                                        _buildInfoSection("2 hrs",
-                                            icon: Icons.timer_sharp),
-                                        _buildInfoSection("Football",
-                                            icon:
-                                                Icons.sports_baseball_outlined),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.fromLTRB(
-                                      16.0, 16.0, 16.0, 2.0),
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      "About the Game",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                      minWidth:
-                                          MediaQuery.of(context).size.width),
-                                  child: SingleChildScrollView(
-                                    child: Card(
-                                      margin: const EdgeInsets.fromLTRB(
-                                          16.0, 0.0, 16.0, 0.0),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16.0),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            ExpandableText(
-                                              text: description,
-                                              style: const TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.black),
-                                              maxLines: 3,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.fromLTRB(
-                                      16.0, 16.0, 16.0, 2.0),
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      "Game Organizer",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Card(
-                                  margin: const EdgeInsets.fromLTRB(
-                                      16.0, 2.0, 16.0, 8.0),
-                                  child: Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                        16.0, 8.0, 16.0, 8.0),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        const Row(
-                                          children: [
-                                            CircleAvatar(
-                                              backgroundImage: NetworkImage(
-                                                  'https://www.google.com/url?sa=i&url=https%3A%2F%2Fpixabay.com%2Fvectors%2Fblank-profile-picture-mystery-man-973460%2F&psig=AOvVaw3JI2500CJ2fKtI1CqCvyNB&ust=1705723691821000&source=images&cd=vfe&ved=0CBMQjRxqFwoTCNDm_ojK6IMDFQAAAAAdAAAAABAE'),
-                                              radius: 20.0,
-                                            ),
-                                            SizedBox(width: 10.0),
-                                            Text(
-                                              'Dick',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ],
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            // Add your message button action here
-                                          },
-                                          child: const Column(
-                                            children: <Widget>[
-                                              Icon(Icons.message_outlined,
-                                                  color: Colors.grey),
-                                              Text(
-                                                "Contact",
-                                                style: TextStyle(
-                                                    color: Colors.grey),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.fromLTRB(
-                                      16.0, 16.0, 16.0, 2.0),
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      "Players",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => GamePlayers(
-                                                players: players,
-                                              )),
-                                    );
-                                  },
-                                  child: Card(
-                                    margin: const EdgeInsets.fromLTRB(
-                                        16.0, 2.0, 16.0, 8.0),
-                                    child: Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          16.0, 8.0, 16.0, 8.0),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Row(
-                                            children: [
-                                              _buildPlayerIconsRow(),
-                                            ],
-                                          ),
-                                          const Icon(Icons.navigate_next_sharp,
-                                              color: Colors.grey),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                )
+                                _buildPlayerIconsRow(),
                               ],
                             ),
+                            const Icon(Icons.navigate_next_sharp,
+                                color: Colors.grey),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      Container(
+                        padding:
+                            EdgeInsets.all(10.0), // Adjust padding as needed
+                        decoration: BoxDecoration(
+                          color: Colors.blue[200],
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: Row(
+                          children: <Widget>[
+                            const Icon(Icons.directions,
+                                size: 30.0, color: Colors.black), // White icon
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {
+                                  _launchMaps(context, address);
+                                },
+                                child: const Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      'Get directions',
+                                      style: TextStyle(
+                                        color: Colors.black, // White text
+                                        fontSize: 14.0,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 30.0),
-            child: ElevatedButton(
-              onPressed: isLoading || isFull || widget.userAlreadyJoined
-                  ? null
-                  : () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => PaymentScreen(
-                                  gameID: widget.gameID,
-                                )),
-                      );
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    isLoading || isFull ? Colors.grey : Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 12.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  side: const BorderSide(color: Colors.white, width: 2),
-                ),
-                minimumSize: const Size(double.infinity, 50),
               ),
-              child: Text(
-                widget.userAlreadyJoined
-                    ? 'Joined'
-                    : (isLoading
-                        ? 'Loading...'
-                        : (isFull
-                            ? 'Join (Full)'
-                            : 'Join for \$${price.toStringAsFixed(2)}')),
-                style: const TextStyle(color: Colors.white, fontSize: 18),
-              ),
-            ),
+            ],
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildInfoSection(String value, {String? title, IconData? icon}) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (icon != null) Icon(icon, size: 24.0),
-        SizedBox(height: icon != null ? 4 : 0),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        if (title != null) const SizedBox(height: 2),
-        if (title != null)
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-      ],
+      bottomNavigationBar: _buildBotttomNavigationBar(),
     );
   }
 
@@ -456,26 +334,85 @@ class _GameDescriptionState extends State<GameDescription> {
     );
   }
 
-  Widget _buildButton(IconData icon, String label, VoidCallback onPressed,
-      {double iconSize = 24.0,
-      double fontSize = 14.0,
-      EdgeInsets padding = const EdgeInsets.symmetric(vertical: 10)}) {
-    return TextButton(
-      onPressed: onPressed,
-      style: TextButton.styleFrom(
-        padding: padding,
+  Widget _buildBotttomNavigationBar() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
+      decoration: BoxDecoration(
+        color: Colors.white, // Set the background color to white
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 7,
+            offset: Offset(0, 3), // changes position of shadow
+          ),
+        ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min, // Fit content in the column
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          Icon(icon,
-              color: Colors.blue, size: iconSize), // Icon with increased size
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: fontSize, // Increased font size
-              color: Colors.blue, // Text color set to blue
-              fontWeight: FontWeight.bold, // Make text bold
+          FloatingActionButton(
+            onPressed: () {
+              // Define the action to take when the button is pressed
+            },
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30.0),
+              side: const BorderSide(color: Colors.white, width: 2),
+            ),
+            child: const Icon(
+              Icons.message, // Replace with your desired icon
+            ),
+          ),
+          const SizedBox(width: 10),
+          FloatingActionButton(
+            onPressed: () {
+              // Define the action to take when the button is pressed
+            },
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30.0),
+              side: const BorderSide(color: Colors.white, width: 2),
+            ),
+            child: const Icon(
+              Icons.ios_share, // Replace with your desired icon
+            ),
+          ),
+          const SizedBox(width: 10),
+          Container(
+            width: 200, // Set a specific width for the button
+            child: ElevatedButton(
+              onPressed: isLoading || isFull || widget.userAlreadyJoined
+                  ? null
+                  : () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PaymentScreen(
+                            gameID: widget.gameID,
+                          ),
+                        ),
+                      );
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    isLoading || isFull ? Colors.grey : Colors.black,
+                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                  // Removed the 'side' parameter to eliminate the white border
+                ),
+              ),
+              child: Text(
+                widget.userAlreadyJoined
+                    ? 'Joined'
+                    : (isLoading
+                        ? 'Loading...'
+                        : (isFull
+                            ? 'Join (Full)'
+                            : 'Join for \$${price.toStringAsFixed(2)}')),
+                style: const TextStyle(color: Colors.white, fontSize: 18),
+              ),
             ),
           ),
         ],
