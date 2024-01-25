@@ -100,7 +100,12 @@ class _GameDescriptionState extends State<GameDescription> {
                       Image.asset('assets/football.jpg', fit: BoxFit.cover),
                 ),
                 leading: IconButton(
-                  icon: Icon(Icons.arrow_back, color: Colors.black),
+                  icon: const CircleAvatar(
+                    backgroundColor:
+                        Colors.white, // Background color of the circle
+                    child: Icon(Icons.arrow_back,
+                        color: Colors.black), // Black arrow icon
+                  ),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ),
