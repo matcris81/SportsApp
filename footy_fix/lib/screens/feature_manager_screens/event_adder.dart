@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:intl/intl.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/screens/feature_manager_screens/select_venues_screen.dart';
@@ -57,7 +58,6 @@ class _AddEventState extends State<AddEvent> {
       if (!mounted) return;
 
       if (pickedDate.isBefore(today)) {
-        // Show error message if picked date is before today
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('You cannot select a past date.'),
@@ -111,16 +111,11 @@ class _AddEventState extends State<AddEvent> {
         ),
       ),
       body: SingleChildScrollView(
-        // Add SingleChildScrollView
         child: Center(
-          // Center the content
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: ConstrainedBox(
-              // Constrain the size of the Column
-              constraints: const BoxConstraints(
-                  maxWidth:
-                      600), // Set a max width for better look on wide screens
+              constraints: const BoxConstraints(maxWidth: 600),
               child: Form(
                 key: _formKey,
                 child: Padding(
@@ -151,55 +146,47 @@ class _AddEventState extends State<AddEvent> {
                       Row(
                         children: <Widget>[
                           Expanded(
-                            // Use Expanded to fill the available space
                             child: TextFormField(
                               decoration: const InputDecoration(
                                 labelText: 'Price',
                                 border: OutlineInputBorder(),
                               ),
-                              keyboardType: const TextInputType
-                                  .numberWithOptions(
-                                  decimal:
-                                      true), // Enable numeric input with decimal
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter a price';
                                 }
                                 if (double.tryParse(value) == null) {
-                                  // Check if value is a valid double
                                   return 'Please enter a price';
                                 }
                                 return null;
                               },
                               onSaved: (value) {
-                                price = double.parse(
-                                    value!); // Parse the value to double
+                                price = double.parse(value!);
                               },
                             ),
                           ),
-                          const SizedBox(
-                              width: 16.0), // Space between the TextFields
+                          const SizedBox(width: 16.0),
                           Expanded(
                             child: TextFormField(
                               decoration: const InputDecoration(
                                 labelText: 'Number of Players',
                                 border: OutlineInputBorder(),
                               ),
-                              keyboardType: TextInputType
-                                  .number, // Enable numeric input without decimal
+                              keyboardType: TextInputType.number,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter Number of Players';
                                 }
                                 if (int.tryParse(value) == null) {
-                                  // Check if value is a valid integer
                                   return 'Please enter Number of Players';
                                 }
                                 return null;
                               },
                               onSaved: (value) {
-                                size =
-                                    int.parse(value!); // Parse the value to int
+                                size = int.parse(value!);
                               },
                             ),
                           ),
@@ -256,11 +243,14 @@ class _AddEventState extends State<AddEvent> {
                             var token = await DatabaseServices()
                                 .authenticateAndGetToken('admin', 'admin');
 
+                            String? userID =
+                                await PreferencesService().getUserId();
+
                             // var sportID = DatabaseServices().getData(
                             //     'http://localhost:4242/api/venues/by-name/$location',
                             //     token);
 
-                            // // print(sportID);
+                            print(userID.runtimeType);
 
                             var game = {
                               'venueId': locationID,
@@ -269,7 +259,10 @@ class _AddEventState extends State<AddEvent> {
                               'description': description,
                               'size': size,
                               'price': price,
+                              'organizer': {'id': userID},
                             };
+
+                            print('game: $game');
 
                             await DatabaseServices().postData(
                                 '${DatabaseServices().backendUrl}/api/games',
