@@ -47,6 +47,7 @@ class _GameDescriptionState extends State<GameDescription> {
   List<dynamic> players = [];
   static const String defaultImageUrl =
       'https://example.com/default-avatar.jpg';
+  Map<String, dynamic> organizer = {};
 
   @override
   void initState() {
@@ -57,6 +58,7 @@ class _GameDescriptionState extends State<GameDescription> {
   Future<void> _fetchGameInfo() async {
     try {
       Map<dynamic, dynamic> gameInfo = await getGameInfo();
+      print('gameInfo organizer: ${gameInfo['organizer']}');
 
       setState(() {
         venueName = gameInfo['venueName'];
@@ -66,6 +68,7 @@ class _GameDescriptionState extends State<GameDescription> {
         numberOfPlayers = gameInfo['players'].length;
         price = gameInfo['price'];
         var date = gameInfo['gameDate'];
+        organizer = gameInfo['organizer'];
 
         DateTime parsedDate = DateTime.parse(date);
         time = DateFormat('HH:mm:ss').format(parsedDate);
@@ -92,7 +95,7 @@ class _GameDescriptionState extends State<GameDescription> {
           CustomScrollView(
             slivers: [
               SliverAppBar(
-                expandedHeight: 200.0,
+                expandedHeight: 150.0,
                 floating: false,
                 pinned: true,
                 flexibleSpace: FlexibleSpaceBar(
@@ -136,7 +139,7 @@ class _GameDescriptionState extends State<GameDescription> {
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            'Hosted by Joelene Maxwell',
+                            'Hosted by ${organizer['username']}',
                             style: const TextStyle(
                               fontSize: 18,
                               color: Colors.black,
