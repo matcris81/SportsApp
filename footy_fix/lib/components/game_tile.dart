@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/descriptions/game_description.dart';
-import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:intl/intl.dart';
 import 'package:footy_fix/screens/payment_screen.dart';

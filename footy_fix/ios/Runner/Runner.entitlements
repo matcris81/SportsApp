@@ -8,5 +8,11 @@
 	<array>
 		<string>Default</string>
 	</array>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:matcris81.github.io</string>
+	</array>
+	<key>com.apple.developer.associated-domains.mdm-managed</key>
+	<true/>
 </dict>
 </plist>

@@ -11,6 +11,7 @@ import 'dart:io' show Platform;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:footy_fix/screens/payment_screen.dart';
 import 'package:footy_fix/services/database_services.dart';
+import 'package:share_plus/share_plus.dart';
 
 class GameDescription extends StatefulWidget {
   final int locationID;
@@ -374,8 +375,9 @@ class _GameDescriptionState extends State<GameDescription> {
           ),
           const SizedBox(width: 10),
           FloatingActionButton(
-            onPressed: () {
-              // Define the action to take when the button is pressed
+            onPressed: () async {
+              await Share.share(
+                  'Check out this game on FootyFix: https://matcris81.github.io/approutes/');
             },
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(

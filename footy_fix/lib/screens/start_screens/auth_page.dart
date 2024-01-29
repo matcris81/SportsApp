@@ -14,8 +14,7 @@ class AuthPage extends StatefulWidget {
 
 class _AuthPageState extends State<AuthPage> {
   final GeolocatorService _geolocatorService = GeolocatorService();
-  final PreferencesService _sharedPreferencesService =
-      PreferencesService(); // Instance of your shared preferences service
+  final PreferencesService _sharedPreferencesService = PreferencesService();
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +35,6 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   Widget _handleAuthenticatedUser(User user) {
-    print('User Identification: (${user.uid}');
     // save user id
     _saveUserID(user.uid);
     // Update location
@@ -44,8 +42,6 @@ class _AuthPageState extends State<AuthPage> {
 
     // Start location updates
     _geolocatorService.startPeriodicLocationUpdates(const Duration(minutes: 5));
-
-    // _checkForUser(user.uid);
 
     // Navigate to NavBar
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -57,16 +53,6 @@ class _AuthPageState extends State<AuthPage> {
     return const Center(child: CircularProgressIndicator());
   }
 
-  // void _checkForUser(String userID) async {
-  //   var user = await PostgresService().retrieve(
-  //       "SELECT EXISTS (SELECT 1 FROM users WHERE user_id = '$userID') AS user_exists");
-
-  //   print('user: $user');
-  //   // if (user[0][0] == false) {
-
-  //   // }
-  // }
-
   void _updateUserLocation() {
     _geolocatorService.determinePosition().then((position) {
       // Handle the position update logic
@@ -76,8 +62,7 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   void _saveUserID(String userID) async {
-    await _sharedPreferencesService
-        .saveUserId(userID); // Call your method to save the userID
+    await _sharedPreferencesService.saveUserId(userID);
   }
 
   @override
