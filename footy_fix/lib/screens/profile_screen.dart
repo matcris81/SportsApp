@@ -154,14 +154,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20), // Spacer
-                ElevatedButton(
-                  onPressed: () {
-                    // TODO: Navigate to change password screen
-                  },
-                  child: const Text('Change Password'),
-                ),
-                const SizedBox(height: 10), // Spacer between buttons
+                const SizedBox(height: 30), // Spacer between buttons
                 ElevatedButton(
                   onPressed: () {
                     // TODO: Navigate to past orders screen
