@@ -53,6 +53,7 @@ dependencies:
   firebase_messaging: ^14.7.10
   # firebase_analytics: ^10.8.0
   flutter_local_notifications: ^16.3.2
+  image_picker: ^1.0.7
 
 dev_dependencies:
   flutter_test:
@@ -104,11 +105,11 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  fonts:
-    - family: Roboto
-      fonts:
-        - asset: fonts/Roboto-Regular.ttf
-        - asset: fonts/Roboto-Bold.ttf
+  # fonts:
+  #   - family: Roboto
+  #     fonts:
+  #       - asset: fonts/Roboto-Regular.ttf
+  #       - asset: fonts/Roboto-Bold.ttf
   #         style: italic
   #   - family: Trajan Pro
   #     fonts:
