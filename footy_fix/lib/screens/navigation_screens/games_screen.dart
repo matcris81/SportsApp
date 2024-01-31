@@ -49,6 +49,8 @@ class _GamesScreenState extends State<GamesScreen> {
         '${DatabaseServices().backendUrl}/api/games/by-date?date=$formattedDate',
         token);
 
+    print('response body: ${response.body}');
+
     // Check the response status and decode the body
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
@@ -125,17 +127,18 @@ class _GamesScreenState extends State<GamesScreen> {
                 if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+
+                if (snapshot.data == null ||
+                    !snapshot.hasData ||
+                    snapshot.data!.isEmpty) {
                   return const Center(child: Text('No events this day'));
                 }
 
                 var gameInfo = snapshot.data!;
-                print(gameInfo);
                 return ListView.builder(
                   itemCount: gameInfo.length,
                   itemBuilder: (context, index) {
                     var game = gameInfo[index];
-
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Container(

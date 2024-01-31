@@ -23,8 +23,6 @@ class GameTile extends StatelessWidget {
 
     Map<String, dynamic> gameDetails = json.decode(result.body);
 
-    print(gameDetails);
-
     if (gameDetails.isNotEmpty) {
       return gameDetails;
     }
@@ -64,7 +62,7 @@ class GameTile extends StatelessWidget {
         }
 
         var gameDetails = snapshot.data!;
-        print('gameDetails: ${gameDetails['players'].length}');
+        // print('gameDetails: ${gameDetails['players'].length}');
         var dateString = gameDetails['gameDate'] as String;
         DateTime dateTime = DateTime.parse(dateString);
         var dayOfWeek = DateFormat('EEEE').format(dateTime);
@@ -73,7 +71,8 @@ class GameTile extends StatelessWidget {
             DateFormat('MMM').format(dateTime).toUpperCase();
         var time = DateFormat('HH:mm:ss').format(dateTime);
 
-        var playersJoined = gameDetails['players'].length;
+        var playersJoined =
+            gameDetails['players'] != null ? gameDetails['players'].length : 0;
         var size = gameDetails['size'];
         var price = gameDetails['price'];
         // print(time);
@@ -84,6 +83,10 @@ class GameTile extends StatelessWidget {
               if (hasJoinedSnapshot.connectionState ==
                   ConnectionState.waiting) {
                 return CircularProgressIndicator(); // Show loading indicator while checking
+              }
+
+              if (hasJoinedSnapshot.hasError) {
+                return Text('Error: ${hasJoinedSnapshot.error}');
               }
 
               bool hasJoined = hasJoinedSnapshot.data ?? false;

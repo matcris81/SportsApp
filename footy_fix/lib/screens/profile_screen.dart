@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:footy_fix/services/database_services.dart';
@@ -14,6 +15,13 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   File? _image;
+  String userID = '';
+
+  @override
+  void initState() {
+    super.initState();
+    getUserID();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,10 +47,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             var playerData = snapshot.data as Map<String, dynamic>;
+
+            Uint8List? _profileImage;
+
+            if (playerData['profilePicture'] != null) {
+              _profileImage = base64Decode(playerData['profilePicture']);
+            }
             return ListView(
               padding: const EdgeInsets.all(16.0),
               children: <Widget>[
-                const SizedBox(height: 50), // Spacer
+                const SizedBox(height: 30), // Spacer
                 Center(
                     child: GestureDetector(
                   onTap: () async {
@@ -59,26 +73,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       });
 
                       Map<String, dynamic> body = {
+                        'id': userID,
                         'profilePicture': base64Image,
                       };
 
-                      // // Send HTTP request to upload image
-                      // var response = await http.post(
-                      //   Uri.parse(
-                      //       'https://your-backend.com/upload-profile-image'),
-                      //   body: {'image': base64Image},
-                      // );
+                      var token = await DatabaseServices()
+                          .authenticateAndGetToken('admin', 'admin');
 
-                      // if (response.statusCode == 200) {
-                      //   // Handle successful upload
-                      // } else {
-                      //   // Handle error
-                      // }
+                      var resposnse = await DatabaseServices().patchData(
+                          '${DatabaseServices().backendUrl}/api/players/$userID',
+                          token,
+                          body);
                     }
                   },
                   child: CircleAvatar(
                     radius: 60,
-                    backgroundImage: _image != null ? FileImage(_image!) : null,
+                    backgroundImage: MemoryImage(_profileImage ?? Uint8List(0)),
                   ),
                 )),
                 const SizedBox(height: 50),
@@ -175,6 +185,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Future<void> getUserID() async {
+    String? id = await PreferencesService().getUserId();
+    setState(() {
+      this.userID = id!;
+    });
+  }
+
   Future<Map<String, dynamic>> getPlayerData() async {
     Map<String, dynamic> playerData = {};
 
@@ -187,8 +204,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .getData('${DatabaseServices().backendUrl}/api/players/$userID', token);
 
     playerData = jsonDecode(response.body);
-
-    print('playerData: $playerData');
 
     return playerData;
   }
