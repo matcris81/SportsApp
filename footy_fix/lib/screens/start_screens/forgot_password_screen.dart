@@ -1,13 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:footy_fix/components/my_button.dart';
 import 'package:footy_fix/components/my_textfield.dart';
-import 'package:footy_fix/components/square_tile.dart';
-import 'package:footy_fix/services/auth_service.dart';
-import 'package:footy_fix/screens/start_screens/register.dart';
-import 'package:footy_fix/components/navigation.dart';
-import 'package:footy_fix/services/database_services.dart';
-import 'package:footy_fix/services/shared_preferences_service.dart';
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({super.key});

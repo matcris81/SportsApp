@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/descriptions/game_description.dart';
-import 'package:footy_fix/services/db_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:intl/intl.dart';
 import 'package:footy_fix/screens/payment_screen.dart';
@@ -62,7 +61,6 @@ class GameTile extends StatelessWidget {
         }
 
         var gameDetails = snapshot.data!;
-        // print('gameDetails: ${gameDetails['players'].length}');
         var dateString = gameDetails['gameDate'] as String;
         DateTime dateTime = DateTime.parse(dateString);
         var dayOfWeek = DateFormat('EEEE').format(dateTime);
@@ -70,12 +68,13 @@ class GameTile extends StatelessWidget {
         var abbreviatedMonthName =
             DateFormat('MMM').format(dateTime).toUpperCase();
         var time = DateFormat('HH:mm:ss').format(dateTime);
+        print(gameDetails['players']);
 
         var playersJoined =
             gameDetails['players'] != null ? gameDetails['players'].length : 0;
         var size = gameDetails['size'];
         var price = gameDetails['price'];
-        // print(time);
+        print(playersJoined);
 
         return FutureBuilder<bool>(
             future: hasPlayerJoined(gameID.toString()),

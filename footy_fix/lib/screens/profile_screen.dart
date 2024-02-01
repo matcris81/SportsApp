@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
@@ -14,13 +13,15 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  File? _image;
+  Uint8List? _profileImage; // State variable for profile image
   String userID = '';
+  Future<Map<String, dynamic>>? playerDataFuture;
 
   @override
   void initState() {
     super.initState();
     getUserID();
+    playerDataFuture = getPlayerData(); // Fetch player data once
   }
 
   @override
@@ -43,16 +44,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       backgroundColor: Colors.grey[200],
       body: FutureBuilder(
-        future: getPlayerData(),
+        future: playerDataFuture,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             var playerData = snapshot.data as Map<String, dynamic>;
-
-            Uint8List? _profileImage;
-
-            if (playerData['profilePicture'] != null) {
-              _profileImage = base64Decode(playerData['profilePicture']);
-            }
             return ListView(
               padding: const EdgeInsets.all(16.0),
               children: <Widget>[
@@ -65,11 +60,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         await _picker.pickImage(source: ImageSource.gallery);
 
                     if (image != null) {
-                      String base64Image =
-                          base64Encode(await image.readAsBytes());
+                      Uint8List imageBytes = await image.readAsBytes();
+                      String base64Image = base64Encode(imageBytes);
 
                       setState(() {
-                        _image = File(image.path);
+                        _profileImage = imageBytes;
                       });
 
                       Map<String, dynamic> body = {
@@ -204,6 +199,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .getData('${DatabaseServices().backendUrl}/api/players/$userID', token);
 
     playerData = jsonDecode(response.body);
+
+    if (playerData['profilePicture'] != null) {
+      setState(() {
+        _profileImage = base64Decode(playerData['profilePicture']);
+      });
+    }
 
     return playerData;
   }
