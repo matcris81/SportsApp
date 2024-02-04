@@ -18,11 +18,19 @@ class GameTile extends StatelessWidget {
         await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var result = await DatabaseServices()
-        .getData('${DatabaseServices().backendUrl}/api/games/$gameID', token);
+        .getData('${DatabaseServices().backendUrl}/api/games/$gameId', token);
+
+    var playerCountResponse = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/games/$gameId/players-count',
+        token);
+
+    var playerCount = json.decode(playerCountResponse.body);
 
     Map<String, dynamic> gameDetails = json.decode(result.body);
 
     if (gameDetails.isNotEmpty) {
+      gameDetails['playerCount'] = playerCount;
+
       return gameDetails;
     }
     return {};
@@ -68,13 +76,11 @@ class GameTile extends StatelessWidget {
         var abbreviatedMonthName =
             DateFormat('MMM').format(dateTime).toUpperCase();
         var time = DateFormat('HH:mm:ss').format(dateTime);
-        print(gameDetails['players']);
-
-        var playersJoined =
-            gameDetails['players'] != null ? gameDetails['players'].length : 0;
+        // var playersJoined =
+        //     gameDetails['players'] != null ? gameDetails['players'].length : 0;
+        var playersJoined = gameDetails['playerCount'];
         var size = gameDetails['size'];
         var price = gameDetails['price'];
-        print(playersJoined);
 
         return FutureBuilder<bool>(
             future: hasPlayerJoined(gameID.toString()),
