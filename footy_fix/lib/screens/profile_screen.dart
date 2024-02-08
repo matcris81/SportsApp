@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:footy_fix/screens/past_purchases_screen.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -98,7 +99,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             fontWeight: FontWeight.bold, color: Colors.black),
                       ),
                       Text(
-                        '${playerData['email']}',
+                        '${playerData['email'] ?? '-'}',
                         style: const TextStyle(
                             fontWeight: FontWeight.normal, color: Colors.grey),
                       ),
@@ -116,7 +117,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             fontWeight: FontWeight.bold, color: Colors.black),
                       ),
                       Text(
-                        '${playerData['dateOfBirth']}',
+                        '${playerData['dateOfBirth'] ?? '-'}',
                         style: const TextStyle(
                             fontWeight: FontWeight.normal, color: Colors.grey),
                       ),
@@ -134,7 +135,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             fontWeight: FontWeight.bold, color: Colors.black),
                       ),
                       Text(
-                        '${playerData['gender']}',
+                        '${playerData['gender'] ?? '-'}',
                         style: const TextStyle(
                             fontWeight: FontWeight.normal, color: Colors.grey),
                       ),
@@ -152,7 +153,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             fontWeight: FontWeight.bold, color: Colors.black),
                       ),
                       Text(
-                        '${playerData['phone']}',
+                        '${playerData['phone'] ?? '-'}',
                         style: const TextStyle(
                             fontWeight: FontWeight.normal, color: Colors.grey),
                       ),
@@ -162,9 +163,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 30), // Spacer between buttons
                 ElevatedButton(
                   onPressed: () {
-                    // TODO: Navigate to past orders screen
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const PastPurchasesScreen()));
                   },
-                  child: const Text('Past Orders'),
+                  child: const Text('Past Purchases'),
                 ),
               ],
             );

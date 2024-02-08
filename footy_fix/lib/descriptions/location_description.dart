@@ -54,7 +54,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
 
   void toggleLike() async {
     String userID = await PreferencesService().getUserId() ?? '';
-    print('userID: $userID');
     var token =
         await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
@@ -68,8 +67,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
     };
 
     String url = '${DatabaseServices().backendUrl}/api/players/$userID';
-    print(token);
-
     // update user preferences and notifications if liked
     if (isHeartFilled) {
       // remove venue from liked venues
@@ -102,8 +99,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
       // throw Exception('No games');
       return {};
     }
-
-    print('response.body: ${response.statusCode}');
 
     Map<String, dynamic> earliestGame = json.decode(response.body);
 
@@ -144,7 +139,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
 
               // Assuming that each row is a list of fields, and the first row is the venue
               var venueRow = snapshot.data!;
-
+              print('description: ${snapshot.data}');
               // Extracting fields from the row
               var venueAddress = venueRow['address'];
               var venueDescription = 'description';
@@ -275,7 +270,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
                                   child: Text('Error: ${snapshot.error}'));
                             }
 
-                            print('snapshot.data: ${snapshot.data}');
+                            // print('snapshot.data: ${snapshot.data}');
 
                             if (!snapshot.hasData || snapshot.data!.isEmpty) {
                               return Container(

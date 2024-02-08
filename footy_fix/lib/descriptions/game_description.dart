@@ -63,7 +63,8 @@ class _GameDescriptionState extends State<GameDescription> {
         address = gameInfo['address'];
         description = gameInfo['description'];
         size = gameInfo['size'];
-        numberOfPlayers = gameInfo['players'].length;
+        // numberOfPlayers = gameInfo['players'].length;
+        numberOfPlayers = gameInfo['players']?.length ?? 0;
         price = gameInfo['price'];
         var date = gameInfo['gameDate'];
 
@@ -73,7 +74,7 @@ class _GameDescriptionState extends State<GameDescription> {
         dayNumber = DateFormat('d').format(parsedDate);
         monthName = DateFormat('MMMM').format(parsedDate);
 
-        players = gameInfo['players'];
+        players = gameInfo['players'] ?? [];
 
         isFull = numberOfPlayers >= size;
         isLoading = false;
