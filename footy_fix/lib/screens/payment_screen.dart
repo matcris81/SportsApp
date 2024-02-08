@@ -22,6 +22,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   String os = Platform.operatingSystem;
   bool isLoading = true;
   double price = 0.0;
+  DateTime? date;
 
   @override
   void initState() {
@@ -38,11 +39,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     Map<String, dynamic> gameInfo = jsonDecode(response.body);
 
+    print('gameInfo: $gameInfo');
+
     setState(() {
-      // Update state with the fetched data
       isLoading = false;
       price = gameInfo['price'];
-      // Set other game info data here
     });
   }
 
@@ -111,10 +112,25 @@ class _PaymentScreenState extends State<PaymentScreen> {
         {
           "id": widget.gameID,
         }
-      ]
+      ],
     };
 
-    print(body);
+    // var paymentBody = {
+    //   "amount": price,
+    //   "date_time": DateTime.now().toIso8601String(),
+    //   "status": "success",
+    //   "player_id": userID,
+    // };
+
+    var paymentBody = {
+      "amount": price,
+      "dateTime": "2024-02-08T12:00:00Z",
+      "status": "PENDING",
+      "player": {"id": userID}
+    };
+
+    var response = await DatabaseServices().postData(
+        '${DatabaseServices().backendUrl}/api/payments', token, paymentBody);
 
     var result = await DatabaseServices().patchData(
         '${DatabaseServices().backendUrl}/api/players/$userID', token, body);

@@ -87,166 +87,171 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text('FitFeat',
-            style: TextStyle(color: Colors.black, fontSize: 20)),
-        centerTitle: true,
-        automaticallyImplyLeading:
-            false, // This line removes the default back button
+    return PopScope(
+        canPop: false,
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: const Text('FitFeat',
+                style: TextStyle(color: Colors.black, fontSize: 20)),
+            centerTitle: true,
+            automaticallyImplyLeading:
+                false, // This line removes the default back button
 
-        // Add profile icon on the left
-        leading: IconButton(
-          icon: const Icon(Icons.account_circle, color: Colors.black),
-          iconSize: 25,
-          onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()));
-          },
-        ),
+            // Add profile icon on the left
+            leading: IconButton(
+              icon: const Icon(Icons.account_circle, color: Colors.black),
+              iconSize: 25,
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ProfileScreen()));
+              },
+            ),
 
-        // Add bell icon on the right
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.black),
-            iconSize: 25,
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const NotificationScreen()));
-            },
-          ),
-        ],
-      ),
-
-      backgroundColor: Colors.grey[200], // Set the background color to grey
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment
-              .start, // Aligns children to the start of the column
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: ElevatedButton(
-                onPressed: () async {
+            // Add bell icon on the right
+            actions: <Widget>[
+              IconButton(
+                icon: const Icon(Icons.notifications, color: Colors.black),
+                iconSize: 25,
+                onPressed: () {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const GameVenueManager()));
+                          builder: (context) => const NotificationScreen()));
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+              ),
+            ],
+          ),
+
+          backgroundColor: Colors.grey[200], // Set the background color to grey
+          body: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment
+                  .start, // Aligns children to the start of the column
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const GameVenueManager()));
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      minimumSize: const Size(double.infinity, 36),
+                    ),
+                    child: const Text('Create a game or venue'),
                   ),
-                  minimumSize: const Size(double.infinity, 36),
                 ),
-                child: const Text('Create a game or venue'),
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.all(10.0),
-              child: Text(
-                'Liked Venues',
-                style: TextStyle(
-                  fontSize: 20, // Adjust the font size as needed
-                  fontWeight: FontWeight.bold, // Makes the text bold
-                  color: Colors.black, // Set the color of the text
+                const Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: Text(
+                    'Liked Venues',
+                    style: TextStyle(
+                      fontSize: 20, // Adjust the font size as needed
+                      fontWeight: FontWeight.bold, // Makes the text bold
+                      color: Colors.black, // Set the color of the text
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            FutureBuilder<List<Map<String, dynamic>>>(
-              future: fetchLikedVenues(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
+                FutureBuilder<List<Map<String, dynamic>>>(
+                  future: fetchLikedVenues(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
 
-                if (snapshot.hasError) {
-                  print('Error: ${snapshot.error}');
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
+                    if (snapshot.hasError) {
+                      print('Error: ${snapshot.error}');
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
 
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text('No liked venues found'));
-                }
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return Center(child: Text('No liked venues found'));
+                    }
 
-                return Container(
-                  height: 150, // Adjust the height as needed
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      var venue = snapshot.data![index];
-                      return LocationTile(
-                        locationName: venue['venueName'],
-                        showDistance: false,
-                        showRating: false,
-                        opacity: 0.4,
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => LocationDescription(
-                                      locationName: venue['venueName'],
-                                      locationID: venue['id'])));
+                    return Container(
+                      height: 150, // Adjust the height as needed
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (context, index) {
+                          var venue = snapshot.data![index];
+                          return LocationTile(
+                            locationName: venue['venueName'],
+                            showDistance: false,
+                            showRating: false,
+                            opacity: 0.4,
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => LocationDescription(
+                                          locationName: venue['venueName'],
+                                          locationID: venue['id'])));
+                            },
+                          );
                         },
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 10),
-            const Padding(
-              padding: EdgeInsets.all(10.0),
-              child: Text(
-                'Your upcoming games', // NEED TO CHANGE THIS TO BE UPCOMING GAMES INSTEAD OF GAMES USERS HAVE JOINED
-                style: TextStyle(
-                  fontSize: 20, // Adjust the font size as needed
-                  fontWeight: FontWeight.bold, // Makes the text bold
-                  color: Colors.black, // Set the color of the text
+                      ),
+                    );
+                  },
                 ),
-              ),
-            ),
-            FutureBuilder<List<Widget>>(
-              future: buildGameTiles(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(
-                      child: Text(
-                          'No upcoming games')); // Display message when the list is empty
-                }
-
-                return Container(
-                  height: 310, // Adjusted height for the container
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        width: 300, // Width of each game tile
-                        margin: const EdgeInsets.all(8),
-                        child: snapshot.data![index], // Each GameTile widget
-                      );
-                    },
+                const SizedBox(height: 10),
+                const Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: Text(
+                    'Your upcoming games', // NEED TO CHANGE THIS TO BE UPCOMING GAMES INSTEAD OF GAMES USERS HAVE JOINED
+                    style: TextStyle(
+                      fontSize: 20, // Adjust the font size as needed
+                      fontWeight: FontWeight.bold, // Makes the text bold
+                      color: Colors.black, // Set the color of the text
+                    ),
                   ),
-                );
-              },
-            )
-          ],
-        ),
-      ),
-    );
+                ),
+                FutureBuilder<List<Widget>>(
+                  future: buildGameTiles(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(
+                          child: Text(
+                              'No upcoming games')); // Display message when the list is empty
+                    }
+
+                    return Container(
+                      height: 310, // Adjusted height for the container
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            width: 300, // Width of each game tile
+                            margin: const EdgeInsets.all(8),
+                            child:
+                                snapshot.data![index], // Each GameTile widget
+                          );
+                        },
+                      ),
+                    );
+                  },
+                )
+              ],
+            ),
+          ),
+        ));
   }
 }
