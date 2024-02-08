@@ -18,13 +18,19 @@ class GameTile extends StatelessWidget {
         await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var result = await DatabaseServices()
-        .getData('${DatabaseServices().backendUrl}/api/games/$gameID', token);
+        .getData('${DatabaseServices().backendUrl}/api/games/$gameId', token);
+
+    var playerCountResponse = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/games/$gameId/players-count',
+        token);
+
+    var playerCount = json.decode(playerCountResponse.body);
 
     Map<String, dynamic> gameDetails = json.decode(result.body);
 
-    print(gameDetails);
-
     if (gameDetails.isNotEmpty) {
+      gameDetails['playerCount'] = playerCount;
+
       return gameDetails;
     }
     return {};
@@ -63,7 +69,6 @@ class GameTile extends StatelessWidget {
         }
 
         var gameDetails = snapshot.data!;
-        print('gameDetails: ${gameDetails['players'].length}');
         var dateString = gameDetails['gameDate'] as String;
         DateTime dateTime = DateTime.parse(dateString);
         var dayOfWeek = DateFormat('EEEE').format(dateTime);
@@ -71,11 +76,9 @@ class GameTile extends StatelessWidget {
         var abbreviatedMonthName =
             DateFormat('MMM').format(dateTime).toUpperCase();
         var time = DateFormat('HH:mm:ss').format(dateTime);
-
-        var playersJoined = gameDetails['players'].length;
+        var playersJoined = gameDetails['playerCount'];
         var size = gameDetails['size'];
         var price = gameDetails['price'];
-        // print(time);
 
         return FutureBuilder<bool>(
             future: hasPlayerJoined(gameID.toString()),
@@ -83,6 +86,10 @@ class GameTile extends StatelessWidget {
               if (hasJoinedSnapshot.connectionState ==
                   ConnectionState.waiting) {
                 return CircularProgressIndicator(); // Show loading indicator while checking
+              }
+
+              if (hasJoinedSnapshot.hasError) {
+                return Text('Error: ${hasJoinedSnapshot.error}');
               }
 
               bool hasJoined = hasJoinedSnapshot.data ?? false;
@@ -96,8 +103,7 @@ class GameTile extends StatelessWidget {
                   elevation: 4,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize
-                        .min, // Add this to make the card wrap content height
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Stack(
                         children: [
@@ -156,10 +162,8 @@ class GameTile extends StatelessWidget {
                                           fontWeight: FontWeight.bold,
                                           fontSize: 18,
                                         ),
-                                        overflow: TextOverflow
-                                            .ellipsis, // Add this line
-                                        maxLines:
-                                            1, // Ensure it's only one line
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
                                       );
                                     },
                                   )
@@ -169,9 +173,8 @@ class GameTile extends StatelessWidget {
                                       fontWeight: FontWeight.bold,
                                       fontSize: 18,
                                     ),
-                                    overflow:
-                                        TextOverflow.ellipsis, // Add this line
-                                    maxLines: 1, // Ensure it's only one line
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
                                   ),
                             const SizedBox(height: 4),
                             Text(
@@ -202,19 +205,15 @@ class GameTile extends StatelessWidget {
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 40,
-                              vertical:
-                                  0), // Increase horizontal padding to make the button narrower
+                              horizontal: 40, vertical: 0),
                           child: TextButton(
                             style: TextButton.styleFrom(
                               foregroundColor: Colors.white,
-                              minimumSize: const Size.fromHeight(
-                                  50), // Keeps the button height
+                              minimumSize: const Size.fromHeight(50),
                               backgroundColor:
                                   hasJoined ? Colors.grey : Colors.black,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    30), // Very rounded edges
+                                borderRadius: BorderRadius.circular(30),
                               ),
                             ),
                             onPressed: hasJoined

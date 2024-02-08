@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:footy_fix/components/my_button.dart';
 import 'package:footy_fix/components/my_textfield.dart';
 import 'package:footy_fix/components/square_tile.dart';
+import 'package:footy_fix/screens/start_screens/forgot_password_screen.dart';
 import 'package:footy_fix/services/auth_service.dart';
 import 'package:footy_fix/screens/start_screens/register.dart';
 import 'package:footy_fix/components/navigation.dart';
@@ -144,216 +145,229 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[300],
-      body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 50),
+    return PopScope(
+        canPop: false,
+        child: Scaffold(
+          backgroundColor: Colors.grey[300],
+          body: SafeArea(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 50),
 
-              // logo
-              const Icon(
-                Icons.lock,
-                size: 100,
-              ),
+                  // logo
+                  const Icon(
+                    Icons.lock,
+                    size: 100,
+                  ),
 
-              const SizedBox(height: 50),
+                  const SizedBox(height: 50),
 
-              // welcome back, you've been missed!
-              Text(
-                'Welcome back you\'ve been missed!',
-                style: TextStyle(
-                  color: Colors.grey[700],
-                  fontSize: 16,
-                ),
-              ),
-
-              const SizedBox(height: 25),
-
-              // email textfield
-              MyTextField(
-                controller: emailController,
-                hintText: 'Email',
-                obscureText: false,
-              ),
-
-              const SizedBox(height: 10),
-
-              // password textfield
-              MyTextField(
-                controller: passwordController,
-                hintText: 'Password',
-                obscureText: true,
-              ),
-
-              const SizedBox(height: 10),
-
-              // forgot password?
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      'Forgot Password?',
-                      style: TextStyle(color: Colors.grey[600]),
+                  // welcome back, you've been missed!
+                  Text(
+                    'Welcome back you\'ve been missed!',
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                      fontSize: 16,
                     ),
-                  ],
-                ),
-              ),
+                  ),
 
-              const SizedBox(height: 25),
+                  const SizedBox(height: 25),
 
-              // sign in button
-              MyButton(
-                onTap: signUserIn,
-              ),
+                  // email textfield
+                  MyTextField(
+                    controller: emailController,
+                    hintText: 'Email',
+                    obscureText: false,
+                  ),
 
-              const SizedBox(height: 25),
+                  const SizedBox(height: 10),
 
-              // or continue with
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Divider(
-                        thickness: 0.5,
-                        color: Colors.grey[400],
-                      ),
+                  // password textfield
+                  MyTextField(
+                    controller: passwordController,
+                    hintText: 'Password',
+                    obscureText: true,
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // forgot password?
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const ForgotPassword()),
+                            );
+                          },
+                          child: Text(
+                            'Forgot Password?',
+                            style: TextStyle(color: Colors.grey[600]),
+                          ),
+                        ),
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Text(
-                        'Or continue with',
+                  ),
+
+                  const SizedBox(height: 25),
+
+                  // sign in button
+                  MyButton(
+                    onTap: signUserIn,
+                  ),
+
+                  const SizedBox(height: 25),
+
+                  // or continue with
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Divider(
+                            thickness: 0.5,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                          child: Text(
+                            'Or continue with',
+                            style: TextStyle(color: Colors.grey[700]),
+                          ),
+                        ),
+                        Expanded(
+                          child: Divider(
+                            thickness: 0.5,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 25),
+
+                  // google + apple sign in buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // google button
+                      SquareTile(
+                          onTap: () async {
+                            var credential =
+                                await AuthService().signInWithGoogle();
+
+                            // Check if the widget is still in the widget tree
+                            if (!mounted) return;
+
+                            if (credential != null) {
+                              var uid = credential.user!.uid;
+                              var email = credential.user!.email;
+
+                              await PreferencesService().saveUserId(uid);
+                              addUserifDoesntExist(uid, email);
+
+                              if (!mounted) return;
+
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const NavBar()),
+                              );
+                            } else {
+                              // Handle the case where sign-in was not successful
+                              // For example, show an error message
+                            }
+                          },
+                          imagePath: 'assets/icons/google.png'),
+
+                      const SizedBox(width: 25),
+
+                      // apple button
+                      SquareTile(
+                          onTap: () async {
+                            var credential =
+                                await AuthService().signInWithApple();
+
+                            // Check if the widget is still in the widget tree
+                            if (!mounted) return;
+
+                            if (credential != null) {
+                              var uid = credential.user!.uid;
+                              var email = credential.user!.email;
+
+                              await PreferencesService().saveUserId(uid);
+
+                              addUserifDoesntExist(uid, email);
+
+                              if (!mounted) return;
+
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const NavBar()),
+                              );
+                            } else {
+                              // Handle the case where sign-in was not successful
+                              // For example, show an error message
+                            }
+                          },
+                          imagePath: 'assets/icons/apple.png'),
+
+                      const SizedBox(width: 25),
+
+                      // SquareTile(
+                      //     onTap: () async {
+                      //       var credential =
+                      //           await AuthService().signInWithFacebook();
+
+                      //       // Check if the widget is still in the widget tree
+                      //       if (!mounted) return;
+
+                      //       if (credential != null) {
+                      //         var uid = credential.user!.uid;
+                      //         await PreferencesService().saveUserId(uid);
+
+                      //         var email = credential.user!.email;
+
+                      //         addUserifDoesntExist(uid, email);
+
+                      //         if (!mounted) return;
+
+                      //         Navigator.pushReplacement(
+                      //           context,
+                      //           MaterialPageRoute(
+                      //               builder: (context) => const NavBar()),
+                      //         );
+                      //       } else {
+                      //         // Handle the case where sign-in was not successful
+                      //         // For example, show an error message
+                      //       }
+                      //     },
+                      //     imagePath: 'assets/icons/facebook.png'),
+                    ],
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  // not a member? register now
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Not a member?',
                         style: TextStyle(color: Colors.grey[700]),
                       ),
-                    ),
-                    Expanded(
-                      child: Divider(
-                        thickness: 0.5,
-                        color: Colors.grey[400],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 25),
-
-              // google + apple sign in buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // google button
-                  SquareTile(
-                      onTap: () async {
-                        var credential = await AuthService().signInWithGoogle();
-
-                        // Check if the widget is still in the widget tree
-                        if (!mounted) return;
-
-                        if (credential != null) {
-                          var uid = credential.user!.uid;
-                          var email = credential.user!.email;
-
-                          await PreferencesService().saveUserId(uid);
-                          addUserifDoesntExist(uid, email);
-
-                          if (!mounted) return;
-
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const NavBar()),
-                          );
-                        } else {
-                          // Handle the case where sign-in was not successful
-                          // For example, show an error message
-                        }
-                      },
-                      imagePath: 'assets/icons/google.png'),
-
-                  const SizedBox(width: 25),
-
-                  // apple button
-                  SquareTile(
-                      onTap: () async {
-                        var credential = await AuthService().signInWithApple();
-
-                        // Check if the widget is still in the widget tree
-                        if (!mounted) return;
-
-                        if (credential != null) {
-                          var uid = credential.user!.uid;
-                          var email = credential.user!.email;
-
-                          await PreferencesService().saveUserId(uid);
-
-                          addUserifDoesntExist(uid, email);
-
-                          if (!mounted) return;
-
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const NavBar()),
-                          );
-                        } else {
-                          // Handle the case where sign-in was not successful
-                          // For example, show an error message
-                        }
-                      },
-                      imagePath: 'assets/icons/apple.png'),
-
-                  const SizedBox(width: 25),
-
-                  // SquareTile(
-                  //     onTap: () async {
-                  //       var credential =
-                  //           await AuthService().signInWithFacebook();
-
-                  //       // Check if the widget is still in the widget tree
-                  //       if (!mounted) return;
-
-                  //       if (credential != null) {
-                  //         var uid = credential.user!.uid;
-                  //         await PreferencesService().saveUserId(uid);
-
-                  //         var email = credential.user!.email;
-
-                  //         addUserifDoesntExist(uid, email);
-
-                  //         if (!mounted) return;
-
-                  //         Navigator.pushReplacement(
-                  //           context,
-                  //           MaterialPageRoute(
-                  //               builder: (context) => const NavBar()),
-                  //         );
-                  //       } else {
-                  //         // Handle the case where sign-in was not successful
-                  //         // For example, show an error message
-                  //       }
-                  //     },
-                  //     imagePath: 'assets/icons/facebook.png'),
-                ],
-              ),
-
-              const SizedBox(height: 40),
-
-              // not a member? register now
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Not a member?',
-                    style: TextStyle(color: Colors.grey[700]),
-                  ),
-                  const SizedBox(width: 4),
-                  /*
+                      const SizedBox(width: 4),
+                      /*
                   const Text(
                     'Register now',
                     style: TextStyle(
@@ -362,23 +376,23 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   */
-                  TextButton(
-                    onPressed: navigateToRegisterPage, // Change this line
-                    child: const Text(
-                      'Register now',
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
+                      TextButton(
+                        onPressed: navigateToRegisterPage, // Change this line
+                        child: const Text(
+                          'Register now',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
+                  const SizedBox(height: 0),
                 ],
               ),
-              const SizedBox(height: 0),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 }
