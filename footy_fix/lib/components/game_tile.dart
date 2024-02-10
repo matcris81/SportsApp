@@ -48,8 +48,8 @@ class GameTile extends StatelessWidget {
         MaterialPageRoute(
             builder: (context) => GameDescription(
                   gameID: gameID,
-                  locationID: locationID,
-                  userAlreadyJoined: userAlreadyJoined,
+                  // locationID: locationID,
+                  // userAlreadyJoined: userAlreadyJoined,
                 )));
   }
 

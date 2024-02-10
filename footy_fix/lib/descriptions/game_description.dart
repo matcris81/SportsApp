@@ -2,11 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:footy_fix/components/expandable_text.dart';
-import 'package:footy_fix/components/player_avatar.dart';
 import 'package:footy_fix/screens/game_players_screen.dart';
 import 'package:intl/intl.dart';
-import 'package:line_icons/line_icons.dart';
 import 'dart:io' show Platform;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:footy_fix/screens/payment_screen.dart';
@@ -14,17 +11,17 @@ import 'package:footy_fix/services/database_services.dart';
 import 'package:share_plus/share_plus.dart';
 
 class GameDescription extends StatefulWidget {
-  final int locationID;
+  // final int locationID;
   final int gameID;
-  final int sportID;
-  final bool userAlreadyJoined;
+  // final int sportID;
+  // final bool userAlreadyJoined;
 
   const GameDescription({
     Key? key,
-    required this.locationID,
+    // required this.locationID,
     required this.gameID,
-    this.sportID = 0,
-    this.userAlreadyJoined = false,
+    // this.sportID = 0,
+    // this.userAlreadyJoined = false,
   }) : super(key: key);
 
   @override
@@ -42,13 +39,14 @@ class _GameDescriptionState extends State<GameDescription> {
   var monthName;
   bool isLoading = true;
   String address = '';
-  String description = '';
+  String? description;
   var venueName;
   List<String> imageUrls = [];
   List<dynamic> players = [];
   static const String defaultImageUrl =
       'https://example.com/default-avatar.jpg';
   String? organizer;
+  bool? userAlreadyJoined;
 
   @override
   void initState() {
@@ -70,6 +68,8 @@ class _GameDescriptionState extends State<GameDescription> {
         price = gameInfo['price'];
         var date = gameInfo['gameDate'];
         organizer = gameInfo['organizer_username'];
+
+        print('gameInfo: $gameInfo');
 
         DateTime parsedDate = DateTime.parse(date);
         time = DateFormat('HH:mm:ss').format(parsedDate);
@@ -377,7 +377,7 @@ class _GameDescriptionState extends State<GameDescription> {
           FloatingActionButton(
             onPressed: () async {
               await Share.share(
-                  'Check out this game on FootyFix: https://matcris81.github.io/approutes/');
+                  'Check out this game on FootyFix: https://approutes.vercel.app/game/${widget.gameID}');
             },
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
@@ -392,7 +392,7 @@ class _GameDescriptionState extends State<GameDescription> {
           Container(
             width: 200, // Set a specific width for the button
             child: ElevatedButton(
-              onPressed: isLoading || isFull || widget.userAlreadyJoined
+              onPressed: isLoading || isFull // || widget.userAlreadyJoined
                   ? null
                   : () {
                       Navigator.push(
@@ -413,14 +413,18 @@ class _GameDescriptionState extends State<GameDescription> {
                   // Removed the 'side' parameter to eliminate the white border
                 ),
               ),
+              // child: Text(
+              //   widget.userAlreadyJoined
+              //       ? 'Joined'
+              //       : (isLoading
+              //           ? 'Loading...'
+              //           : (isFull
+              //               ? 'Join (Full)'
+              //               : 'Join for \$${price.toStringAsFixed(2)}')),
+              //   style: const TextStyle(color: Colors.white, fontSize: 18),
+              // ),
               child: Text(
-                widget.userAlreadyJoined
-                    ? 'Joined'
-                    : (isLoading
-                        ? 'Loading...'
-                        : (isFull
-                            ? 'Join (Full)'
-                            : 'Join for \$${price.toStringAsFixed(2)}')),
+                'Joined',
                 style: const TextStyle(color: Colors.white, fontSize: 18),
               ),
             ),
