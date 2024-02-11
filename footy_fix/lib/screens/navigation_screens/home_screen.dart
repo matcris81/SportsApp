@@ -104,10 +104,10 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: const Icon(Icons.account_circle, color: Colors.black),
               iconSize: 25,
               onPressed: () {
-                //   Navigator.push(
-                //       context,
-                //       MaterialPageRoute(
-                //           builder: (context) => const ProfileScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ProfileScreen()));
               },
             ),
 
@@ -117,10 +117,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: const Icon(Icons.notifications, color: Colors.black),
                 iconSize: 25,
                 onPressed: () {
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //         builder: (context) => const NotificationScreen()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const NotificationScreen()));
                 },
               ),
             ],
@@ -136,10 +136,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: const EdgeInsets.all(10.0),
                   child: ElevatedButton(
                     onPressed: () async {
-                      // Navigator.push(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (context) => const GameVenueManager()));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const GameVenueManager()));
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
@@ -192,12 +192,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             showRating: false,
                             opacity: 0.4,
                             onTap: () {
-                              // Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //         builder: (context) => LocationDescription(
-                              //             locationName: venue['venueName'],
-                              //             locationID: venue['id'])));
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => LocationDescription(
+                                          locationName: venue['venueName'],
+                                          locationID: venue['id'])));
                             },
                           );
                         },
