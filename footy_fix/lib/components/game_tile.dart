@@ -38,6 +38,19 @@ class GameTile extends StatelessWidget {
 
   Future<bool> hasPlayerJoined(String gameID) async {
     var userID = await PreferencesService().getUserId();
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    var result = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/games/$gameID/get-players',
+        token);
+    List<dynamic> players = json.decode(result.body);
+
+    for (var player in players) {
+      var playerId = player['id'];
+      if (playerId == userID) {
+        return true;
+      }
+    }
 
     return false;
   }
