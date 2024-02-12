@@ -68,15 +68,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _profileImage = imageBytes;
                       });
 
-                      Map<String, dynamic> body = {
-                        'id': userID,
-                        'profilePicture': base64Image,
+                      Map<String, dynamic> imageBody = {
+                        'imageData': base64Image,
                       };
 
                       var token = await DatabaseServices()
                           .authenticateAndGetToken('admin', 'admin');
 
-                      var resposnse = await DatabaseServices().patchData(
+                      var playerImage = await DatabaseServices().postData(
+                          '${DatabaseServices().backendUrl}/api/player-images',
+                          token,
+                          imageBody);
+
+                      Map<String, dynamic> playerImageID =
+                          jsonDecode(playerImage.body);
+
+                      Map<String, dynamic> body = {
+                        'id': userID,
+                        'playerImage': {
+                          'id': playerImageID['id'],
+                          'imageData': base64Image
+                        },
+                      };
+
+                      var response = await DatabaseServices().patchData(
                           '${DatabaseServices().backendUrl}/api/players/$userID',
                           token,
                           body);
@@ -204,12 +219,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     playerData = jsonDecode(response.body);
 
-    if (playerData['profilePicture'] != null) {
+    getPlayerImage(playerData['playerImage']['id']);
+
+    return playerData;
+  }
+
+  Future<Uint8List> getPlayerImage(int imageId) async {
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    var response = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/player-images/$imageId', token);
+
+    String image = jsonDecode(response.body)['imageData'];
+
+    if (image != '') {
       setState(() {
-        _profileImage = base64Decode(playerData['profilePicture']);
+        _profileImage = base64Decode(image);
       });
     }
 
-    return playerData;
+    return response.bodyBytes;
   }
 }
