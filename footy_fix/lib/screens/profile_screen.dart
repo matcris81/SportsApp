@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:footy_fix/screens/edit_profile_screen.dart';
 import 'package:footy_fix/screens/past_purchases_screen.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:footy_fix/services/database_services.dart';
@@ -42,6 +43,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 5.0),
+            child: IconButton(
+              icon: const CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Icon(Icons.edit, color: Colors.black),
+              ),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => EditProfileScreen()));
+              },
+            ),
+          ),
+        ],
       ),
       backgroundColor: Colors.grey[200],
       body: FutureBuilder(
@@ -132,7 +150,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             fontWeight: FontWeight.bold, color: Colors.black),
                       ),
                       Text(
-                        '${playerData['dateOfBirth'] ?? '-'}',
+                        '${playerData['dob'] ?? '-'}',
                         style: const TextStyle(
                             fontWeight: FontWeight.normal, color: Colors.grey),
                       ),
@@ -168,7 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             fontWeight: FontWeight.bold, color: Colors.black),
                       ),
                       Text(
-                        '${playerData['phone'] ?? '-'}',
+                        '${playerData['phoneNumber'] ?? '-'}',
                         style: const TextStyle(
                             fontWeight: FontWeight.normal, color: Colors.grey),
                       ),
@@ -183,7 +201,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         MaterialPageRoute(
                             builder: (context) => const PastPurchasesScreen()));
                   },
-                  child: const Text('Past Purchases'),
+                  child: Text('Past Purchases'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
               ],
             );
