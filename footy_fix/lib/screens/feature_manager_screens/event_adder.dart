@@ -250,8 +250,6 @@ class _AddEventState extends State<AddEvent> {
                             //     'http://localhost:4242/api/venues/by-name/$location',
                             //     token);
 
-                            print(userID.runtimeType);
-
                             var game = {
                               'venueId': locationID,
                               // 'sportId': sportID,
@@ -271,7 +269,7 @@ class _AddEventState extends State<AddEvent> {
 
                             if (!mounted) return;
 
-                            // Navigator.pop(context);
+                            Navigator.pop(context);
                           }
                         },
                         child: Text('Submit Event'),
