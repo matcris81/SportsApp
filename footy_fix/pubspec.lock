@@ -564,6 +564,17 @@ packages:
       sha256: f8cdf1383f5b4672a2693d875f1f239af6bd7e4a8925a17ef7219226db932624
       url: "https://pub.dev"
     source: hosted
+<<<<<<< Updated upstream
+=======
+    version: "4.8.1"
+  leak_tracker:
+    dependency: transitive
+    description:
+      name: leak_tracker
+      sha256: f8cdf1383f5b4672a2693d875f1f239af6bd7e4a8925a17ef7219226db932624
+      url: "https://pub.dev"
+    source: hosted
+>>>>>>> Stashed changes
     version: "10.0.1"
   leak_tracker_flutter_testing:
     dependency: transitive
@@ -621,7 +632,19 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.11.0"
+<<<<<<< Updated upstream
   mime:
+=======
+  mongo_dart:
+    dependency: "direct main"
+    description:
+      name: mongo_dart
+      sha256: fabc88668e75e0972fd953189ea8b281dacae4f14ecc6f9594c5c21f0aa72efb
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.3"
+  mongo_dart_query:
+>>>>>>> Stashed changes
     dependency: transitive
     description:
       name: mime
@@ -1043,6 +1066,17 @@ packages:
     source: hosted
     version: "2.1.4"
   vm_service:
+<<<<<<< Updated upstream
+=======
+    dependency: transitive
+    description:
+      name: vm_service
+      sha256: b3d56ff4341b8f182b96aceb2fa20e3dcb336b9f867bc0eafc0de10f1048e957
+      url: "https://pub.dev"
+    source: hosted
+    version: "13.0.0"
+  vy_string_utils:
+>>>>>>> Stashed changes
     dependency: transitive
     description:
       name: vm_service
@@ -1091,5 +1125,9 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
+<<<<<<< Updated upstream
   dart: ">=3.3.0-279.1.beta <4.0.0"
+=======
+  dart: ">=3.2.0 <4.0.0"
+>>>>>>> Stashed changes
   flutter: ">=3.18.0-18.0.pre.54"
