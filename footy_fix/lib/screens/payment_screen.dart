@@ -13,7 +13,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Checkout',
+          'Payment',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w500,
