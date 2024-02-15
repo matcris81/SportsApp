@@ -54,6 +54,7 @@ dependencies:
   # firebase_analytics: ^10.8.0
   flutter_local_notifications: ^16.3.2
   image_picker: ^1.0.7
+  in_app_purchase: ^3.1.13
 
 dev_dependencies:
   flutter_test:

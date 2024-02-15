@@ -1,12 +1,12 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:footy_fix/components/game_tile.dart';
-import 'package:footy_fix/screens/payment_screen.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:pay/pay.dart';
 import 'dart:io' show Platform;
-import 'package:footy_fix/payment_config.dart';
 import 'package:footy_fix/services/database_services.dart';
+import 'package:footy_fix/payment_config.dart';
+import 'package:flutter/material.dart';
+import 'package:footy_fix/components/game_tile.dart';
+import 'package:footy_fix/screens/payment_screen.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final int gameID;
@@ -100,123 +100,108 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  const Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Purchase:',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+        child: Container(
+          constraints: BoxConstraints.expand(), // Add constraints here
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    const Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Purchase:',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: GameTile(
-                          locationID: widget.venueId,
-                          gameID: widget.gameID,
-                          payment: true,
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GameTile(
-                          locationID: widget.venueId,
-                          gameID: widget.gameID,
-                        ),
-                      ],
                     ),
-                  ),
-                  const Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Total:',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                    GameTile(
+                      locationID: widget.venueId,
+                      gameID: widget.gameID,
+                      payment: true,
+                    ),
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Total:',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
                           ),
-                        ),
-                        isLoading
-                            ? CircularProgressIndicator()
-                            : Text(
-                                '\$${price.toStringAsFixed(2)}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
+                          isLoading
+                              ? CircularProgressIndicator()
+                              : Text(
+                                  '\$${price.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
                                 ),
-                              ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // tempAction();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) {
-                              return PaymentScreen();
-                            }),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // tempAction();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) {
+                                return PaymentScreen(price: price);
+                              }),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 30, vertical: 15),
                           ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30, vertical: 15),
-                        ),
-                        child: const Text(
-                          'Continue to Checkout',
-                          style: TextStyle(fontSize: 16),
+                          child: const Text(
+                            'Continue to Checkout',
+                            style: TextStyle(fontSize: 16),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            )
-            // Center(
-            //     child: Platform.isIOS
-            //         ? _buildApplePayButton()
-            //         : _buildGooglePayButton()),
-          ],
+                  ],
+                ),
+              )
+              // Center(
+              //     child: Platform.isIOS
+              //         ? _buildApplePayButton()
+              //         : _buildGooglePayButton()),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
 
 //    ApplePayButton _buildApplePayButton() {
 //      return ApplePayButton(
