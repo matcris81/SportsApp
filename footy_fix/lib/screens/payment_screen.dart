@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:pay/pay.dart';
+import 'package:footy_fix/payment_config.dart';
+import 'dart:io' show Platform;
 
 class PaymentScreen extends StatefulWidget {
   final double price;
+  final String label;
 
   const PaymentScreen({
     Key? key,
     required this.price,
+    required this.label,
   }) : super(key: key);
 
   @override
@@ -16,6 +21,22 @@ class _PaymentScreenState extends State<PaymentScreen> {
   final _formKey = GlobalKey<FormState>(); // Add a key for the form
   int _selectedPriceIndex = -1; // Initial state, no selection
   final List<double> _priceOptions = [0, 25, 50];
+  String os = Platform.operatingSystem;
+  late PaymentItem _paymentItem;
+  List<PaymentItem> _paymentItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _paymentItems = [
+      PaymentItem(
+        label: widget.label,
+        amount: widget.price.toStringAsFixed(2),
+        status: PaymentItemStatus.final_price,
+      ),
+      // Add more PaymentItems if necessary
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +60,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         padding: EdgeInsets.all(15),
         child: Column(
           children: <Widget>[
-            SizedBox(height: 15),
+            const SizedBox(height: 15),
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -99,43 +120,67 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ),
             ),
             SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.black), // Add black border
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    // Handle Apple Pay button tap
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          'assets/icons/apple.png',
-                          width: 30,
-                          height: 30,
-                        ),
-                        // SizedBox(width: 10),
-                        const Text(
-                          'Pay',
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+            Platform.isIOS
+                ? Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border:
+                          Border.all(color: Colors.black), // Add black border
                     ),
-                  ),
-                ),
-              ),
-            ),
+                    child: ApplePayButton(
+                      paymentConfiguration:
+                          PaymentConfiguration.fromJsonString(defaultApplePay),
+                      paymentItems: _paymentItems,
+                      style: ApplePayButtonStyle.white,
+                      width: double.infinity,
+                      height: 50,
+                      type: ApplePayButtonType.buy,
+                      // margin: const EdgeInsets.only(top: 15.0),
+                      onPaymentResult: onApplePayResult,
+                      loadingIndicator:
+                          const Center(child: CircularProgressIndicator()),
+                    ),
+                  )
+                : _buildGooglePayButton(),
+            // Container(
+            //   width: double.infinity,
+            //   decoration: BoxDecoration(
+            //     color: Colors.white,
+            //     borderRadius: BorderRadius.circular(12),
+            //     border: Border.all(color: Colors.black), // Add black border
+            //   ),
+            //   child: Material(
+            //     color: Colors.transparent,
+            //     child: InkWell(
+            //       onTap: () {
+            //         // Handle Apple Pay button tap
+            //       },
+            //       child: Padding(
+            //         padding: const EdgeInsets.all(8.0),
+            //         child: Row(
+            //           mainAxisAlignment: MainAxisAlignment.center,
+            //           children: [
+            //             Image.asset(
+            //               'assets/icons/apple.png',
+            //               width: 30,
+            //               height: 30,
+            //             ),
+            //             // SizedBox(width: 10),
+            //             const Text(
+            //               'Pay',
+            //               style: TextStyle(
+            //                 fontSize: 30,
+            //                 fontWeight: FontWeight.bold,
+            //               ),
+            //             ),
+            //           ],
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
             SizedBox(height: 20),
             Container(
               width: double.infinity,
@@ -151,7 +196,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     // Handle Apple Pay button tap
                   },
                   child: const Padding(
-                    padding: const EdgeInsets.all(14.0),
+                    padding: const EdgeInsets.all(11.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -203,5 +248,35 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
       ),
     );
+  }
+
+  void onApplePayResult(Map<String, dynamic> result) {
+    // Handle Apple Pay result here
+    print("Apple Pay Result: $result");
+  }
+
+  GooglePayButton _buildGooglePayButton() {
+    return GooglePayButton(
+        paymentConfiguration:
+            PaymentConfiguration.fromJsonString(defaultGooglePay),
+        paymentItems: [
+          PaymentItem(
+            amount: widget.price.toStringAsFixed(2),
+            status: PaymentItemStatus.final_price,
+          ),
+        ],
+        width: double.infinity,
+        height: 50,
+        type: GooglePayButtonType.buy,
+        margin: const EdgeInsets.only(top: 15.0),
+        onPaymentResult: (result) {
+          debugPrint('Payment Result: $result');
+          if (result['status'] == 'success') {
+            // _updateDatabaseAfterPayment();
+          } else {
+            debugPrint('Payment failed or cancelled');
+          }
+        },
+        loadingIndicator: const Center(child: CircularProgressIndicator()));
   }
 }

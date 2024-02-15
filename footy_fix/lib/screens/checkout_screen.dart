@@ -1,9 +1,6 @@
 import 'dart:convert';
 import 'package:footy_fix/services/shared_preferences_service.dart';
-import 'package:pay/pay.dart';
-import 'dart:io' show Platform;
 import 'package:footy_fix/services/database_services.dart';
-import 'package:footy_fix/payment_config.dart';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/components/game_tile.dart';
 import 'package:footy_fix/screens/payment_screen.dart';
@@ -23,7 +20,6 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  String os = Platform.operatingSystem;
   bool isLoading = true;
   double price = 0.0;
   DateTime? date;
@@ -51,34 +47,34 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     });
   }
 
-  void tempAction() async {
-    var userID = await PreferencesService().getUserId();
+  // void tempAction() async {
+  //   var userID = await PreferencesService().getUserId();
 
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+  //   var token =
+  //       await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
-    var body = {
-      "id": userID,
-      "games": [
-        {
-          "id": widget.gameID,
-        }
-      ],
-    };
+  //   var body = {
+  //     "id": userID,
+  //     "games": [
+  //       {
+  //         "id": widget.gameID,
+  //       }
+  //     ],
+  //   };
 
-    var paymentBody = {
-      "amount": price,
-      "dateTime": "2024-02-08T12:00:00Z",
-      "status": "PENDING",
-      "player": {"id": userID}
-    };
+  //   var paymentBody = {
+  //     "amount": price,
+  //     "dateTime": "2024-02-08T12:00:00Z",
+  //     "status": "PENDING",
+  //     "player": {"id": userID}
+  //   };
 
-    var response = await DatabaseServices().postData(
-        '${DatabaseServices().backendUrl}/api/payments', token, paymentBody);
+  //   var response = await DatabaseServices().postData(
+  //       '${DatabaseServices().backendUrl}/api/payments', token, paymentBody);
 
-    var result = await DatabaseServices().patchData(
-        '${DatabaseServices().backendUrl}/api/players/$userID', token, body);
-  }
+  //   var result = await DatabaseServices().patchData(
+  //       '${DatabaseServices().backendUrl}/api/players/$userID', token, body);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -163,11 +159,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            // tempAction();
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) {
-                                return PaymentScreen(price: price);
+                                return PaymentScreen(
+                                  price: price,
+                                  label: "Game Participation Fee",
+                                );
                               }),
                             );
                           },
@@ -190,10 +188,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ],
                 ),
               )
-              // Center(
-              //     child: Platform.isIOS
-              //         ? _buildApplePayButton()
-              //         : _buildGooglePayButton()),
             ],
           ),
         ),
@@ -201,57 +195,3 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 }
-
-
-//    ApplePayButton _buildApplePayButton() {
-//      return ApplePayButton(
-//          paymentConfiguration:
-//              PaymentConfiguration.fromJsonString(defaultApplePay),
-//          paymentItems: [
-//            PaymentItem(
-//              label: widget.gameID.toString(),
-//              amount: price.toStringAsFixed(2),
-//              status: PaymentItemStatus.final_price,
-//            ),
-//          ],
-//          style: ApplePayButtonStyle.black,
-//          width: double.infinity,
-//          height: 50,
-//          type: ApplePayButtonType.buy,
-//          margin: const EdgeInsets.only(top: 15.0),
-//          onPaymentResult: (result) async {
-//            debugPrint('Payment Result: $result');
-//            if (result['status'] == 'success') {
-//              // _updateDatabaseAfterPayment();
-//            } else {
-//              debugPrint('Payment failed or cancelled');
-//            }
-//          },
-//          loadingIndicator: const Center(child: CircularProgressIndicator()));
-//    }
-//  
-//    GooglePayButton _buildGooglePayButton() {
-//      return GooglePayButton(
-//          paymentConfiguration:
-//              PaymentConfiguration.fromJsonString(defaultGooglePay),
-//          paymentItems: [
-//            PaymentItem(
-//              label: widget.gameID.toString(),
-//              amount: price.toStringAsFixed(2),
-//              status: PaymentItemStatus.final_price,
-//            ),
-//          ],
-//          width: double.infinity,
-//          height: 50,
-//          type: GooglePayButtonType.buy,
-//          margin: const EdgeInsets.only(top: 15.0),
-//          onPaymentResult: (result) {
-//            debugPrint('Payment Result: $result');
-//            if (result['status'] == 'success') {
-//              // _updateDatabaseAfterPayment();
-//            } else {
-//              debugPrint('Payment failed or cancelled');
-//            }
-//         },
-//          loadingIndicator: const Center(child: CircularProgressIndicator()));
-//   }
