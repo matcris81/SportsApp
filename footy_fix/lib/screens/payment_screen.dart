@@ -211,6 +211,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
+  // void _showErrorSnackbar(String message) {
+  //   final snackBar = SnackBar(content: Text(message));
+  //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  // }
+
   Widget _buildPriceOptionCard(
       double price, bool isSelected, VoidCallback onTap) {
     return GestureDetector(
@@ -225,7 +230,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         padding: const EdgeInsets.symmetric(vertical: 12),
         alignment: Alignment.center,
         child: Text(
-          price == 0 ? '${widget.price}' : '\$$price',
+          price == 0 ? '\$${widget.price}' : '\$$price',
           style: TextStyle(
             color: isSelected ? Colors.white : Colors.black,
             fontWeight: FontWeight.bold,
