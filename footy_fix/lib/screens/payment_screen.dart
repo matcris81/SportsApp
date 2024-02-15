@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:pay/pay.dart';
 import 'package:footy_fix/payment_config.dart';
@@ -137,49 +139,32 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       width: double.infinity,
                       height: 50,
                       type: ApplePayButtonType.buy,
-                      // margin: const EdgeInsets.only(top: 15.0),
                       onPaymentResult: onApplePayResult,
                       loadingIndicator:
                           const Center(child: CircularProgressIndicator()),
                     ),
                   )
-                : _buildGooglePayButton(),
-            // Container(
-            //   width: double.infinity,
-            //   decoration: BoxDecoration(
-            //     color: Colors.white,
-            //     borderRadius: BorderRadius.circular(12),
-            //     border: Border.all(color: Colors.black), // Add black border
-            //   ),
-            //   child: Material(
-            //     color: Colors.transparent,
-            //     child: InkWell(
-            //       onTap: () {
-            //         // Handle Apple Pay button tap
-            //       },
-            //       child: Padding(
-            //         padding: const EdgeInsets.all(8.0),
-            //         child: Row(
-            //           mainAxisAlignment: MainAxisAlignment.center,
-            //           children: [
-            //             Image.asset(
-            //               'assets/icons/apple.png',
-            //               width: 30,
-            //               height: 30,
-            //             ),
-            //             // SizedBox(width: 10),
-            //             const Text(
-            //               'Pay',
-            //               style: TextStyle(
-            //                 fontSize: 30,
-            //                 fontWeight: FontWeight.bold,
-            //               ),
-            //             ),
-            //           ],
-            //         ),
-            //       ),
-            //     ),
-            //   ),
+                // : Container(
+                //     padding: const EdgeInsets.all(2),
+                //     decoration: BoxDecoration(
+                //       color: Colors.white,
+                //       borderRadius: BorderRadius.circular(12),
+                //       border:
+                //           Border.all(color: Colors.black), // Add black border
+                //     ),
+                //     child
+                : GooglePayButton(
+                    paymentConfiguration:
+                        PaymentConfiguration.fromJsonString(defaultGooglePay),
+                    paymentItems: _paymentItems,
+                    type: GooglePayButtonType.pay,
+                    margin: const EdgeInsets.only(top: 15.0),
+                    width: double.infinity,
+                    onPaymentResult: onGooglePayResult,
+                    loadingIndicator: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
             // ),
             SizedBox(height: 20),
             Container(
@@ -251,6 +236,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   void onApplePayResult(Map<String, dynamic> result) {
+    // Handle Apple Pay result here
+    print("Apple Pay Result: $result");
+  }
+
+  void onGooglePayResult(Map<String, dynamic> result) {
     // Handle Apple Pay result here
     print("Apple Pay Result: $result");
   }
