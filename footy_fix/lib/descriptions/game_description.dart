@@ -11,6 +11,7 @@ import 'dart:io' show Platform;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:footy_fix/screens/payment_screen.dart';
 import 'package:footy_fix/services/database_services.dart';
+import 'package:share_plus/share_plus.dart';
 
 class GameDescription extends StatefulWidget {
   final int locationID;
@@ -47,7 +48,7 @@ class _GameDescriptionState extends State<GameDescription> {
   List<dynamic> players = [];
   static const String defaultImageUrl =
       'https://example.com/default-avatar.jpg';
-  Map<String, dynamic> organizer = {};
+  String? organizer;
 
   @override
   void initState() {
@@ -58,7 +59,6 @@ class _GameDescriptionState extends State<GameDescription> {
   Future<void> _fetchGameInfo() async {
     try {
       Map<dynamic, dynamic> gameInfo = await getGameInfo();
-      print('gameInfo organizer: ${gameInfo['organizer']}');
 
       setState(() {
         venueName = gameInfo['venueName'];
@@ -69,7 +69,7 @@ class _GameDescriptionState extends State<GameDescription> {
         numberOfPlayers = gameInfo['players']?.length ?? 0;
         price = gameInfo['price'];
         var date = gameInfo['gameDate'];
-        organizer = gameInfo['organizer'];
+        organizer = gameInfo['organizer_username'];
 
         DateTime parsedDate = DateTime.parse(date);
         time = DateFormat('HH:mm:ss').format(parsedDate);
@@ -140,7 +140,7 @@ class _GameDescriptionState extends State<GameDescription> {
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            'Hosted by ${organizer['username']}',
+                            'Hosted by $organizer',
                             style: const TextStyle(
                               fontSize: 18,
                               color: Colors.black,
@@ -375,8 +375,9 @@ class _GameDescriptionState extends State<GameDescription> {
           ),
           const SizedBox(width: 10),
           FloatingActionButton(
-            onPressed: () {
-              // Define the action to take when the button is pressed
+            onPressed: () async {
+              await Share.share(
+                  'Check out this game on FootyFix: https://matcris81.github.io/approutes/');
             },
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
@@ -429,6 +430,16 @@ class _GameDescriptionState extends State<GameDescription> {
     );
   }
 
+  Future<Map<String, dynamic>> getOrganizerInfo(String organizerID) async {
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    var result = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/players/$organizerID', token);
+
+    return jsonDecode(result.body);
+  }
+
   Future<Map<dynamic, dynamic>> getGameInfo() async {
     Map gameInfo = {};
 
@@ -442,11 +453,13 @@ class _GameDescriptionState extends State<GameDescription> {
 
     Map<String, dynamic> venueInfo = await getVenueInfo(gameDetails['venueId']);
 
+    Map<String, dynamic> organizerInfo =
+        await getOrganizerInfo(gameDetails['organizer']['id']);
+
     gameInfo.addAll(venueInfo);
     // gameDetails has to be second because it retrieves the players joined for the game (venue would return the players that have liked the venue)
     gameInfo.addAll(gameDetails);
-
-    print(gameInfo);
+    gameInfo['organizer_username'] = organizerInfo['username'];
 
     return gameInfo;
   }
