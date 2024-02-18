@@ -144,6 +144,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           const Center(child: CircularProgressIndicator()),
                     ),
                   )
+                // : RawGooglePayButton(
+                //     onPressed: () {},
+                //     type: GooglePayButtonType.pay,
+                //   ),
                 // : Container(
                 //     padding: const EdgeInsets.all(2),
                 //     decoration: BoxDecoration(
@@ -250,28 +254,37 @@ class _PaymentScreenState extends State<PaymentScreen> {
     print("Apple Pay Result: $result");
   }
 
-  GooglePayButton _buildGooglePayButton() {
-    return GooglePayButton(
-        paymentConfiguration:
-            PaymentConfiguration.fromJsonString(defaultGooglePay),
-        paymentItems: [
-          PaymentItem(
-            amount: widget.price.toStringAsFixed(2),
-            status: PaymentItemStatus.final_price,
-          ),
-        ],
-        width: double.infinity,
-        height: 50,
-        type: GooglePayButtonType.buy,
-        margin: const EdgeInsets.only(top: 15.0),
-        onPaymentResult: (result) {
-          debugPrint('Payment Result: $result');
-          if (result['status'] == 'success') {
-            // _updateDatabaseAfterPayment();
-          } else {
-            debugPrint('Payment failed or cancelled');
-          }
-        },
-        loadingIndicator: const Center(child: CircularProgressIndicator()));
-  }
+  //   Future<void> presentApplePay(Map paymentItems) async {
+  //   try {
+  //     await Stripe.instance.presentApplePay(
+  //       paymentItems: paymentItems,
+  //       onApplePayResult: onApplePayResult,
+  //     );
+  //   }
+  // }
+
+  // GooglePayButton _buildGooglePayButton() {
+  //   return GooglePayButton(
+  //       paymentConfiguration:
+  //           PaymentConfiguration.fromJsonString(defaultGooglePay),
+  //       paymentItems: [
+  //         PaymentItem(
+  //           amount: widget.price.toStringAsFixed(2),
+  //           status: PaymentItemStatus.final_price,
+  //         ),
+  //       ],
+  //       width: double.infinity,
+  //       height: 50,
+  //       type: GooglePayButtonType.buy,
+  //       margin: const EdgeInsets.only(top: 15.0),
+  //       onPaymentResult: (result) {
+  //         debugPrint('Payment Result: $result');
+  //         if (result['status'] == 'success') {
+  //           // _updateDatabaseAfterPayment();
+  //         } else {
+  //           debugPrint('Payment failed or cancelled');
+  //         }
+  //       },
+  //       loadingIndicator: const Center(child: CircularProgressIndicator()));
+  // }
 }

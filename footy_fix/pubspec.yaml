@@ -47,14 +47,11 @@ dependencies:
   intl: ^0.18.1
   url_launcher: ^6.2.1
   pay: ^1.1.2
-  connectivity_plus: ^5.0.2
-  postgres: ^3.0.4
   http: ^1.1.2
   firebase_messaging: ^14.7.10
-  # firebase_analytics: ^10.8.0
   flutter_local_notifications: ^16.3.2
   image_picker: ^1.0.7
-  in_app_purchase: ^3.1.13
+  flutter_stripe: ^10.0.0
 
 dev_dependencies:
   flutter_test:
