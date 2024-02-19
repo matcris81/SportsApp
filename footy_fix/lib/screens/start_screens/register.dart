@@ -5,6 +5,7 @@ import 'package:footy_fix/components/register_button.dart';
 import 'package:footy_fix/components/square_tile.dart';
 import 'package:footy_fix/screens/start_screens/login_screen.dart';
 import 'package:footy_fix/services/auth_service.dart';
+import 'package:footy_fix/services/database_services.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -32,8 +33,13 @@ class _RegisterPageState extends State<RegisterPage> {
     );
 
     try {
-      await AuthService().registerWithEmailPassword(
-          emailController.text, passwordController.text);
+      UserCredential userCredential = await AuthService()
+          .registerWithEmailPassword(
+              emailController.text, passwordController.text);
+
+      String userID = userCredential.user!.uid;
+
+      addPlayer(userID, emailController.text);
 
       if (!mounted) return;
       Navigator.pop(context);
@@ -46,6 +52,21 @@ class _RegisterPageState extends State<RegisterPage> {
       Navigator.pop(context);
       print('Error during registration: ${e.message}');
     }
+  }
+
+  void addPlayer(String userID, String? email) async {
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    var userMap = {
+      "id": userID,
+      "email": email,
+      "username": email,
+      "password": "password",
+    };
+
+    var result = await DatabaseServices().postData(
+        '${DatabaseServices().backendUrl}/api/players', token, userMap);
   }
 
   @override

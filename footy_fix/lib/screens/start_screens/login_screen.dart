@@ -48,9 +48,7 @@ class _LoginPageState extends State<LoginPage> {
 
       if (!mounted) return;
 
-      // pop the loading circle
       Navigator.pop(context);
-      // navigate to home
       if (credential != null) {
         var uid = credential.user!.uid;
 
@@ -123,10 +121,8 @@ class _LoginPageState extends State<LoginPage> {
 
     var response = await DatabaseServices()
         .getData('${DatabaseServices().backendUrl}/api/players/$userID', token);
-    print('response.statusCode: ${response.statusCode}');
 
     if (response.statusCode == 404) {
-      print('userID: $userID');
       var userMap = {
         "id": userID,
         "email": email,
@@ -134,12 +130,8 @@ class _LoginPageState extends State<LoginPage> {
         "password": "password",
       };
 
-      print('userMap: $userMap');
-
       var result = await DatabaseServices().postData(
           '${DatabaseServices().backendUrl}/api/players', token, userMap);
-
-      print('result.body: ${result.body}');
     }
   }
 
