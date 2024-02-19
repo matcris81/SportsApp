@@ -1,6 +1,8 @@
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:footy_fix/services/database_services.dart';
+import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:pay/pay.dart';
 import 'package:footy_fix/payment_config.dart';
 import 'dart:io' show Platform;
@@ -8,11 +10,13 @@ import 'dart:io' show Platform;
 class PaymentScreen extends StatefulWidget {
   final double price;
   final String label;
+  final int gameID;
 
   const PaymentScreen({
     Key? key,
     required this.price,
     required this.label,
+    required this.gameID,
   }) : super(key: key);
 
   @override
@@ -244,13 +248,46 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  void onApplePayResult(Map<String, dynamic> result) {
-    // Handle Apple Pay result here
-    print("Apple Pay Result: $result");
+  void onApplePayResult(Map<String, dynamic> result) async {
+    int count = 0;
+    var userID = await PreferencesService().getUserId();
+
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    var body = {
+      "id": userID,
+      "games": [
+        {
+          "id": widget.gameID,
+        }
+      ],
+    };
+
+    DateTime now = DateTime.now().toUtc(); // Ensure it's in UTC
+    String formattedDateTime = '${now.toIso8601String().split('.')[0]}Z';
+
+    // NEED TO FIGURE OUT HOW TO DO STATUS
+
+    var paymentBody = {
+      "amount": widget.price,
+      "dateTime": formattedDateTime,
+      "status": "PENDING",
+      "player": {"id": userID}
+    };
+
+    var response = await DatabaseServices().postData(
+        '${DatabaseServices().backendUrl}/api/payments', token, paymentBody);
+
+    var result = await DatabaseServices().patchData(
+        '${DatabaseServices().backendUrl}/api/players/$userID', token, body);
+
+    Navigator.popUntil(context, (route) {
+      return count++ == 2;
+    });
   }
 
   void onGooglePayResult(Map<String, dynamic> result) {
-    // Handle Apple Pay result here
     print("Apple Pay Result: $result");
   }
 

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/screens/game_players_screen.dart';
+import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:intl/intl.dart';
 import 'dart:io' show Platform;
 import 'package:url_launcher/url_launcher.dart';
@@ -11,17 +12,11 @@ import 'package:footy_fix/services/database_services.dart';
 import 'package:share_plus/share_plus.dart';
 
 class GameDescription extends StatefulWidget {
-  // final int locationID;
   final int gameID;
-  // final int sportID;
-  // final bool userAlreadyJoined;
 
   const GameDescription({
     Key? key,
-    // required this.locationID,
     required this.gameID,
-    // this.sportID = 0,
-    // this.userAlreadyJoined = false,
   }) : super(key: key);
 
   @override
@@ -29,6 +24,7 @@ class GameDescription extends StatefulWidget {
 }
 
 class _GameDescriptionState extends State<GameDescription> {
+  String? userID;
   double price = 0.0;
   bool isFull = false;
   int size = 0;
@@ -46,7 +42,8 @@ class _GameDescriptionState extends State<GameDescription> {
   static const String defaultImageUrl =
       'https://example.com/default-avatar.jpg';
   String? organizer;
-  bool? userAlreadyJoined;
+  bool userAlreadyJoined = false;
+  String? sport;
 
   @override
   void initState() {
@@ -57,19 +54,23 @@ class _GameDescriptionState extends State<GameDescription> {
   Future<void> _fetchGameInfo() async {
     try {
       Map<dynamic, dynamic> gameInfo = await getGameInfo();
+      print('gameInfo: $gameInfo');
+
+      sport = await getSport(gameInfo['sportId']);
+
+      var id = await PreferencesService().getUserId();
+
+      players = await getPlayers();
 
       setState(() {
+        userID = id;
         venueName = gameInfo['venueName'];
         address = gameInfo['address'];
         description = gameInfo['description'];
         size = gameInfo['size'];
-        // numberOfPlayers = gameInfo['players'].length;
-        numberOfPlayers = gameInfo['players']?.length ?? 0;
         price = gameInfo['price'];
         var date = gameInfo['gameDate'];
         organizer = gameInfo['organizer_username'];
-
-        print('gameInfo: $gameInfo');
 
         DateTime parsedDate = DateTime.parse(date);
         time = DateFormat('HH:mm:ss').format(parsedDate);
@@ -77,7 +78,7 @@ class _GameDescriptionState extends State<GameDescription> {
         dayNumber = DateFormat('d').format(parsedDate);
         monthName = DateFormat('MMMM').format(parsedDate);
 
-        players = gameInfo['players'] ?? [];
+        players = players;
 
         isFull = numberOfPlayers >= size;
         isLoading = false;
@@ -89,6 +90,15 @@ class _GameDescriptionState extends State<GameDescription> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.grey[300],
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey[300],
       body: Stack(
@@ -115,7 +125,6 @@ class _GameDescriptionState extends State<GameDescription> {
               ),
               SliverToBoxAdapter(
                 child: Container(
-                  // This container takes the place of your card
                   decoration: const BoxDecoration(
                     color: Colors.white,
                   ),
@@ -124,8 +133,8 @@ class _GameDescriptionState extends State<GameDescription> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        "8v8 Football",
-                        style: TextStyle(
+                        "${(size / 2).floor()} v ${(size / 2).floor()} $sport",
+                        style: const TextStyle(
                           fontSize: 35,
                           fontWeight: FontWeight.bold,
                         ),
@@ -158,8 +167,7 @@ class _GameDescriptionState extends State<GameDescription> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        description ??
-                            'No description available', // Provide a default value
+                        description ?? 'No description available',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.normal,
@@ -213,37 +221,36 @@ class _GameDescriptionState extends State<GameDescription> {
                       Row(
                         children: <Widget>[
                           const Icon(
-                            Icons.access_time, // Replace with your time icon
+                            Icons.access_time,
                             size: 16, // Adjust the size as needed
                             color: Colors.black, // Adjust the color as needed
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            time.substring(0, 5),
+                            time.length >= 5 ? time.substring(0, 5) : time,
                             style: const TextStyle(
                               fontSize: 16,
                               color: Colors.black,
                             ),
-                          ),
+                          )
                         ],
                       ),
                       const SizedBox(height: 8),
                       Row(
                         children: <Widget>[
                           const Icon(
-                            Icons
-                                .location_on_outlined, // Replace with your time icon
+                            Icons.location_on_outlined,
                             size: 16, // Adjust the size as needed
                             color: Colors.black, // Adjust the color as needed
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            venueName,
+                            venueName ?? 'Venue name not available',
                             style: const TextStyle(
                               fontSize: 16,
                               color: Colors.black,
                             ),
-                          ),
+                          )
                         ],
                       ),
                       const SizedBox(height: 30),
@@ -284,13 +291,13 @@ class _GameDescriptionState extends State<GameDescription> {
                         padding:
                             EdgeInsets.all(10.0), // Adjust padding as needed
                         decoration: BoxDecoration(
-                          color: Colors.blue[200],
+                          color: Colors.black,
                           borderRadius: BorderRadius.circular(10.0),
                         ),
                         child: Row(
                           children: <Widget>[
                             const Icon(Icons.directions,
-                                size: 30.0, color: Colors.black), // White icon
+                                size: 30.0, color: Colors.white), // White icon
                             const SizedBox(width: 10),
                             Expanded(
                               child: InkWell(
@@ -303,7 +310,7 @@ class _GameDescriptionState extends State<GameDescription> {
                                     Text(
                                       'Get directions',
                                       style: TextStyle(
-                                        color: Colors.black, // White text
+                                        color: Colors.white, // White text
                                         fontSize: 14.0,
                                       ),
                                     ),
@@ -369,9 +376,7 @@ class _GameDescriptionState extends State<GameDescription> {
               borderRadius: BorderRadius.circular(30.0),
               side: const BorderSide(color: Colors.white, width: 2),
             ),
-            child: const Icon(
-              Icons.message, // Replace with your desired icon
-            ),
+            child: const Icon(Icons.message, color: Colors.black),
           ),
           const SizedBox(width: 10),
           FloatingActionButton(
@@ -384,9 +389,7 @@ class _GameDescriptionState extends State<GameDescription> {
               borderRadius: BorderRadius.circular(30.0),
               side: const BorderSide(color: Colors.white, width: 2),
             ),
-            child: const Icon(
-              Icons.ios_share, // Replace with your desired icon
-            ),
+            child: const Icon(Icons.ios_share, color: Colors.black),
           ),
           const SizedBox(width: 10),
           Container(
@@ -400,7 +403,6 @@ class _GameDescriptionState extends State<GameDescription> {
                         MaterialPageRoute(
                           builder: (context) => CheckoutScreen(
                             gameID: widget.gameID,
-                            // venueId: widget.locationID,
                           ),
                         ),
                       );
@@ -411,21 +413,16 @@ class _GameDescriptionState extends State<GameDescription> {
                 padding: const EdgeInsets.symmetric(vertical: 12.0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30.0),
-                  // Removed the 'side' parameter to eliminate the white border
                 ),
               ),
-              // child: Text(
-              //   widget.userAlreadyJoined
-              //       ? 'Joined'
-              //       : (isLoading
-              //           ? 'Loading...'
-              //           : (isFull
-              //               ? 'Join (Full)'
-              //               : 'Join for \$${price.toStringAsFixed(2)}')),
-              //   style: const TextStyle(color: Colors.white, fontSize: 18),
-              // ),
               child: Text(
-                'Joined',
+                userAlreadyJoined
+                    ? 'Joined'
+                    : (isLoading
+                        ? 'Loading...'
+                        : (isFull
+                            ? 'Join (Full)'
+                            : 'Join for \$${price.toStringAsFixed(2)}')),
                 style: const TextStyle(color: Colors.white, fontSize: 18),
               ),
             ),
@@ -433,6 +430,47 @@ class _GameDescriptionState extends State<GameDescription> {
         ],
       ),
     );
+  }
+
+  Future<String?> getSport(int sportId) async {
+    String? sport;
+
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    var response = await DatabaseServices()
+        .getData('${DatabaseServices().backendUrl}/api/sports/$sportId', token);
+
+    Map<String, dynamic> sports = jsonDecode(response.body);
+
+    sport = sports['sportName'];
+
+    return sport;
+  }
+
+  void checkIfUserAlreadyJoined(Map players) {
+    for (int i = 0; i < players.length; i++) {
+      if (players[i]['id'] == '1') {
+        setState(() {
+          userAlreadyJoined = true;
+        });
+      }
+    }
+  }
+
+  Future<List<dynamic>> getPlayers() async {
+    List<dynamic> players = [];
+
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    var result = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/games/${widget.gameID}/get-players',
+        token);
+
+    players = jsonDecode(result.body);
+
+    return players;
   }
 
   Future<Map<String, dynamic>> getOrganizerInfo(String organizerID) async {

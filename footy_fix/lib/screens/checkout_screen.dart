@@ -48,35 +48,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     });
   }
 
-  // void tempAction() async {
-  //   var userID = await PreferencesService().getUserId();
-
-  //   var token =
-  //       await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
-  //   var body = {
-  //     "id": userID,
-  //     "games": [
-  //       {
-  //         "id": widget.gameID,
-  //       }
-  //     ],
-  //   };
-
-  //   var paymentBody = {
-  //     "amount": price,
-  //     "dateTime": "2024-02-08T12:00:00Z",
-  //     "status": "PENDING",
-  //     "player": {"id": userID}
-  //   };
-
-  //   var response = await DatabaseServices().postData(
-  //       '${DatabaseServices().backendUrl}/api/payments', token, paymentBody);
-
-  //   var result = await DatabaseServices().patchData(
-  //       '${DatabaseServices().backendUrl}/api/players/$userID', token, body);
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -166,6 +137,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                 return PaymentScreen(
                                   price: price,
                                   label: "Game Participation Fee",
+                                  gameID: widget.gameID,
                                 );
                               }),
                             );
