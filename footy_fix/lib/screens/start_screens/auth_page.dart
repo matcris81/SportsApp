@@ -45,7 +45,7 @@ class _AuthPageState extends State<AuthPage> {
 
     // Navigate to NavBar
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Navigator.of(context).pushReplacement(
+      Navigator.of(context).push(
         MaterialPageRoute(builder: (context) => const NavBar()),
       );
     });

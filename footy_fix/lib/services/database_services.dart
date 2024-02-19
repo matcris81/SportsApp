@@ -61,8 +61,6 @@ class DatabaseServices {
       body: jsonBody,
     );
 
-    print(response.body);
-
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return response;
     } else {
