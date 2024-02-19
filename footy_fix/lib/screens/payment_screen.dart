@@ -1,17 +1,18 @@
-import 'dart:convert';
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
-import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:pay/pay.dart';
-import 'dart:io' show Platform;
 import 'package:footy_fix/payment_config.dart';
-import 'package:footy_fix/services/database_services.dart';
+import 'dart:io' show Platform;
 
 class PaymentScreen extends StatefulWidget {
-  final int gameID;
+  final double price;
+  final String label;
 
   const PaymentScreen({
     Key? key,
-    required this.gameID,
+    required this.price,
+    required this.label,
   }) : super(key: key);
 
   @override
@@ -19,121 +20,24 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
+  final _formKey = GlobalKey<FormState>(); // Add a key for the form
+  int _selectedPriceIndex = -1; // Initial state, no selection
+  final List<double> _priceOptions = [0, 25, 50];
   String os = Platform.operatingSystem;
-  bool isLoading = true;
-  double price = 0.0;
-  DateTime? date;
+  late PaymentItem _paymentItem;
+  List<PaymentItem> _paymentItems = [];
 
   @override
   void initState() {
     super.initState();
-    getGameInfo();
-  }
-
-  void getGameInfo() async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
-    var response = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/games/${widget.gameID}', token);
-
-    Map<String, dynamic> gameInfo = jsonDecode(response.body);
-
-    print('gameInfo: $gameInfo');
-
-    setState(() {
-      isLoading = false;
-      price = gameInfo['price'];
-    });
-  }
-
-  ApplePayButton _buildApplePayButton() {
-    return ApplePayButton(
-        paymentConfiguration:
-            PaymentConfiguration.fromJsonString(defaultApplePay),
-        paymentItems: [
-          PaymentItem(
-            label: widget.gameID.toString(),
-            amount: price.toStringAsFixed(2),
-            status: PaymentItemStatus.final_price,
-          ),
-        ],
-        style: ApplePayButtonStyle.black,
-        width: double.infinity,
-        height: 50,
-        type: ApplePayButtonType.buy,
-        margin: const EdgeInsets.only(top: 15.0),
-        onPaymentResult: (result) async {
-          debugPrint('Payment Result: $result');
-          if (result['status'] == 'success') {
-            // _updateDatabaseAfterPayment();
-          } else {
-            debugPrint('Payment failed or cancelled');
-          }
-        },
-        loadingIndicator: const Center(child: CircularProgressIndicator()));
-  }
-
-  GooglePayButton _buildGooglePayButton() {
-    return GooglePayButton(
-        paymentConfiguration:
-            PaymentConfiguration.fromJsonString(defaultGooglePay),
-        paymentItems: [
-          PaymentItem(
-            label: widget.gameID.toString(),
-            amount: price.toStringAsFixed(2),
-            status: PaymentItemStatus.final_price,
-          ),
-        ],
-        width: double.infinity,
-        height: 50,
-        type: GooglePayButtonType.buy,
-        margin: const EdgeInsets.only(top: 15.0),
-        onPaymentResult: (result) {
-          debugPrint('Payment Result: $result');
-          if (result['status'] == 'success') {
-            // _updateDatabaseAfterPayment();
-          } else {
-            debugPrint('Payment failed or cancelled');
-          }
-        },
-        loadingIndicator: const Center(child: CircularProgressIndicator()));
-  }
-
-  void tempAction() async {
-    var userID = await PreferencesService().getUserId();
-
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
-    var body = {
-      "id": userID,
-      "games": [
-        {
-          "id": widget.gameID,
-        }
-      ],
-    };
-
-    // var paymentBody = {
-    //   "amount": price,
-    //   "date_time": DateTime.now().toIso8601String(),
-    //   "status": "success",
-    //   "player_id": userID,
-    // };
-
-    var paymentBody = {
-      "amount": price,
-      "dateTime": "2024-02-08T12:00:00Z",
-      "status": "PENDING",
-      "player": {"id": userID}
-    };
-
-    var response = await DatabaseServices().postData(
-        '${DatabaseServices().backendUrl}/api/payments', token, paymentBody);
-
-    var result = await DatabaseServices().patchData(
-        '${DatabaseServices().backendUrl}/api/players/$userID', token, body);
+    _paymentItems = [
+      PaymentItem(
+        label: widget.label,
+        amount: widget.price.toStringAsFixed(2),
+        status: PaymentItemStatus.final_price,
+      ),
+      // Add more PaymentItems if necessary
+    ];
   }
 
   @override
@@ -141,9 +45,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Payment',
+          'Top up',
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 20,
             fontWeight: FontWeight.w500,
             color: Colors.black,
           ),
@@ -155,64 +59,232 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: EdgeInsets.all(15),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text(
-              isLoading
-                  ? 'Loading...'
-                  : 'Total price: \$${price.toStringAsFixed(2)}',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+            const SizedBox(height: 15),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Amount",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
               ),
             ),
-            const Spacer(),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  tempAction();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8), // Rounded corners
+            SizedBox(height: 10),
+            const Center(
+              child: Text(
+                "Select the amount you want to top up",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            SizedBox(height: 30),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: List.generate(_priceOptions.length, (index) {
+                double price = _priceOptions[index];
+                bool isSelected = _selectedPriceIndex == index;
+                return _buildPriceOptionCard(price, isSelected, () {
+                  setState(() {
+                    _selectedPriceIndex = index;
+                  });
+                });
+              }),
+            ),
+            SizedBox(height: 30),
+            const Center(
+              child: Text(
+                "All transactions can be seen in profile/past transactions",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            SizedBox(height: 50),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Select Payment Method',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+            Platform.isIOS
+                ? Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border:
+                          Border.all(color: Colors.black), // Add black border
+                    ),
+                    child: ApplePayButton(
+                      paymentConfiguration:
+                          PaymentConfiguration.fromJsonString(defaultApplePay),
+                      paymentItems: _paymentItems,
+                      style: ApplePayButtonStyle.white,
+                      width: double.infinity,
+                      height: 50,
+                      type: ApplePayButtonType.buy,
+                      onPaymentResult: onApplePayResult,
+                      loadingIndicator:
+                          const Center(child: CircularProgressIndicator()),
+                    ),
+                  )
+                // : RawGooglePayButton(
+                //     onPressed: () {},
+                //     type: GooglePayButtonType.pay,
+                //   ),
+                // : Container(
+                //     padding: const EdgeInsets.all(2),
+                //     decoration: BoxDecoration(
+                //       color: Colors.white,
+                //       borderRadius: BorderRadius.circular(12),
+                //       border:
+                //           Border.all(color: Colors.black), // Add black border
+                //     ),
+                //     child
+                : GooglePayButton(
+                    paymentConfiguration:
+                        PaymentConfiguration.fromJsonString(defaultGooglePay),
+                    paymentItems: _paymentItems,
+                    type: GooglePayButtonType.pay,
+                    margin: const EdgeInsets.only(top: 15.0),
+                    width: double.infinity,
+                    onPaymentResult: onGooglePayResult,
+                    loadingIndicator: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
                   ),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 30, vertical: 15), // Button padding
-                ),
-                child: const Text(
-                  'Proceed to Pay',
-                  style: TextStyle(fontSize: 16),
+            // ),
+            SizedBox(height: 20),
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.black), // Add black border
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    // Handle Apple Pay button tap
+                  },
+                  child: const Padding(
+                    padding: const EdgeInsets.all(11.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.credit_card,
+                          size: 30,
+                          color: Colors.grey,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          'Credit/Debit Card',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
-            // Center(
-            //     child: Platform.isIOS
-            //         ? _buildApplePayButton()
-            //         : _buildGooglePayButton()),
+            SizedBox(height: 60),
           ],
         ),
       ),
     );
   }
 
-  // void _updateDatabaseAfterPayment() async {
-  //   // Your logic to update the database
-  //   String userID = await PreferencesService().getUserId() ?? '';
+  // void _showErrorSnackbar(String message) {
+  //   final snackBar = SnackBar(content: Text(message));
+  //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  // }
 
-  //   Object? data = await DatabaseServices().retrieveFromDatabase(
-  //       'Location Details/${widget.locationName}/Games/${widget.gameID}');
+  Widget _buildPriceOptionCard(
+      double price, bool isSelected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 80,
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.black : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: isSelected ? Colors.blue : Colors.black),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        alignment: Alignment.center,
+        child: Text(
+          price == 0 ? '\$${widget.price}' : '\$$price',
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
 
-  //   await DatabaseServices().addWithoutIDToDataBase(
-  //       'User Preferences/$userID/Games joined/${widget.locationName}/${widget.gameID}',
-  //       data);
+  void onApplePayResult(Map<String, dynamic> result) {
+    // Handle Apple Pay result here
+    print("Apple Pay Result: $result");
+  }
 
-  //   await DatabaseServices().incrementValue(
-  //       'Location Details/${widget.locationName}/Games/${widget.gameID}/',
-  //       'Players joined');
+  void onGooglePayResult(Map<String, dynamic> result) {
+    // Handle Apple Pay result here
+    print("Apple Pay Result: $result");
+  }
+
+  //   Future<void> presentApplePay(Map paymentItems) async {
+  //   try {
+  //     await Stripe.instance.presentApplePay(
+  //       paymentItems: paymentItems,
+  //       onApplePayResult: onApplePayResult,
+  //     );
+  //   }
+  // }
+
+  // GooglePayButton _buildGooglePayButton() {
+  //   return GooglePayButton(
+  //       paymentConfiguration:
+  //           PaymentConfiguration.fromJsonString(defaultGooglePay),
+  //       paymentItems: [
+  //         PaymentItem(
+  //           amount: widget.price.toStringAsFixed(2),
+  //           status: PaymentItemStatus.final_price,
+  //         ),
+  //       ],
+  //       width: double.infinity,
+  //       height: 50,
+  //       type: GooglePayButtonType.buy,
+  //       margin: const EdgeInsets.only(top: 15.0),
+  //       onPaymentResult: (result) {
+  //         debugPrint('Payment Result: $result');
+  //         if (result['status'] == 'success') {
+  //           // _updateDatabaseAfterPayment();
+  //         } else {
+  //           debugPrint('Payment failed or cancelled');
+  //         }
+  //       },
+  //       loadingIndicator: const Center(child: CircularProgressIndicator()));
   // }
 }

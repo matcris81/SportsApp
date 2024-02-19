@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:footy_fix/routes.dart';
 import 'package:footy_fix/screens/navigation_screens/home_screen.dart';
 import 'firebase_options.dart';
@@ -24,6 +25,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('app_icon');
 
   await FirebaseAPI().initNotifications();
 

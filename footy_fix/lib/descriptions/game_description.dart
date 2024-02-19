@@ -6,7 +6,7 @@ import 'package:footy_fix/screens/game_players_screen.dart';
 import 'package:intl/intl.dart';
 import 'dart:io' show Platform;
 import 'package:url_launcher/url_launcher.dart';
-import 'package:footy_fix/screens/payment_screen.dart';
+import 'package:footy_fix/screens/checkout_screen.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -398,8 +398,9 @@ class _GameDescriptionState extends State<GameDescription> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => PaymentScreen(
+                          builder: (context) => CheckoutScreen(
                             gameID: widget.gameID,
+                            venueId: widget.locationID,
                           ),
                         ),
                       );

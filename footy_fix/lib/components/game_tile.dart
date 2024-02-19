@@ -2,15 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:footy_fix/descriptions/game_description.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:intl/intl.dart';
-import 'package:footy_fix/screens/payment_screen.dart';
+import 'package:footy_fix/screens/checkout_screen.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'dart:convert';
 
 class GameTile extends StatelessWidget {
   final int locationID;
   final int gameID;
+  final bool payment;
 
-  const GameTile({Key? key, required this.gameID, this.locationID = 0})
+  const GameTile(
+      {Key? key,
+      required this.gameID,
+      this.locationID = 0,
+      this.payment = false})
       : super(key: key);
 
   Future<Map<String, dynamic>> fetchGameDetails(int gameId) async {
@@ -199,53 +204,57 @@ class GameTile extends StatelessWidget {
                                   color: Colors.green),
                             ),
                             const SizedBox(height: 4),
-                            const Divider(),
-                            Text(
-                              '$playersJoined/$size spots left',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
+                            if (!payment) const Divider(),
+                            if (!payment)
+                              Text(
+                                '$playersJoined/$size spots left',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
                           ],
                         ),
                       ),
-                      Container(
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(16),
-                            bottomRight: Radius.circular(16),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 0),
-                          child: TextButton(
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              minimumSize: const Size.fromHeight(50),
-                              backgroundColor:
-                                  hasJoined ? Colors.grey : Colors.black,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
+                      if (!payment)
+                        Container(
+                          decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(16),
+                              bottomRight: Radius.circular(16),
                             ),
-                            onPressed: hasJoined
-                                ? null
-                                : () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => PaymentScreen(
-                                                  gameID: gameID,
-                                                )));
-                                  },
-                            child: Text(hasJoined
-                                ? 'Joined'
-                                : 'Join for \$${price.toStringAsFixed(2)}'),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 40, vertical: 0),
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                minimumSize: const Size.fromHeight(50),
+                                backgroundColor:
+                                    hasJoined ? Colors.grey : Colors.black,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                              ),
+                              onPressed: hasJoined
+                                  ? null
+                                  : () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  CheckoutScreen(
+                                                    gameID: gameID,
+                                                    venueId: locationID,
+                                                  )));
+                                    },
+                              child: Text(hasJoined
+                                  ? 'Joined'
+                                  : 'Join for \$${price.toStringAsFixed(2)}'),
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ),
