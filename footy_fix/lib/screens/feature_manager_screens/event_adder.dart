@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:intl/intl.dart';
@@ -90,6 +92,45 @@ class _AddEventState extends State<AddEvent> {
         locationName = result[1];
       });
     }
+  }
+
+  Future<String?> getSportInfo(String sport) async {
+    bool sportExists = false;
+    String? sportId;
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    var sports = await DatabaseServices()
+        .getData('${DatabaseServices().backendUrl}/api/sports', token);
+
+    List<dynamic> sportsResponse = jsonDecode(sports.body);
+
+    print('sportsResponse: $sportsResponse');
+
+    for (var sportInfo in sportsResponse) {
+      if (sportInfo['sportName'] == sport) {
+        // Assuming each sportInfo is a Map with a key 'sportName'
+        sportExists = true;
+        sportId = sportInfo['id'].toString(); // Convert id to String if needed
+
+        break;
+      }
+    }
+
+    if (!sportExists) {
+      Map<String, dynamic> sportBody = {
+        'sportName': sport,
+      };
+
+      var response = await DatabaseServices().postData(
+          '${DatabaseServices().backendUrl}/api/sports', token, sportBody);
+
+      Map<String, dynamic> sportInfo = jsonDecode(response.body);
+
+      sportId = sportInfo['id'].toString();
+    }
+
+    return sportId;
   }
 
   @override
@@ -243,16 +284,14 @@ class _AddEventState extends State<AddEvent> {
                             var token = await DatabaseServices()
                                 .authenticateAndGetToken('admin', 'admin');
 
+                            var sportID = await getSportInfo(sport);
+
                             String? userID =
                                 await PreferencesService().getUserId();
 
-                            // var sportID = DatabaseServices().getData(
-                            //     'http://localhost:4242/api/venues/by-name/$location',
-                            //     token);
-
                             var game = {
                               'venueId': locationID,
-                              // 'sportId': sportID,
+                              'sportId': sportID,
                               'gameDate': formattedDate,
                               'description': description,
                               'size': size,

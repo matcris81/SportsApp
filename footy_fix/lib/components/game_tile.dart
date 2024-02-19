@@ -61,13 +61,14 @@ class GameTile extends StatelessWidget {
   }
 
   void tileTap(BuildContext context, bool userAlreadyJoined) {
+    if (payment) {
+      return;
+    }
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => GameDescription(
                   gameID: gameID,
-                  // locationID: locationID,
-                  // userAlreadyJoined: userAlreadyJoined,
                 )));
   }
 
@@ -139,13 +140,10 @@ class GameTile extends StatelessWidget {
                             top: 65, // Adjust the position as needed
                             right: 8, // Adjust the position as needed
                             child: Container(
-                              padding: const EdgeInsets.all(
-                                  6), // Padding inside the container for the icon
+                              padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
-                                color: Colors.black
-                                    .withOpacity(0.5), // Semi-transparent black
-                                borderRadius: BorderRadius.circular(
-                                    4), // Slightly rounded corners for the square
+                                color: Colors.black.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(4),
                               ),
                               child: const Icon(
                                 Icons
