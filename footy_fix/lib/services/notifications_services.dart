@@ -19,42 +19,42 @@ class FirebaseAPI {
       final fCMToken = await _firebaseMessaging.getToken();
       print('FCM Token: $fCMToken');
 
-      const AndroidInitializationSettings initializationSettingsAndroid =
-          AndroidInitializationSettings('app_icon');
+      // const AndroidInitializationSettings initializationSettingsAndroid =
+      //     AndroidInitializationSettings('apple_logo.png');
 
-      final DarwinInitializationSettings initializationSettingsDarwin =
-          DarwinInitializationSettings(
-        onDidReceiveLocalNotification: onDidReceiveLocalNotification,
-        requestAlertPermission: true,
-        requestBadgePermission: true,
-        requestSoundPermission: true,
-      );
+      // final DarwinInitializationSettings initializationSettingsDarwin =
+      //     DarwinInitializationSettings(
+      //   onDidReceiveLocalNotification: onDidReceiveLocalNotification,
+      //   requestAlertPermission: true,
+      //   requestBadgePermission: true,
+      //   requestSoundPermission: true,
+      // );
 
-      final InitializationSettings initializationSettings =
-          InitializationSettings(
-        android: initializationSettingsAndroid,
-        iOS: initializationSettingsDarwin,
-      );
+      // final InitializationSettings initializationSettings =
+      //     InitializationSettings(
+      //   android: initializationSettingsAndroid,
+      //   iOS: initializationSettingsDarwin,
+      // );
 
-      await flutterLocalNotificationsPlugin!.initialize(
-        initializationSettings,
-        onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
-      );
+      // await flutterLocalNotificationsPlugin!.initialize(
+      //   initializationSettings,
+      //   onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
+      // );
 
       if (Platform.isIOS) {
         final apnsToken = await _firebaseMessaging.getAPNSToken();
       } else if (Platform.isAndroid) {
-        const AndroidNotificationDetails androidNotificationDetails =
-            AndroidNotificationDetails('your channel id', 'your channel name',
-                channelDescription: 'your channel description',
-                importance: Importance.max,
-                priority: Priority.high,
-                ticker: 'ticker');
-        const NotificationDetails notificationDetails =
-            NotificationDetails(android: androidNotificationDetails);
-        await flutterLocalNotificationsPlugin!.show(
-            0, 'plain title', 'plain body', notificationDetails,
-            payload: 'item x');
+        // const AndroidNotificationDetails androidNotificationDetails =
+        //     AndroidNotificationDetails('your channel id', 'your channel name',
+        //         channelDescription: 'your channel description',
+        //         importance: Importance.max,
+        //         priority: Priority.high,
+        //         ticker: 'ticker');
+        // const NotificationDetails notificationDetails =
+        //     NotificationDetails(android: androidNotificationDetails);
+        // await flutterLocalNotificationsPlugin!.show(
+        //     0, 'plain title', 'plain body', notificationDetails,
+        //     payload: 'item x');
       }
     } else {
       print('User declined or has not accepted notification permissions');

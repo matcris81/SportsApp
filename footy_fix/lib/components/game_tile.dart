@@ -61,16 +61,14 @@ class GameTile extends StatelessWidget {
   }
 
   void tileTap(BuildContext context, bool userAlreadyJoined) {
-    if (!payment) {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => GameDescription(
-                    gameID: gameID,
-                    locationID: locationID,
-                    userAlreadyJoined: userAlreadyJoined,
-                  )));
-    }
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => GameDescription(
+                  gameID: gameID,
+                  // locationID: locationID,
+                  // userAlreadyJoined: userAlreadyJoined,
+                )));
   }
 
   @override
@@ -97,6 +95,7 @@ class GameTile extends StatelessWidget {
             DateFormat('MMM').format(dateTime).toUpperCase();
         var time = DateFormat('HH:mm:ss').format(dateTime);
         var playersJoined = gameDetails['playerCount'];
+        print('playersJoined: $playersJoined');
         var size = gameDetails['size'];
         var price = gameDetails['price'];
 
@@ -105,7 +104,7 @@ class GameTile extends StatelessWidget {
             builder: (context, hasJoinedSnapshot) {
               if (hasJoinedSnapshot.connectionState ==
                   ConnectionState.waiting) {
-                return CircularProgressIndicator(); // Show loading indicator while checking
+                return CircularProgressIndicator();
               }
 
               if (hasJoinedSnapshot.hasError) {

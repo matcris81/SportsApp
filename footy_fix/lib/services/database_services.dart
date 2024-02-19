@@ -19,13 +19,11 @@ class DatabaseServices {
 
   Future<String> authenticateAndGetToken(
       String username, String password) async {
-    var url = Uri.parse(
-        'http://localhost:4242/api/authenticate'); // Replace with your API endpoint
+    var url = Uri.parse('http://localhost:4242/api/authenticate');
+
+    // var url = Uri.parse('http://192.168.3.11:4242/api/authenticate');
 
     // var url = Uri.parse('http://10.0.2.2:4242/api/authenticate');
-
-    // var url = Uri.parse(
-    //     'http://192.168.3.11:4242/api/authenticate'); // Replace with your API endpoint
 
     var response = await http.post(
       url,
@@ -62,8 +60,6 @@ class DatabaseServices {
       },
       body: jsonBody,
     );
-
-    print(response.body);
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return response;

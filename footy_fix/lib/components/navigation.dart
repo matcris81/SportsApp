@@ -10,6 +10,8 @@ import 'package:footy_fix/screens/navigation_screens/more_info.dart';
 // import 'package:footy_fix/screens/'
 
 class NavBar extends StatefulWidget {
+  static const String routeName = '/navbar'; // Define the route name
+
   const NavBar({Key? key}) : super(key: key);
 
   @override
@@ -39,6 +41,7 @@ class _NavBarState extends State<NavBar> {
       const SearchScreen(),
       const ProfileScreen(),
     ];
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
