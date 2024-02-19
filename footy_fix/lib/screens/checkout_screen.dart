@@ -7,11 +7,9 @@ import 'package:footy_fix/screens/payment_screen.dart';
 
 class CheckoutScreen extends StatefulWidget {
   final int gameID;
-  final int venueId;
 
   const CheckoutScreen({
     Key? key,
-    required this.venueId,
     required this.gameID,
   }) : super(key: key);
 
@@ -23,6 +21,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   bool isLoading = true;
   double price = 0.0;
   DateTime? date;
+  int? venueId;
 
   @override
   void initState() {
@@ -40,10 +39,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     Map<String, dynamic> gameInfo = jsonDecode(response.body);
 
     print('gameInfo: $gameInfo');
+    print(gameInfo['venueId']);
 
     setState(() {
       isLoading = false;
       price = gameInfo['price'];
+      venueId = gameInfo['venueId'];
     });
   }
 
@@ -122,7 +123,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ),
                     ),
                     GameTile(
-                      locationID: widget.venueId,
+                      locationID: venueId ?? 0,
                       gameID: widget.gameID,
                       payment: true,
                     ),

@@ -246,7 +246,6 @@ class GameTile extends StatelessWidget {
                                               builder: (context) =>
                                                   CheckoutScreen(
                                                     gameID: gameID,
-                                                    venueId: locationID,
                                                   )));
                                     },
                               child: Text(hasJoined

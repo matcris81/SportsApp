@@ -400,7 +400,7 @@ class _GameDescriptionState extends State<GameDescription> {
                         MaterialPageRoute(
                           builder: (context) => CheckoutScreen(
                             gameID: widget.gameID,
-                            venueId: widget.locationID,
+                            // venueId: widget.locationID,
                           ),
                         ),
                       );
