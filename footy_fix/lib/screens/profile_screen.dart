@@ -240,8 +240,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .getData('${DatabaseServices().backendUrl}/api/players/$userID', token);
 
     playerData = jsonDecode(response.body);
+    print('response.body: ${response.body}');
 
-    getPlayerImage(playerData['playerImage']['id']);
+    if (playerData['playerImage'] != null) {
+      getPlayerImage(playerData['playerImage']['id']);
+    }
 
     return playerData;
   }

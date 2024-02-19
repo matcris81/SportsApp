@@ -102,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // Add profile icon on the left
             leading: IconButton(
               icon: const Icon(Icons.account_circle, color: Colors.black),
-              iconSize: 25,
+              iconSize: 30,
               onPressed: () {
                 Navigator.push(
                     context,
@@ -112,18 +112,18 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
             // Add bell icon on the right
-            actions: <Widget>[
-              IconButton(
-                icon: const Icon(Icons.notifications, color: Colors.black),
-                iconSize: 25,
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const NotificationScreen()));
-                },
-              ),
-            ],
+            // actions: <Widget>[
+            //   IconButton(
+            //     icon: const Icon(Icons.notifications, color: Colors.black),
+            //     iconSize: 30,
+            //     onPressed: () {
+            //       Navigator.push(
+            //           context,
+            //           MaterialPageRoute(
+            //               builder: (context) => const NotificationScreen()));
+            //     },
+            //   ),
+            // ],
           ),
 
           backgroundColor: Colors.grey[200], // Set the background color to grey
