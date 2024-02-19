@@ -68,8 +68,6 @@ class _GameDescriptionState extends State<GameDescription> {
         address = gameInfo['address'];
         description = gameInfo['description'];
         size = gameInfo['size'];
-        // numberOfPlayers = gameInfo['players'].length;
-        numberOfPlayers = gameInfo['players']?.length ?? 0;
         price = gameInfo['price'];
         var date = gameInfo['gameDate'];
         organizer = gameInfo['organizer_username'];
@@ -92,6 +90,15 @@ class _GameDescriptionState extends State<GameDescription> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Scaffold(
+        backgroundColor: Colors.grey[300],
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey[300],
       body: Stack(
@@ -118,7 +125,6 @@ class _GameDescriptionState extends State<GameDescription> {
               ),
               SliverToBoxAdapter(
                 child: Container(
-                  // This container takes the place of your card
                   decoration: const BoxDecoration(
                     color: Colors.white,
                   ),
@@ -127,7 +133,7 @@ class _GameDescriptionState extends State<GameDescription> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        "${size / 2} v ${size / 2} $sport",
+                        "${(size / 2).floor()} v ${(size / 2).floor()} $sport",
                         style: const TextStyle(
                           fontSize: 35,
                           fontWeight: FontWeight.bold,
@@ -161,8 +167,7 @@ class _GameDescriptionState extends State<GameDescription> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        description ??
-                            'No description available', // Provide a default value
+                        description ?? 'No description available',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.normal,
@@ -222,12 +227,12 @@ class _GameDescriptionState extends State<GameDescription> {
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            time.substring(0, 5),
+                            time.length >= 5 ? time.substring(0, 5) : time,
                             style: const TextStyle(
                               fontSize: 16,
                               color: Colors.black,
                             ),
-                          ),
+                          )
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -240,12 +245,12 @@ class _GameDescriptionState extends State<GameDescription> {
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            venueName,
+                            venueName ?? 'Venue name not available',
                             style: const TextStyle(
                               fontSize: 16,
                               color: Colors.black,
                             ),
-                          ),
+                          )
                         ],
                       ),
                       const SizedBox(height: 30),

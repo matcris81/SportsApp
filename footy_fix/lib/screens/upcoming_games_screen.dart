@@ -24,7 +24,7 @@ class _UpcomingGamesListState extends State<UpcomingGamesList> {
         title: Text(
           '${widget.locationName} Upcoming Games',
           style: const TextStyle(
-              fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black),
+              fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black),
           textAlign: TextAlign.center,
         ),
         leading: IconButton(
