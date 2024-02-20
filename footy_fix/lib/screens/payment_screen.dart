@@ -34,14 +34,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   void initState() {
     super.initState();
-    _paymentItems = [
-      PaymentItem(
-        label: widget.label,
-        amount: widget.price.toStringAsFixed(2),
-        status: PaymentItemStatus.final_price,
-      ),
-      // Add more PaymentItems if necessary
-    ];
+    // _paymentItems = [
+    //   PaymentItem(
+    //     label: widget.label,
+    //     amount: widget.price.toStringAsFixed(2),
+    //     status: PaymentItemStatus.final_price,
+    //   ),
+    //   // Add more PaymentItems if necessary
+    // ];
   }
 
   @override
@@ -63,7 +63,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.all(15),
+        padding: const EdgeInsets.all(15),
         child: Column(
           children: <Widget>[
             const SizedBox(height: 15),
@@ -78,7 +78,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             const Center(
               child: Text(
                 "Select the amount you want to top up",
@@ -89,20 +89,55 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 30),
+            const SizedBox(height: 30),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(_priceOptions.length, (index) {
+                // 'index' is defined here, within the scope of this lambda function.
                 double price = _priceOptions[index];
                 bool isSelected = _selectedPriceIndex == index;
-                return _buildPriceOptionCard(price, isSelected, () {
-                  setState(() {
-                    _selectedPriceIndex = index;
-                  });
-                });
+                // The 'index' is accessible here, inside the lambda function.
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedPriceIndex = index;
+                      // Now update the payment items based on the selected price.
+                      _paymentItems = [
+                        PaymentItem(
+                          label: widget.label,
+                          amount: price == 0
+                              ? widget.price.toStringAsFixed(2)
+                              : price.toStringAsFixed(2),
+                          status: PaymentItemStatus.final_price,
+                        ),
+                        // Add more PaymentItems if necessary.
+                      ];
+                    });
+                  },
+                  child: Container(
+                    // Container properties...
+                    width: 80,
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.black : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                          color: isSelected ? Colors.blue : Colors.black),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    alignment: Alignment.center,
+                    child: Text(
+                      price == 0 ? '\$${widget.price}' : '\$$price',
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                );
               }),
             ),
-            SizedBox(height: 30),
+
+            const SizedBox(height: 30),
             const Center(
               child: Text(
                 "All transactions can be seen in profile/past transactions",
@@ -113,7 +148,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 50),
+            const SizedBox(height: 50),
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -125,7 +160,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Platform.isIOS
                 ? Container(
                     padding: const EdgeInsets.all(2),
@@ -174,7 +209,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     ),
                   ),
             // ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -189,7 +224,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     // Handle Apple Pay button tap
                   },
                   child: const Padding(
-                    padding: const EdgeInsets.all(11.0),
+                    padding: EdgeInsets.all(11.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -212,37 +247,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 60),
+            const SizedBox(height: 60),
           ],
-        ),
-      ),
-    );
-  }
-
-  // void _showErrorSnackbar(String message) {
-  //   final snackBar = SnackBar(content: Text(message));
-  //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  // }
-
-  Widget _buildPriceOptionCard(
-      double price, bool isSelected, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 80,
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.black : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? Colors.blue : Colors.black),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        alignment: Alignment.center,
-        child: Text(
-          price == 0 ? '\$${widget.price}' : '\$$price',
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
         ),
       ),
     );

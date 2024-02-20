@@ -123,17 +123,17 @@ class LocationTile extends StatelessWidget {
                           color: Colors.white70,
                         ),
                       ),
-                    if (showRating) // Conditionally display rating
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: List.generate(5, (index) {
-                          return Icon(
-                            index < rating ? Icons.star : Icons.star_border,
-                            color: Colors.white,
-                            size: 20.0,
-                          );
-                        }),
-                      ),
+                    // if (showRating) // Conditionally display rating
+                    //   Row(
+                    //     mainAxisSize: MainAxisSize.min,
+                    //     children: List.generate(5, (index) {
+                    //       return Icon(
+                    //         index < rating ? Icons.star : Icons.star_border,
+                    //         color: Colors.white,
+                    //         size: 20.0,
+                    //       );
+                    //     }),
+                    //   ),
                   ],
                 ),
               ),
