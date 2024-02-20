@@ -65,7 +65,7 @@ class _NavBarState extends State<NavBar> {
               gap: 8,
               activeColor: Colors.white,
               iconSize: 24,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
               duration: const Duration(milliseconds: 400),
               tabBackgroundColor: Colors.black,
               color: Colors.black,
@@ -82,10 +82,10 @@ class _NavBarState extends State<NavBar> {
                   icon: Icons.search,
                   text: 'Search',
                 ),
-                GButton(
-                  icon: Icons.person_3_outlined,
-                  text: 'Profile',
-                ),
+                // GButton(
+                //   icon: Icons.person_3_outlined,
+                //   text: 'Profile',
+                // ),
               ],
               selectedIndex: _selectedIndex,
               onTabChange: (index) {

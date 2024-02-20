@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/components/venues_tile.dart';
 import 'package:footy_fix/descriptions/location_description.dart';
+import 'package:footy_fix/screens/start_screens/login_screen.dart';
+import 'package:footy_fix/services/auth_service.dart';
 import 'package:footy_fix/services/geolocator_services.dart';
 import 'package:footy_fix/components/game_tile.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
@@ -96,8 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
             title: const Text('FitFeat',
                 style: TextStyle(color: Colors.black, fontSize: 20)),
             centerTitle: true,
-            automaticallyImplyLeading:
-                false, // This line removes the default back button
+            automaticallyImplyLeading: false,
 
             // Add profile icon on the left
             leading: IconButton(
@@ -124,6 +125,22 @@ class _HomeScreenState extends State<HomeScreen> {
             //     },
             //   ),
             // ],
+            actions: <Widget>[
+              IconButton(
+                icon: const Icon(Icons.logout_outlined, color: Colors.black),
+                iconSize: 30,
+                onPressed: () async {
+                  await AuthService().signOut();
+
+                  if (!mounted) return;
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                  );
+                },
+              ),
+            ],
           ),
 
           backgroundColor: Colors.grey[200], // Set the background color to grey

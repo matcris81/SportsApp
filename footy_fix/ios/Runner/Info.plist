@@ -70,10 +70,14 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>This app requires access to the camera to allow users to capture and upload photos directly.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This app needs access to your location when in the background.</string>
+	<string>Our app uses your location in the background to offer personalized fitness tracking and recommendations even when you're not actively using the app.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This app needs access to your location when open.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Our app needs your location to provide fitness tracking and personalized recommendations. You can choose to allow access only while using the app or at all times for enhanced functionality.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

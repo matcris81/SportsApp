@@ -233,6 +233,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     var userID = await PreferencesService().getUserId();
 
+    print('userID: $userID');
+
     var token =
         await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 

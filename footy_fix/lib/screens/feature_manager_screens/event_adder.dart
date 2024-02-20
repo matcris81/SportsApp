@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:intl/intl.dart';
@@ -45,32 +45,35 @@ class _AddEventState extends State<AddEvent> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2025),
-    );
+    // Store the picked date temporarily
+    DateTime tempPickedDate = selectedDate ?? DateTime.now();
 
-    if (picked != null) {
-      DateTime now = DateTime.now();
-      DateTime today = DateTime(now.year, now.month, now.day);
-      DateTime pickedDate = DateTime(picked.year, picked.month, picked.day);
-
-      if (!mounted) return;
-
-      if (pickedDate.isBefore(today)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('You cannot select a past date.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      } else if (pickedDate != selectedDate) {
-        setState(() {
-          selectedDate = picked;
+    // Show Cupertino Modal Bottom Sheet
+    await showModalBottomSheet(
+        context: context,
+        builder: (BuildContext builder) {
+          return Container(
+            height: MediaQuery.of(context).copyWith().size.height * 0.25,
+            color: Colors.white,
+            child: CupertinoDatePicker(
+              mode: CupertinoDatePickerMode.date,
+              initialDateTime: selectedDate ?? DateTime.now(),
+              minimumYear: 2000,
+              maximumYear: 2025,
+              onDateTimeChanged: (DateTime newDate) {
+                tempPickedDate = newDate;
+              },
+            ),
+          );
         });
-      }
+
+    // Once a date is selected and modal is closed, update the state
+    if (!mounted) return;
+
+    if (tempPickedDate != selectedDate) {
+      setState(() {
+        selectedDate = tempPickedDate;
+      });
     }
   }
 
@@ -166,19 +169,44 @@ class _AddEventState extends State<AddEvent> {
                         MainAxisAlignment.center, // Center vertically
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
-                      Text('Selected Venue: $locationName'),
                       ElevatedButton(
                         onPressed: () => navigateAndDisplaySelection(context),
-                        child: const Text('Select Venue'),
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.black, // Button color
+                        ),
+                        child: Text(
+                          locationName.isNotEmpty
+                              ? 'Venue: $locationName'
+                              : 'Select Venue',
+                          style: const TextStyle(
+                              color: Colors
+                                  .white), // Optional if you want to style the text
+                        ),
                       ),
                       const SizedBox(height: 16.0),
                       ElevatedButton(
                         onPressed: () => _selectDate(context),
-                        child: const Text('Select Date'),
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.black, // Button color
+                        ),
+                        child: Text(
+                          selectedDate != null
+                              ? DateFormat('yyyy-MM-dd').format(selectedDate!)
+                              : 'Select Date',
+                          style: const TextStyle(
+                              color: Colors
+                                  .white), // Optional if you want to style the text
+                        ),
                       ),
                       const SizedBox(height: 16.0),
                       ElevatedButton(
                         onPressed: () => _selectTime(context),
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.black, // Text color
+                        ),
                         child: Text(selectedTime == null
                             ? 'Select Time'
                             : 'Time: ${selectedTime!.format(context)}'),

@@ -54,13 +54,14 @@ class _GameDescriptionState extends State<GameDescription> {
   Future<void> _fetchGameInfo() async {
     try {
       Map<dynamic, dynamic> gameInfo = await getGameInfo();
-      print('gameInfo: $gameInfo');
 
       sport = await getSport(gameInfo['sportId']);
 
       var id = await PreferencesService().getUserId();
 
       players = await getPlayers();
+
+      checkIfUserAlreadyJoined(players, id!);
 
       setState(() {
         userID = id;
@@ -395,7 +396,7 @@ class _GameDescriptionState extends State<GameDescription> {
           Container(
             width: 200, // Set a specific width for the button
             child: ElevatedButton(
-              onPressed: isLoading || isFull // || widget.userAlreadyJoined
+              onPressed: isLoading || isFull || userAlreadyJoined
                   ? null
                   : () {
                       Navigator.push(
@@ -448,14 +449,15 @@ class _GameDescriptionState extends State<GameDescription> {
     return sport;
   }
 
-  void checkIfUserAlreadyJoined(Map players) {
+  void checkIfUserAlreadyJoined(List<dynamic> players, String userID) {
     for (int i = 0; i < players.length; i++) {
-      if (players[i]['id'] == '1') {
+      if (players[i]['id'] == userID) {
         setState(() {
           userAlreadyJoined = true;
         });
       }
     }
+    print('userAlreadyJoined: $userAlreadyJoined');
   }
 
   Future<List<dynamic>> getPlayers() async {
