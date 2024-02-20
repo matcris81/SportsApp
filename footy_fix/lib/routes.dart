@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:footy_fix/descriptions/location_description.dart';
 import 'package:go_router/go_router.dart';
 import 'package:footy_fix/screens/start_screens/auth_page.dart';
-import 'package:footy_fix/screens/navigation_screens/home_screen.dart';
 import 'package:footy_fix/descriptions/game_description.dart';
 
 final GoRouter appRoutes = GoRouter(
+  debugLogDiagnostics: true,
   routes: <RouteBase>[
-    // Define the default or "home" route.
     GoRoute(
         path: '/',
         builder: (context, state) {
@@ -16,10 +16,24 @@ final GoRouter appRoutes = GoRouter(
           GoRoute(
             path: 'game/:gameId',
             builder: (BuildContext context, GoRouterState state) {
+              print('inside');
               final gameId = state.pathParameters['gameId'];
+              print('gameId: $gameId');
               final id = int.parse(gameId!);
               return GameDescription(
                 gameID: id,
+              );
+            },
+          ),
+          GoRoute(
+            path: 'venue/:venueId',
+            builder: (BuildContext context, GoRouterState state) {
+              print('wagwan');
+              final venueId = state.pathParameters['venueId'];
+              final id = int.parse(venueId!);
+              print('Venue ID: $id');
+              return LocationDescription(
+                locationID: id,
               );
             },
           ),

@@ -4,18 +4,21 @@ import 'package:footy_fix/screens/upcoming_games_screen.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:footy_fix/components/game_tile.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io' show Platform;
 import 'dart:convert';
 import 'package:footy_fix/services/notifications_services.dart';
 
 class LocationDescription extends StatefulWidget {
-  final String locationName;
+  // final String locationName;
   final int locationID;
 
   // Constructor to accept a string
   const LocationDescription(
-      {Key? key, required this.locationName, required this.locationID})
+      {Key? key,
+      // required this.locationName,
+      required this.locationID})
       : super(key: key);
 
   @override
@@ -24,12 +27,31 @@ class LocationDescription extends StatefulWidget {
 
 class _LocationDescriptionState extends State<LocationDescription> {
   bool isHeartFilled = false; // Tracks if heart is filled or not
+  String? locationName;
 
   @override
   void initState() {
     super.initState();
     checkIfLiked();
     getNextUpcomingGame();
+    getVenueData();
+  }
+
+  Future<void> getVenueData() async {
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    var response = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/venues/${widget.locationID}',
+        token);
+
+    var locationDetails = json.decode(response.body);
+
+    print('locationDetails: $locationDetails');
+
+    setState(() {
+      locationName = locationDetails['venueName'];
+    });
   }
 
   void checkIfLiked() async {
@@ -191,55 +213,65 @@ class _LocationDescriptionState extends State<LocationDescription> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                widget.locationName, // Place's name
-                                style: const TextStyle(
-                                  fontSize: 24.0,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Roboto',
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  locationName ?? 'Loading location name...',
+                                  style: const TextStyle(
+                                    fontSize: 24.0,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'Roboto',
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              const SizedBox(height: 8.0),
-                              const Divider(), // Divider line
-                              const SizedBox(height: 8.0),
-                              InkWell(
-                                  onTap: () {
-                                    _launchMaps(context, venueAddress);
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      const Icon(
-                                        Icons.location_on, // Location icon
-                                        color: Colors.grey, // Icon color
-                                        size: 20.0, // Icon size
-                                      ),
-                                      const SizedBox(
-                                          width:
-                                              8.0), // Spacing between icon and text
-                                      Flexible(
-                                        // Wrap Text in Flexible
-                                        child: Text(
-                                          venueAddress, // Place's address
-                                          style: const TextStyle(
-                                            fontSize: 13.0,
-                                            fontWeight: FontWeight.normal,
-                                            fontFamily: 'Roboto',
-                                          ),
-                                          overflow: TextOverflow
-                                              .ellipsis, // Add this line to handle overflow
-                                          softWrap:
-                                              true, // Allow text to wrap onto the next line
-                                        ),
-                                      ),
-                                    ],
-                                  ))
+                              IconButton(
+                                icon: const Icon(Icons.share),
+                                onPressed: () {
+                                  Share.share(
+                                      'Check out this venue: $locationName at https://approutes.vercel.app/venue/${widget.locationID}');
+                                },
+                              ),
                             ],
                           ),
                         ),
-                        // ),
+                        InkWell(
+                          onTap: () {
+                            _launchMaps(context, venueAddress);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0), // Adjust padding as needed
+                            child: Row(
+                              children: <Widget>[
+                                const Icon(
+                                  Icons.location_on, // Location icon
+                                  color: Colors.grey, // Icon color
+                                  size: 25.0, // Icon size
+                                ),
+                                const SizedBox(
+                                    width:
+                                        8.0), // Spacing between icon and text
+                                Expanded(
+                                  child: Text(
+                                    venueAddress, // Place's address
+                                    style: const TextStyle(
+                                      fontSize: 15.0,
+                                      fontWeight: FontWeight.normal,
+                                      fontFamily: 'Roboto',
+                                    ),
+                                    overflow: TextOverflow
+                                        .ellipsis, // Handle text overflow
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
                         const Padding(
                           padding: EdgeInsets.only(
                               left: 30.0, top: 20.0, right: 4.0, bottom: 4.0),
@@ -325,7 +357,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
                                 context,
                                 MaterialPageRoute(builder: (context) {
                                   return UpcomingGamesList(
-                                    locationName: widget.locationName,
+                                    locationName: locationName!,
                                     venueID: widget.locationID,
                                   );
                                 }),
@@ -364,7 +396,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
                         ),
                         Padding(
                           padding: const EdgeInsets.only(
-                              left: 16.0, right: 16.0, bottom: 16.0),
+                              left: 16.0, right: 16.0, bottom: 50.0),
                           child: Text(
                             venueDescription, // Description text
                             style: const TextStyle(
