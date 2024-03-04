@@ -138,14 +138,19 @@ class _GamesScreenState extends State<GamesScreen> {
                 return ListView.builder(
                   itemCount: gameInfo.length,
                   itemBuilder: (context, index) {
-                    var game = gameInfo[index];
+                    var gameDetails = gameInfo[index];
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 4.0), // Increased vertical padding
                       child: Container(
+                        margin: const EdgeInsets.only(
+                            bottom:
+                                16.0), // Added bottom margin for more spacing
                         height: 310,
                         child: GameTile(
-                          gameID: game['id'],
-                          locationID: game['venueId'],
+                          gameID: gameDetails['id'],
+                          locationID: gameDetails['venueId'],
                         ),
                       ),
                     );

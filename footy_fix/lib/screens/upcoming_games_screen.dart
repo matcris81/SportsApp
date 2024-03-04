@@ -56,14 +56,19 @@ class _UpcomingGamesListState extends State<UpcomingGamesList> {
             itemBuilder: (context, index) {
               var gameDetails = games[index];
               return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Container(
-                    height: 310,
-                    child: GameTile(
-                      gameID: gameDetails['id'],
-                      locationID: gameDetails['venueId'],
-                    ),
-                  ));
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 4.0), // Increased vertical padding
+                child: Container(
+                  margin: const EdgeInsets.only(
+                      bottom: 16.0), // Added bottom margin for more spacing
+                  height: 310,
+                  child: GameTile(
+                    gameID: gameDetails['id'],
+                    locationID: gameDetails['venueId'],
+                  ),
+                ),
+              );
             },
           );
         },

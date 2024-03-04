@@ -16,9 +16,7 @@ final GoRouter appRoutes = GoRouter(
           GoRoute(
             path: 'game/:gameId',
             builder: (BuildContext context, GoRouterState state) {
-              print('inside');
               final gameId = state.pathParameters['gameId'];
-              print('gameId: $gameId');
               final id = int.parse(gameId!);
               return GameDescription(
                 gameID: id,
@@ -28,10 +26,8 @@ final GoRouter appRoutes = GoRouter(
           GoRoute(
             path: 'venue/:venueId',
             builder: (BuildContext context, GoRouterState state) {
-              print('wagwan');
               final venueId = state.pathParameters['venueId'];
               final id = int.parse(venueId!);
-              print('Venue ID: $id');
               return LocationDescription(
                 locationID: id,
               );

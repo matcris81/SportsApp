@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:955778873823:android:2b90c5cdce45af7d41ec6a",
         "android_client_info": {
-          "package_name": "com.example.footy_fix"
+          "package_name": "com.kaido.footy_fix"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "955778873823-a82asu6781g0iaqoh1keh57pek2a9l60.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.footy_fix",
+            "package_name": "com.kaido.footy_fix",
             "certificate_hash": "1934d6cd8054855365223caa54ff698b1e3ca111"
           }
         },

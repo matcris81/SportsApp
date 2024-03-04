@@ -77,14 +77,21 @@ class GameTile extends StatelessWidget {
     return FutureBuilder<Map<String, dynamic>>(
       future: fetchGameDetails(gameID),
       builder: (context, snapshot) {
+        Widget content;
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
+          content = const SizedBox(
+            height: 200,
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
         }
         if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         }
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Text('Game details not found');
+          return const SizedBox(
+              height: 200, child: Center(child: const Text('Loading...')));
         }
 
         var gameDetails = snapshot.data!;
@@ -103,9 +110,13 @@ class GameTile extends StatelessWidget {
         return FutureBuilder<bool>(
             future: hasPlayerJoined(gameID.toString()),
             builder: (context, hasJoinedSnapshot) {
-              if (hasJoinedSnapshot.connectionState ==
-                  ConnectionState.waiting) {
-                return CircularProgressIndicator();
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                content = const SizedBox(
+                  height: 200,
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
               }
 
               if (hasJoinedSnapshot.hasError) {
