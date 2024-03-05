@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:footy_fix/services/database_services.dart';
 
 class LocationTile extends StatelessWidget {
   final String locationName;
@@ -9,6 +12,7 @@ class LocationTile extends StatelessWidget {
   final double opacity;
   final bool showDistance; // New flag to control distance display
   final bool showRating;
+  final int? imageId;
 
   LocationTile({
     required this.locationName,
@@ -18,19 +22,43 @@ class LocationTile extends StatelessWidget {
     this.showDistance = true,
     this.showRating = true,
     required this.opacity,
+    this.imageId,
   });
 
   @override
   Widget build(BuildContext context) {
-    String imagePath = 'assets/$locationName.jpg';
-    String fallbackImagePath = 'assets/standInVenueImage.jpg';
+    // String imagePath = 'assets/$locationName.jpg';
+    // String fallbackImagePath = 'assets/standInVenueImage.jpg';
 
-    Future<bool> _checkImageExists(String path) async {
-      try {
-        await rootBundle.load(path);
-        return true; // Image exists
-      } catch (_) {
-        return false; // Image does not exist
+    // Future<bool> _checkImageExists(String path) async {
+    //   try {
+    //     await rootBundle.load(path);
+    //     return true;
+    //   } catch (_) {
+    //     return false;
+    //   }
+    // }
+
+    Future<Uint8List> fetchVenueImageData(int imageId) async {
+      var token =
+          await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+      print('whats goin on? $imageId');
+
+      var imageResponse = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/images/$imageId',
+        token,
+      );
+
+      var imageData = jsonDecode(imageResponse.body);
+
+      if (imageData['imageData'] != null) {
+        String base64String = imageData['imageData'];
+        Uint8List imageBytes = base64Decode(base64String);
+        return imageBytes;
+      } else {
+        ByteData bytes = await rootBundle.load('assets/standInVenueImage.jpg');
+        return bytes.buffer.asUint8List();
       }
     }
 
@@ -46,50 +74,44 @@ class LocationTile extends StatelessWidget {
           child: Stack(
             alignment: Alignment.bottomLeft,
             children: <Widget>[
-              FutureBuilder<bool>(
-                future: _checkImageExists(imagePath),
-                builder: (context, snapshot) {
-                  if (snapshot.data ?? false) {
-                    return Stack(
-                      children: <Widget>[
+              FutureBuilder<Uint8List>(
+                future: imageId != null
+                    ? fetchVenueImageData(imageId!)
+                    : Future.value(null),
+                builder:
+                    (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
+                  return Stack(
+                    children: <Widget>[
+                      if (snapshot.connectionState == ConnectionState.done &&
+                          snapshot.hasData)
+                        Image.memory(
+                          snapshot.data!,
+                          fit: BoxFit.cover,
+                          height: 200,
+                          width: double.infinity,
+                        )
+                      else
                         Image.asset(
-                          snapshot.data ?? false
-                              ? imagePath
-                              : fallbackImagePath,
+                          'assets/standInVenueImage.jpg',
                           fit: BoxFit.cover,
                           height: 200,
                           width: double.infinity,
                         ),
-                        Container(
+                      // Semi-transparent overlay
+                      Container(
+                        height: 200,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
                           color: Colors.black
-                              .withOpacity(opacity), // Adjust opacity as needed
-                          height: 200,
-                          width: double.infinity,
+                              .withOpacity(0.5), // Adjust the opacity as needed
                         ),
-                      ],
-                    );
-                  } else {
-                    return Stack(
-                      children: <Widget>[
-                        Image.asset(
-                          snapshot.data ?? false
-                              ? imagePath
-                              : fallbackImagePath,
-                          fit: BoxFit.cover,
-                          height: 200,
-                          width: double.infinity,
-                        ),
-                        Container(
-                          color: Colors.black
-                              .withOpacity(0.35), // Adjust opacity as needed
-                          height: 200,
-                          width: double.infinity,
-                        ),
-                      ],
-                    );
-                  }
+                      ),
+                      // Rest of your Stack content like Text and rating overlay
+                    ],
+                  );
                 },
               ),
+
               // Text and rating overlay
               Positioned(
                 left: 8.0,

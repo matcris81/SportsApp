@@ -42,6 +42,7 @@ class _SearchScreenState extends State<SearchScreen> {
         int id = venue['id'];
         String venueName = venue['venueName'];
         String address = venue['address'];
+        int imageId = venue['imageId'];
 
         // get address coordinates
         Map<double, double>? coordinates =
@@ -62,7 +63,8 @@ class _SearchScreenState extends State<SearchScreen> {
         // Create an inner map with id and address
         Map<String, dynamic> details = {
           'name': venueName,
-          'distance': distance
+          'distance': distance,
+          'imageId': imageId,
         };
 
         // Add the inner map to the outer map with the venueName as key
@@ -107,6 +109,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     String id = snapshot.data!.keys.elementAt(index);
                     String venueName = snapshot.data![id]!['name'];
                     double distance = snapshot.data![id]!['distance'];
+                    int imageId = snapshot.data![id]!['imageId'];
 
                     return Container(
                       margin: const EdgeInsets.symmetric(vertical: 5),
@@ -114,6 +117,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         locationName: venueName,
                         distance: distance,
                         opacity: 0.4,
+                        imageId: imageId,
                         onTap: () {
                           Navigator.push(context, MaterialPageRoute(
                             builder: (context) {
@@ -123,7 +127,6 @@ class _SearchScreenState extends State<SearchScreen> {
                             },
                           ));
                         },
-                        // Other parameters
                       ),
                     );
                   },
