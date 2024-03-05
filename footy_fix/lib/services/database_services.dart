@@ -5,6 +5,7 @@ class DatabaseServices {
   // String backendUrl = 'http://10.0.2.2:4242';
   String backendUrl = 'http://localhost:4242';
   // String backendUrl = 'http://192.168.3.11:4242';
+  // String backendUrl = 'https://kaido.tk/';
 
   Future<http.Response> fetchData(String url) async {
     final response = await http.get(Uri.parse(url));
@@ -19,6 +20,7 @@ class DatabaseServices {
 
   Future<String> authenticateAndGetToken(
       String username, String password) async {
+    // var url = Uri.parse('https://kaido.tk/api/authenticate');
     var url = Uri.parse('http://localhost:4242/api/authenticate');
 
     // var url = Uri.parse('http://192.168.3.11:4242/api/authenticate');

@@ -15,16 +15,16 @@ if (localPropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
+    flutterVersionCode = '3'
 }
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
+    flutterVersionName = '3.0'
 }
 
 android {
-    namespace "com.example.footy_fix"
+    namespace "com.kaido.footy_fix"
     // IF IT DOESNT WORK ON ANDROID COULD BE THIS PROBLEM LOL
     // compileSdkVersion flutter.compileSdkVersion
     compileSdkVersion 34
@@ -46,7 +46,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.example.footy_fix"
+        applicationId "com.kaido.footy_fix"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion 21
@@ -55,11 +55,20 @@ android {
         versionName flutterVersionName
     }
 
+    signingConfigs {
+        release {
+            keyAlias 'kaido'
+            keyPassword 'Lewandowski9'
+            storeFile file('../keystores/fitFeat.keystore')
+            storePassword 'Lewandowski9'
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
     }
 }
