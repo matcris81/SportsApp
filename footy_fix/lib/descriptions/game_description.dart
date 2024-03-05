@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
+import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/screens/game_players_screen.dart';
@@ -47,6 +47,7 @@ class _GameDescriptionState extends State<GameDescription> {
   bool userAlreadyJoined = false;
   String? sport;
   int? organizerImageID;
+  int fakePlayers = 0;
 
   @override
   void initState() {
@@ -67,6 +68,8 @@ class _GameDescriptionState extends State<GameDescription> {
 
       checkIfUserAlreadyJoined(players, id!);
 
+      print('gameInfo: $gameInfo');
+
       setState(() {
         userID = id;
         venueName = gameInfo['venueName'];
@@ -77,6 +80,7 @@ class _GameDescriptionState extends State<GameDescription> {
         var date = gameInfo['gameDate'];
         organizer = gameInfo['organizer_username'];
         organizerImageID = gameInfo['organizer_image_id'];
+        fakePlayers = gameInfo['fakePlayers'];
 
         DateTime parsedDate = DateTime.parse(date);
         time = DateFormat('HH:mm:ss').format(parsedDate);
@@ -121,10 +125,8 @@ class _GameDescriptionState extends State<GameDescription> {
                 ),
                 leading: IconButton(
                   icon: const CircleAvatar(
-                    backgroundColor:
-                        Colors.white, // Background color of the circle
-                    child: Icon(Icons.arrow_back,
-                        color: Colors.black), // Black arrow icon
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.arrow_back, color: Colors.black),
                   ),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
@@ -166,11 +168,9 @@ class _GameDescriptionState extends State<GameDescription> {
                                       return CircleAvatar(
                                         backgroundImage:
                                             MemoryImage(imageBytes),
-                                        radius:
-                                            20.0, // Adjust the size as needed
+                                        radius: 20.0,
                                       );
                                     } else {
-                                      // Display a placeholder or a default image while loading or if the image is not available
                                       return const CircleAvatar(
                                         backgroundColor: Colors.grey,
                                         radius: 20.0,
@@ -228,13 +228,21 @@ class _GameDescriptionState extends State<GameDescription> {
                             color: Colors.black, // Adjust the color as needed
                           ),
                           const SizedBox(width: 10),
-                          Text(
-                            "$numberOfPlayers/$size players",
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.black,
-                            ),
-                          ),
+                          numberOfPlayers < fakePlayers
+                              ? Text(
+                                  '$fakePlayers/$size spots left',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              : Text(
+                                  '$numberOfPlayers/$size spots left',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -305,15 +313,23 @@ class _GameDescriptionState extends State<GameDescription> {
                         children: <Widget>[
                           Row(
                             children: [
-                              _buildPlayerIconsRow(),
+                              if (players.isNotEmpty)
+                                _buildPlayerIconsRow()
+                              else
+                                const Text(
+                                  'Be the firs to join',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                      fontStyle: FontStyle.italic),
+                                ),
                             ],
                           ),
                         ],
                       ),
                       const SizedBox(height: 30),
                       Container(
-                        padding:
-                            EdgeInsets.all(10.0), // Adjust padding as needed
+                        padding: const EdgeInsets.all(10.0),
                         decoration: BoxDecoration(
                           color: Colors.black,
                           borderRadius: BorderRadius.circular(10.0),
@@ -358,78 +374,95 @@ class _GameDescriptionState extends State<GameDescription> {
   }
 
   Widget _buildPlayerIconsRow() {
-    int maxIconsToShow = 10; // Maximum number of icons to show
-    double overlap = 20.0; // Amount of overlap between icons in pixels
+    int maxIconsToShow = 10;
+    double overlap = 20.0;
 
-    List<Widget> playerIcons = List.generate(players.length, (index) {
-      // Calculate the left position for each icon, overlapping them as necessary
-      double leftPosition = index *
-          (40.0 - overlap); // 40.0 is the icon diameter including padding
+    // Start with an empty list of icon widgets
+    List<Widget> iconWidgets = [];
 
-      // Check if the player has a playerImage
-      var playerImage = players[index]['playerImage'];
-      Widget playerIconWidget;
+    // Calculate the total number of icons needed (up to 10)
+    int totalIconsNeeded = min(numberOfPlayers + fakePlayers, maxIconsToShow);
 
-      if (playerImage != null) {
-        String playerImageId = playerImage['id'].toString();
-        playerIconWidget = FutureBuilder<String?>(
-          future: fetchImageData(playerImageId), // Fetch the image data
-          builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
-            if (snapshot.connectionState == ConnectionState.done &&
-                snapshot.hasData) {
-              Map<String, dynamic> playerImageDetails =
-                  jsonDecode(snapshot.data!);
-              Uint8List imageBytes =
-                  base64Decode(playerImageDetails['imageData']);
-              return CircleAvatar(
-                backgroundImage: MemoryImage(imageBytes),
-                radius: 20.0,
-              );
-            } else {
-              // Display a placeholder while loading or if no image
-              return CircleAvatar(
-                backgroundColor: Colors.grey,
-                radius: 20.0,
-                child: Icon(Icons.person, color: Colors.white),
-              );
-            }
-          },
-        );
+    // Loop to create icon widgets for each player (real or fake)
+    for (int i = 0; i < totalIconsNeeded; i++) {
+      Widget iconWidget;
+
+      // Check if the current index is for a real player with an image
+      if (i < numberOfPlayers && players[i]['playerImage'] != null) {
+        iconWidget = _buildPlayerIcon(players[i], i * (40.0 - overlap));
       } else {
-        // Display a default avatar if no playerImage is available
-        playerIconWidget = CircleAvatar(
-          backgroundColor: Colors.grey,
-          radius: 20.0,
-          child: Icon(Icons.person, color: Colors.white),
-        );
+        // Use the default (fake player) icon for fake players or real players without an image
+        iconWidget = _buildDefaultPlayerIcon(i * (40.0 - overlap));
       }
 
-      // Use Positioned to adjust the icon's position within the Stack
-      return Positioned(
-        left: leftPosition,
-        child: playerIconWidget,
-      );
-    }).toList();
-
-    // Ensure the list of icons does not exceed the maximum number to display
-    if (playerIcons.length > maxIconsToShow) {
-      playerIcons = playerIcons.take(maxIconsToShow).toList();
+      iconWidgets.add(iconWidget);
     }
 
-    // Calculate the width of the Stack based on the number of icons and overlap
-    double stackWidth = players.length * (40.0 - overlap) + overlap;
+    double stackWidth = iconWidgets.length * (40.0 - overlap) + overlap;
 
     return SizedBox(
-      height: 40.0, // Height of the icons
-      width: stackWidth, // Dynamic width based on the number of icons
+      height: 40.0,
+      width: stackWidth,
       child: Stack(
-        children: playerIcons,
+        children: iconWidgets,
+      ),
+    );
+  }
+
+  Widget _buildPlayerIcon(dynamic player, double leftPosition) {
+    // Build the player icon with an image
+    return Positioned(
+      left: leftPosition,
+      child: FutureBuilder<String?>(
+        future: fetchImageData(player['playerImage']['id'].toString()),
+        builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done &&
+              snapshot.hasData) {
+            Map<String, dynamic> playerImageDetails =
+                jsonDecode(snapshot.data!);
+            Uint8List imageBytes =
+                base64Decode(playerImageDetails['imageData']);
+            return CircleAvatar(
+              backgroundImage: MemoryImage(imageBytes),
+              radius: 20.0,
+            );
+          } else {
+            return const CircleAvatar(
+              backgroundColor: Colors.grey,
+              radius: 20.0,
+              child: Icon(Icons.person, color: Colors.white),
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildDefaultPlayerIcon(double leftPosition) {
+    // Build a default icon for fake players or real players without an image
+    return Positioned(
+      left: leftPosition,
+      child: const CircleAvatar(
+        backgroundColor: Colors.grey, // You can customize the color
+        radius: 20.0,
+        child: Icon(Icons.person, color: Colors.white),
+      ),
+    );
+  }
+
+// Method to build a fake player icon widget
+  Widget _buildFakePlayerIcon(double leftPosition) {
+    return Positioned(
+      left: leftPosition,
+      child: CircleAvatar(
+        backgroundColor: Colors.blueGrey, // Differentiate fake players
+        radius: 20.0,
+        child: Icon(Icons.person_outline, color: Colors.white),
       ),
     );
   }
 
   Future<String?> fetchImageData(String playerImageId) async {
-    // Assuming you have a method in your DatabaseServices class to fetch image data
     var token =
         await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
@@ -439,17 +472,12 @@ class _GameDescriptionState extends State<GameDescription> {
           token);
 
       if (response.statusCode == 200) {
-        // If the server did return a 200 OK response,
-        // then parse the JSON. Assuming the body contains the image data directly.
         return response.body;
       } else {
-        // If the server did not return a 200 OK response,
-        // then throw an exception.
         print('Failed to load image data');
         return null;
       }
     } catch (exception) {
-      // If something went wrong with the request, log the error
       print('Exception fetching image data: $exception');
       return null;
     }
@@ -459,13 +487,13 @@ class _GameDescriptionState extends State<GameDescription> {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
       decoration: BoxDecoration(
-        color: Colors.white, // Set the background color to white
+        color: Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.5),
             spreadRadius: 2,
             blurRadius: 7,
-            offset: Offset(0, 3), // changes position of shadow
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -481,8 +509,8 @@ class _GameDescriptionState extends State<GameDescription> {
               borderRadius: BorderRadius.circular(30.0),
               side: const BorderSide(color: Colors.white, width: 2),
             ),
-            child: const Icon(Icons.message, color: Colors.black),
             heroTag: 'messageFAB', // Unique tag for this FAB
+            child: const Icon(Icons.message, color: Colors.black),
           ),
           const SizedBox(width: 10),
           FloatingActionButton(
@@ -495,8 +523,8 @@ class _GameDescriptionState extends State<GameDescription> {
               borderRadius: BorderRadius.circular(30.0),
               side: const BorderSide(color: Colors.white, width: 2),
             ),
-            child: const Icon(Icons.ios_share, color: Colors.black),
             heroTag: 'shareFAB', // Unique tag for this FAB
+            child: const Icon(Icons.ios_share, color: Colors.black),
           ),
           const SizedBox(width: 10),
           Container(

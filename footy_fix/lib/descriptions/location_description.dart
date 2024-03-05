@@ -164,7 +164,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
               print('description: ${snapshot.data}');
               // Extracting fields from the row
               var venueAddress = venueRow['address'];
-              var venueDescription = 'description';
+              var venueDescription = venueRow['description'];
 
               return CustomScrollView(
                 slivers: [

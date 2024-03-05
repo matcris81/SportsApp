@@ -28,6 +28,16 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     GeolocatorService().determinePosition();
     _retrieveUserId();
+    getEntity();
+  }
+
+  Future<void> getEntity() async {
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    var response = await DatabaseServices()
+        .getData('${DatabaseServices().backendUrl}/api/games', token);
+    print('response.bod: ${response.body}');
   }
 
   Future<void> _retrieveUserId() async {

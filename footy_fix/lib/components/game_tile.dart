@@ -103,7 +103,8 @@ class GameTile extends StatelessWidget {
             DateFormat('MMM').format(dateTime).toUpperCase();
         var time = DateFormat('HH:mm:ss').format(dateTime);
         var playersJoined = gameDetails['playerCount'];
-        print('playersJoined: $playersJoined');
+        var fakePlayers = gameDetails['fakePlayers'];
+        print('gameDetails: $gameDetails');
         var size = gameDetails['size'];
         var price = gameDetails['price'];
 
@@ -215,13 +216,21 @@ class GameTile extends StatelessWidget {
                             const SizedBox(height: 4),
                             if (!payment) const Divider(),
                             if (!payment)
-                              Text(
-                                '$playersJoined/$size spots left',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              playersJoined < fakePlayers
+                                  ? Text(
+                                      '$fakePlayers/$size spots left',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )
+                                  : Text(
+                                      '$playersJoined/$size spots left',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                           ],
                         ),
                       ),

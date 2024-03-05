@@ -24,6 +24,7 @@ class _AddEventState extends State<AddEvent> {
   String description = '';
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
+  int? playersAlreadyJoined;
 
   Future<void> _selectTime(BuildContext context) async {
     // Initialize tempPickedTime with the current selectedTime or the current time
@@ -271,6 +272,19 @@ class _AddEventState extends State<AddEvent> {
                           : 'Time: ${timeOfDayToString(selectedTime!)}',
                       onPressed: () => _selectTime(context),
                     ),
+                    _buildInvisibleTextField(
+                      label: 'Players joined',
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty)
+                          return 'Please enter Number of Players that have joined';
+                        if (int.tryParse(value) == null)
+                          return 'Please enter a valid number';
+                        return null;
+                      },
+                      onSaved: (value) =>
+                          playersAlreadyJoined = int.parse(value!),
+                    ),
                     const SizedBox(height: 16.0),
                     _buildInvisibleTextField(
                       label: 'Description',
@@ -315,9 +329,10 @@ class _AddEventState extends State<AddEvent> {
                             'size': size,
                             'price': price,
                             'organizer': {'id': userID},
+                            'fakePlayers': playersAlreadyJoined,
                           };
 
-                          print('game: $game');
+                          print('playersAlreadyJoined: $playersAlreadyJoined');
 
                           await DatabaseServices().postData(
                               '${DatabaseServices().backendUrl}/api/games',
@@ -355,7 +370,7 @@ class _AddEventState extends State<AddEvent> {
     return TextFormField(
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(
+        labelStyle: const TextStyle(
           color: Colors.black, // Set label color to black
           fontWeight: FontWeight.w500, // Set font weight
         ),
@@ -369,7 +384,7 @@ class _AddEventState extends State<AddEvent> {
                   .black), // Set border color to black when field is focused
         ),
       ),
-      style: TextStyle(
+      style: const TextStyle(
         fontWeight: FontWeight.w500, // Set font weight for input text
         color: Colors.black, // Set input text color to black
       ),
@@ -386,7 +401,7 @@ class _AddEventState extends State<AddEvent> {
     IconData? icon,
   }) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         border: Border(
             bottom:
                 BorderSide(color: Colors.black, width: 1)), // Add bottom border
