@@ -117,7 +117,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                   child: CircleAvatar(
                     radius: 60,
-                    backgroundImage: MemoryImage(_profileImage ?? Uint8List(0)),
+                    backgroundColor:
+                        Colors.grey, // Background color for the CircleAvatar
+                    child: _profileImage != null
+                        ? CircleAvatar(
+                            radius:
+                                59, // Slightly smaller to create a border effect
+                            backgroundImage: MemoryImage(_profileImage!),
+                          )
+                        : const Icon(Icons.person,
+                            size: 60, color: Colors.white), // Default icon
                   ),
                 )),
                 const SizedBox(height: 50),
