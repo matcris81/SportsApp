@@ -3,9 +3,7 @@ import 'dart:typed_data';
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:footy_fix/screens/game_players_screen.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
-import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'dart:io' show Platform;
 import 'package:url_launcher/url_launcher.dart';
@@ -380,21 +378,26 @@ class _GameDescriptionState extends State<GameDescription> {
     // Start with an empty list of icon widgets
     List<Widget> iconWidgets = [];
 
-    // Calculate the total number of icons needed (up to 10)
-    int totalIconsNeeded = min(numberOfPlayers + fakePlayers, maxIconsToShow);
+    // Ensure the total number of player icons (real + fake) doesn't exceed maxIconsToShow
+    int realPlayersToShow = min(numberOfPlayers, maxIconsToShow);
+    int fakePlayersToShow = maxIconsToShow - realPlayersToShow;
 
-    // Loop to create icon widgets for each player (real or fake)
-    for (int i = 0; i < totalIconsNeeded; i++) {
+    // Add icons for real players
+    for (int i = 0; i < realPlayersToShow; i++) {
       Widget iconWidget;
-
-      // Check if the current index is for a real player with an image
-      if (i < numberOfPlayers && players[i]['playerImage'] != null) {
+      if (players[i]['playerImage'] != null) {
         iconWidget = _buildPlayerIcon(players[i], i * (40.0 - overlap));
       } else {
-        // Use the default (fake player) icon for fake players or real players without an image
+        // If a real player doesn't have an image, use the default icon
         iconWidget = _buildDefaultPlayerIcon(i * (40.0 - overlap));
       }
+      iconWidgets.add(iconWidget);
+    }
 
+    // Fill the remaining slots with fake player icons
+    for (int i = 0; i < fakePlayersToShow; i++) {
+      Widget iconWidget =
+          _buildFakePlayerIcon((realPlayersToShow + i) * (40.0 - overlap));
       iconWidgets.add(iconWidget);
     }
 

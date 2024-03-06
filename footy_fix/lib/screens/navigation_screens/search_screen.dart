@@ -39,10 +39,13 @@ class _SearchScreenState extends State<SearchScreen> {
       List<dynamic> venueList = json.decode(result.body);
 
       for (var venue in venueList) {
+        print('venue: $venue');
         int id = venue['id'];
         String venueName = venue['venueName'];
         String address = venue['address'];
-        int imageId = venue['imageId'];
+        int? imageId = venue['imageId'];
+
+        imageId ??= -1;
 
         // get address coordinates
         Map<double, double>? coordinates =
@@ -57,7 +60,6 @@ class _SearchScreenState extends State<SearchScreen> {
           );
 
           distance /= 1000; // Convert to km if necessary
-          // Handle the distance value as needed
         }
 
         // Create an inner map with id and address

@@ -1,5 +1,4 @@
-import 'dart:ffi';
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
@@ -9,14 +8,16 @@ import 'dart:io' show Platform;
 
 class PaymentScreen extends StatefulWidget {
   final double price;
-  final String label;
-  final int gameID;
+  final String? label;
+  final int? gameID;
+  final bool topUp;
 
   const PaymentScreen({
     Key? key,
     required this.price,
-    required this.label,
-    required this.gameID,
+    this.label,
+    this.gameID,
+    required this.topUp,
   }) : super(key: key);
 
   @override
@@ -26,14 +27,17 @@ class PaymentScreen extends StatefulWidget {
 class _PaymentScreenState extends State<PaymentScreen> {
   final _formKey = GlobalKey<FormState>(); // Add a key for the form
   int _selectedPriceIndex = -1; // Initial state, no selection
-  final List<double> _priceOptions = [0, 25, 50];
+  late List<double> priceOptions = [widget.price, 25, 50];
   String os = Platform.operatingSystem;
   late PaymentItem _paymentItem;
   List<PaymentItem> _paymentItems = [];
+  String? userID;
+  double? newPrice;
 
   @override
   void initState() {
     super.initState();
+    getUserId();
     // _paymentItems = [
     //   PaymentItem(
     //     label: widget.label,
@@ -46,6 +50,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!widget.topUp && _paymentItems.isEmpty) {
+      _paymentItems = [
+        PaymentItem(
+          label: widget.label ?? 'Payment',
+          amount: widget.price.toStringAsFixed(2),
+          status: PaymentItemStatus.final_price,
+        ),
+      ];
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -66,77 +80,66 @@ class _PaymentScreenState extends State<PaymentScreen> {
         padding: const EdgeInsets.all(15),
         child: Column(
           children: <Widget>[
-            const SizedBox(height: 15),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Amount",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Center(
-              child: Text(
-                "Select the amount you want to top up",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-            const SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(_priceOptions.length, (index) {
-                // 'index' is defined here, within the scope of this lambda function.
-                double price = _priceOptions[index];
-                bool isSelected = _selectedPriceIndex == index;
-                // The 'index' is accessible here, inside the lambda function.
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedPriceIndex = index;
-                      // Now update the payment items based on the selected price.
-                      _paymentItems = [
-                        PaymentItem(
-                          label: widget.label,
-                          amount: price == 0
-                              ? widget.price.toStringAsFixed(2)
-                              : price.toStringAsFixed(2),
-                          status: PaymentItemStatus.final_price,
+            if (widget.topUp) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: List.generate(priceOptions.length, (index) {
+                  newPrice = priceOptions[index];
+                  bool isSelected = _selectedPriceIndex == index;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedPriceIndex = index;
+                        newPrice = priceOptions[_selectedPriceIndex];
+                        _paymentItems = [
+                          PaymentItem(
+                            label: widget.label ?? 'Payment',
+                            amount: newPrice!.toStringAsFixed(2),
+                            status: PaymentItemStatus.final_price,
+                          ),
+                        ];
+                      });
+                    },
+                    child: Container(
+                      width: 80,
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.black : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                            color: isSelected ? Colors.blue : Colors.black),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      alignment: Alignment.center,
+                      child: Text(
+                        newPrice == 0 ? '\$${widget.price}' : '\$$newPrice',
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black,
+                          fontWeight: FontWeight.bold,
                         ),
-                        // Add more PaymentItems if necessary.
-                      ];
-                    });
-                  },
-                  child: Container(
-                    // Container properties...
-                    width: 80,
-                    decoration: BoxDecoration(
-                      color: isSelected ? Colors.black : Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                          color: isSelected ? Colors.blue : Colors.black),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    alignment: Alignment.center,
-                    child: Text(
-                      price == 0 ? '\$${widget.price}' : '\$$price',
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
+                  );
+                }),
+              ),
+            ] else ...[
+              Container(
+                width: 80,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.black),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                alignment: Alignment.center,
+                child: Text(
+                  '\$${widget.price.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
                   ),
-                );
-              }),
-            ),
-
+                ),
+              ),
+            ],
             const SizedBox(height: 30),
             const Center(
               child: Text(
@@ -161,14 +164,52 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ),
             ),
             const SizedBox(height: 10),
+            if (!widget.topUp)
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.black),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      processCreditPayment();
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.all(11.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.credit_card,
+                            size: 30,
+                            color: Colors.grey,
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            'Pay with credit',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            const SizedBox(height: 20),
             Platform.isIOS
                 ? Container(
                     padding: const EdgeInsets.all(2),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border:
-                          Border.all(color: Colors.black), // Add black border
+                      border: Border.all(color: Colors.black),
                     ),
                     child: ApplePayButton(
                       paymentConfiguration:
@@ -178,7 +219,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       width: double.infinity,
                       height: 50,
                       type: ApplePayButtonType.buy,
-                      onPaymentResult: onApplePayResult,
+                      onPaymentResult: payResult,
                       loadingIndicator:
                           const Center(child: CircularProgressIndicator()),
                     ),
@@ -203,7 +244,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     type: GooglePayButtonType.pay,
                     margin: const EdgeInsets.only(top: 15.0),
                     width: double.infinity,
-                    onPaymentResult: onGooglePayResult,
+                    onPaymentResult: payResult,
                     loadingIndicator: const Center(
                       child: CircularProgressIndicator(),
                     ),
@@ -221,7 +262,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: () {
-                    // Handle Apple Pay button tap
+                    showCreditCardInputForm();
                   },
                   child: const Padding(
                     padding: EdgeInsets.all(11.0),
@@ -254,47 +295,203 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  void onApplePayResult(Map<String, dynamic> result) async {
-    int count = 0;
-    var userID = await PreferencesService().getUserId();
+  Future<void> processCreditPayment() async {
+    print('Pay with Credit');
 
     var token =
         await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
-    var body = {
-      "id": userID,
-      "games": [
-        {
-          "id": widget.gameID,
-        }
-      ],
-    };
+    var response = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/players/$userID/balance', token);
 
-    DateTime now = DateTime.now().toUtc(); // Ensure it's in UTC
-    String formattedDateTime = '${now.toIso8601String().split('.')[0]}Z';
+    var balance = jsonDecode(response.body);
 
-    // NEED TO FIGURE OUT HOW TO DO STATUS
+    print('balance: $balance');
 
-    var paymentBody = {
-      "amount": widget.price,
-      "dateTime": formattedDateTime,
-      "status": "PENDING",
-      "player": {"id": userID}
-    };
+    var afterPaymentBalance = balance['balance'] - widget.price;
 
-    var response = await DatabaseServices().postData(
-        '${DatabaseServices().backendUrl}/api/payments', token, paymentBody);
+    if (afterPaymentBalance < 0) {
+      print('Not enough money');
+      return;
+    } else if (afterPaymentBalance >= 0) {
+      var body = {"id": userID, "balance": afterPaymentBalance};
 
-    var result = await DatabaseServices().patchData(
-        '${DatabaseServices().backendUrl}/api/players/$userID', token, body);
+      var money = await DatabaseServices().patchData(
+          '${DatabaseServices().backendUrl}/api/players/$userID', token, body);
+    }
+  }
 
+  void payResult(Map<String, dynamic>? result) async {
+    double amount = priceOptions[_selectedPriceIndex];
+
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    if (widget.topUp) {
+      var topUpBody = {
+        "id": userID,
+        "balance": amount,
+      };
+
+      var topupBalance = await DatabaseServices().patchData(
+          '${DatabaseServices().backendUrl}/api/players/$userID',
+          token,
+          topUpBody);
+    } else {
+      var body = {
+        "id": userID,
+        "games": [
+          {
+            "id": widget.gameID,
+          }
+        ],
+      };
+
+      DateTime now = DateTime.now().toUtc();
+      String formattedDateTime = '${now.toIso8601String().split('.')[0]}Z';
+
+      // NEED TO FIGURE OUT HOW TO DO STATUS
+
+      var paymentBody = {
+        "amount": amount,
+        "dateTime": formattedDateTime,
+        "status": "COMPLETED",
+        "player": {"id": userID}
+      };
+
+      var addPaymentResult = await DatabaseServices().postData(
+          '${DatabaseServices().backendUrl}/api/payments', token, paymentBody);
+
+      var addGameresult = await DatabaseServices().patchData(
+          '${DatabaseServices().backendUrl}/api/players/$userID', token, body);
+    }
+
+    int count = 0;
     Navigator.popUntil(context, (route) {
       return count++ == 2;
     });
   }
 
-  void onGooglePayResult(Map<String, dynamic> result) {
-    print("Apple Pay Result: $result");
+  // void payResult() async {
+  //   print('_selectedPriceIndex: $_selectedPriceIndex');
+  //   double amount = priceOptions[_selectedPriceIndex];
+
+  //   print('amountToSend: $amount');
+
+  //   var token =
+  //       await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+  //   if (widget.topUp) {
+  //     var topUpBody = {
+  //       "id": userID,
+  //       "balance": amount,
+  //     };
+
+  //     var topupBalance = await DatabaseServices().patchData(
+  //         '${DatabaseServices().backendUrl}/api/players/$userID',
+  //         token,
+  //         topUpBody);
+  //   } else {
+  //     var body = {
+  //       "id": userID,
+  //       "games": [
+  //         {
+  //           "id": widget.gameID,
+  //         }
+  //       ],
+  //     };
+
+  //     DateTime now = DateTime.now().toUtc();
+  //     String formattedDateTime = '${now.toIso8601String().split('.')[0]}Z';
+
+  //     // NEED TO FIGURE OUT HOW TO DO STATUS
+
+  //     var paymentBody = {
+  //       "amount": amount,
+  //       "dateTime": formattedDateTime,
+  //       "status": "COMPLETED",
+  //       "player": {"id": userID}
+  //     };
+
+  //     var addPaymentResult = await DatabaseServices().postData(
+  //         '${DatabaseServices().backendUrl}/api/payments', token, paymentBody);
+
+  //     var addGameresult = await DatabaseServices().patchData(
+  //         '${DatabaseServices().backendUrl}/api/players/$userID', token, body);
+  //   }
+
+  //   int count = 0;
+  //   Navigator.popUntil(context, (route) {
+  //     return count++ == 2;
+  //   });
+  // }
+
+  Future<void> getUserId() async {
+    String? id = await PreferencesService().getUserId();
+    setState(() {
+      userID = id;
+    });
+  }
+
+  void showCreditCardInputForm() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        double height = MediaQuery.of(context).size.height / 2;
+        return Container(
+          height: height,
+          padding: EdgeInsets.all(20),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Card Number',
+                    hintText: '1234 5678 9012 3456',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Expiration Date',
+                    hintText: 'MM/YY',
+                  ),
+                  keyboardType: TextInputType.datetime,
+                ),
+                const TextField(
+                  decoration: InputDecoration(
+                    labelText: 'CVV',
+                    hintText: '123',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Cardholder Name',
+                    hintText: 'John Doe',
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Map<String, dynamic> result = {};
+                    payResult(result);
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Pay'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   //   Future<void> presentApplePay(Map paymentItems) async {

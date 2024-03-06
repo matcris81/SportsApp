@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:footy_fix/screens/checkout_screen.dart';
 import 'package:footy_fix/screens/edit_profile_screen.dart';
 import 'package:footy_fix/screens/past_purchases_screen.dart';
+import 'package:footy_fix/screens/payment_screen.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -202,7 +204,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 30), // Spacer between buttons
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const PaymentScreen(
+                                  price: 10.0,
+                                  topUp: true,
+                                )));
+                    print("Top Up button pressed!");
+                  },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.green,
+                  ),
+                  child: const Text('Top Up Balance'),
+                ),
+                const SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
