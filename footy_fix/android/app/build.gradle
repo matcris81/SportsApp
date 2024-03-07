@@ -15,12 +15,12 @@ if (localPropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
-    flutterVersionCode = '3'
+    flutterVersionCode = '5'
 }
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
-    flutterVersionName = '3.0'
+    flutterVersionName = '5.0'
 }
 
 android {
@@ -57,7 +57,7 @@ android {
 
     signingConfigs {
         release {
-            keyAlias 'kaido'
+            keyAlias 'Kaido'
             keyPassword 'Lewandowski9'
             storeFile file('../keystores/fitFeat.keystore')
             storePassword 'Lewandowski9'

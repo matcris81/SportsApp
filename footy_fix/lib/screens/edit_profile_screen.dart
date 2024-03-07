@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:intl/intl.dart';
+import 'package:footy_fix/components/invisibleButton.dart';
+import 'package:footy_fix/services/auth_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
   @override
@@ -19,11 +21,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   int? phone;
   String _selectedGender = 'None';
   String? userID;
+  String? _genderValidationError;
 
   @override
   void initState() {
     super.initState();
     getUserID();
+  }
+
+  String? _validateGender(String? selectedGender) {
+    if (selectedGender == null || selectedGender == 'None') {
+      return 'Please select a gender';
+    }
+    return null; // null means valid
+  }
+
+// When validating (e.g., on form submission)
+  void _validateForm() {
+    setState(() {
+      _genderValidationError = _validateGender(_selectedGender);
+    });
+
+    if (_genderValidationError == null) {
+      // Proceed with form submission or further validation
+    }
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -82,33 +103,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
                       const SizedBox(height: 16.0),
-                      TextFormField(
-                        decoration: const InputDecoration(
-                          labelText: 'Email',
-                          border: OutlineInputBorder(),
-                        ),
-                        // validator: (value) {
-                        //   return null;
-                        // },
+                      _buildInvisibleTextField(
+                        label: 'Email',
+                        maxLines: 1,
                         onSaved: (value) => email = value,
                       ),
                       const SizedBox(height: 16.0),
-                      GestureDetector(
-                        onTap: () => _selectDate(context),
-                        child: AbsorbPointer(
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              labelText: 'Date of Birth',
-                              border: OutlineInputBorder(),
-                              suffixIcon: Icon(Icons.calendar_today),
-                            ),
-                            controller: TextEditingController(text: dob),
-                          ),
-                        ),
+                      buildCustomButton(
+                        label: dob != null && dob!.isNotEmpty
+                            ? dob!
+                            : 'Select Date of Birth',
+                        onPressed: () {
+                          _selectDate(context);
+                        },
+                        icon: Icons.calendar_today,
                       ),
                       const SizedBox(height: 16.0),
-                      GestureDetector(
-                        onTap: () {
+                      buildCustomButton(
+                        label: _selectedGender != 'None'
+                            ? _selectedGender
+                            : 'Select Gender',
+                        onPressed: () {
                           showCupertinoModalPopup(
                             context: context,
                             builder: (_) => SizedBox(
@@ -118,7 +133,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 backgroundColor: Colors.white,
                                 itemExtent: 30,
                                 scrollController: FixedExtentScrollController(
-                                  initialItem: genderElement,
+                                  initialItem:
+                                      genderOptions.indexOf(_selectedGender),
                                 ),
                                 children: genderOptions
                                     .map((gender) => Text(gender))
@@ -126,35 +142,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 onSelectedItemChanged: (int value) {
                                   setState(() {
                                     _selectedGender = genderOptions[value];
-                                    genderElement = value;
+                                    // Validate gender selection immediately upon change
+                                    _genderValidationError =
+                                        _validateGender(_selectedGender);
                                   });
                                 },
                               ),
                             ),
                           );
                         },
-                        child: AbsorbPointer(
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              labelText: 'Gender',
-                              border: OutlineInputBorder(),
-                              suffixIcon: Icon(Icons.arrow_drop_down),
-                            ),
-                            controller:
-                                TextEditingController(text: _selectedGender),
+                        icon: Icons.arrow_drop_down,
+                      ),
+                      if (_genderValidationError !=
+                          null) // Show error message if validation fails
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            _genderValidationError!,
+                            style: TextStyle(color: Colors.red, fontSize: 12),
                           ),
                         ),
-                      ),
                       const SizedBox(height: 16.0),
-                      TextFormField(
-                        decoration: const InputDecoration(
-                          labelText: 'Phone',
-                          border: OutlineInputBorder(),
-                        ),
-                        keyboardType: TextInputType.number,
-                        // validator: (value) {
-                        //   return null;
-                        // },
+                      _buildInvisibleTextField(
+                        label: 'Phone',
+                        maxLines: 3,
                         onSaved: (value) {
                           if (value != null && value.isNotEmpty) {
                             phone = int.parse(value);
@@ -173,6 +184,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                             if (email != null && email!.isNotEmpty) {
                               data['email'] = email;
+
+                              AuthService().updateUserEmail(data['email']);
                             }
 
                             if (dob != null && dob!.isNotEmpty) {
@@ -183,7 +196,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               data['phoneNumber'] = phone;
                             }
 
-                            data['gender'] = _selectedGender;
+                            data['gender'] = _selectedGender != 'None'
+                                ? _selectedGender
+                                : null;
 
                             var token = await DatabaseServices()
                                 .authenticateAndGetToken('admin', 'admin');
@@ -210,6 +225,41 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildInvisibleTextField({
+    required String label,
+    int maxLines = 1,
+    TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
+    void Function(String?)? onSaved,
+  }) {
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(
+          color: Colors.black, // Set label color to black
+          fontWeight: FontWeight.w500, // Set font weight
+        ),
+        enabledBorder: const UnderlineInputBorder(
+          borderSide:
+              BorderSide(color: Colors.black), // Set border color to black
+        ),
+        focusedBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(
+              color: Colors
+                  .black), // Set border color to black when field is focused
+        ),
+      ),
+      style: const TextStyle(
+        fontWeight: FontWeight.w500, // Set font weight for input text
+        color: Colors.black, // Set input text color to black
+      ),
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      validator: validator,
+      onSaved: onSaved,
     );
   }
 }

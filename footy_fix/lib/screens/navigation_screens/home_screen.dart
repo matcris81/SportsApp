@@ -31,19 +31,22 @@ class _HomeScreenState extends State<HomeScreen> {
     _retrieveUserIdandBalance();
   }
 
-  Future<double?> getUserBalance(String id) async {
+  Future<void> getUserBalance(String id) async {
     var token =
         await DatabaseServices().authenticateAndGetToken('admin', 'admin');
     var response = await DatabaseServices().getData(
         '${DatabaseServices().backendUrl}/api/players/$id/balance', token);
 
     if (response.statusCode == 200) {
+      print('balance: ${response.body}');
       var balanceJson = jsonDecode(response.body);
       double balance = balanceJson;
 
       setState(() {
         this.balance = balance;
       });
+    } else if (response.body.isEmpty) {
+      print('No balance');
     } else {
       throw Exception('Failed to load balance');
     }

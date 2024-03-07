@@ -306,12 +306,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     var balance = jsonDecode(response.body);
 
-    print('balance: $balance');
-
-    var afterPaymentBalance = balance['balance'] - widget.price;
+    var afterPaymentBalance = balance - widget.price;
 
     if (afterPaymentBalance < 0) {
-      print('Not enough money');
       return;
     } else if (afterPaymentBalance >= 0) {
       var body = {"id": userID, "balance": afterPaymentBalance};
