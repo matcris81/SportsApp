@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:footy_fix/descriptions/location_description.dart';
+import 'package:footy_fix/screens/navigation_screens/search_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:footy_fix/screens/start_screens/auth_page.dart';
 import 'package:footy_fix/descriptions/game_description.dart';
@@ -31,6 +32,12 @@ final GoRouter appRoutes = GoRouter(
               return LocationDescription(
                 locationID: id,
               );
+            },
+          ),
+          GoRoute(
+            path: 'search',
+            builder: (context, state) {
+              return const SearchScreen();
             },
           ),
         ]),

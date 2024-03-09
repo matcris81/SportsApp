@@ -253,7 +253,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
                                 icon: const Icon(Icons.share),
                                 onPressed: () {
                                   Share.share(
-                                      'Check out this venue: $locationName at https://approutes.vercel.app/venue/${widget.locationID}');
+                                      'Check out this venue: $locationName at https://kaido.tk/venue/${widget.locationID}');
                                 },
                               ),
                             ],
