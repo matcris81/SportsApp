@@ -104,7 +104,6 @@ class GameTile extends StatelessWidget {
         var time = DateFormat('HH:mm:ss').format(dateTime);
         var playersJoined = gameDetails['playerCount'];
         var fakePlayers = gameDetails['fakePlayers'];
-        print('gameDetails: $gameDetails');
         var size = gameDetails['size'];
         var price = gameDetails['price'];
 

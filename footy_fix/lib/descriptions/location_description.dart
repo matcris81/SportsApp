@@ -1,9 +1,12 @@
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/screens/upcoming_games_screen.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:footy_fix/components/game_tile.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io' show Platform;
@@ -11,14 +14,9 @@ import 'dart:convert';
 import 'package:footy_fix/services/notifications_services.dart';
 
 class LocationDescription extends StatefulWidget {
-  // final String locationName;
   final int locationID;
 
-  // Constructor to accept a string
-  const LocationDescription(
-      {Key? key,
-      // required this.locationName,
-      required this.locationID})
+  const LocationDescription({Key? key, required this.locationID})
       : super(key: key);
 
   @override
@@ -26,7 +24,7 @@ class LocationDescription extends StatefulWidget {
 }
 
 class _LocationDescriptionState extends State<LocationDescription> {
-  bool isHeartFilled = false; // Tracks if heart is filled or not
+  bool isHeartFilled = false;
   String? locationName;
 
   @override
@@ -44,6 +42,8 @@ class _LocationDescriptionState extends State<LocationDescription> {
     var response = await DatabaseServices().getData(
         '${DatabaseServices().backendUrl}/api/venues/${widget.locationID}',
         token);
+
+    print('Venue: ${response.body}');
 
     var locationDetails = json.decode(response.body);
 
@@ -89,9 +89,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
     };
 
     String url = '${DatabaseServices().backendUrl}/api/players/$userID';
-    // update user preferences and notifications if liked
     if (isHeartFilled) {
-      // remove venue from liked venues
       await DatabaseServices().patchData(
           '${DatabaseServices().backendUrl}/api/players/remove/$userID',
           token,
@@ -99,7 +97,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
 
       await FirebaseAPI().unsubscribeFromTopic('Venue${widget.locationID}');
     } else {
-      // add venue to liked venues
       await DatabaseServices().patchData(url, token, body);
       await FirebaseAPI().subscribeToTopic('Venue${widget.locationID}');
     }
@@ -126,7 +123,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
 
     // Check if the games list is empty
     if (earliestGame.isEmpty) {
-      return {}; // Or handle this case as per your application's logic
+      return {};
     }
 
     return earliestGame; // Return the earliest game
@@ -145,6 +142,11 @@ class _LocationDescriptionState extends State<LocationDescription> {
     return locationDetails;
   }
 
+  Widget currentImage = Image.asset(
+    'assets/albany.png',
+    fit: BoxFit.fitWidth,
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -159,47 +161,69 @@ class _LocationDescriptionState extends State<LocationDescription> {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              // Assuming that each row is a list of fields, and the first row is the venue
               var venueRow = snapshot.data!;
-              print('description: ${snapshot.data}');
-              // Extracting fields from the row
               var venueAddress = venueRow['address'];
               var venueDescription = venueRow['description'];
+              var imageId = venueRow['imageId'];
 
               return CustomScrollView(
                 slivers: [
                   SliverAppBar(
-                    // Your existing SliverAppBar properties
                     expandedHeight: 200.0,
                     floating: false,
                     pinned: true,
                     flexibleSpace: FlexibleSpaceBar(
-                      background: Image.asset(
-                        'assets/albany.png',
-                        fit: BoxFit.cover,
+                      background: Stack(
+                        children: <Widget>[
+                          GestureDetector(
+                            onTap: () {
+                              _pickImage();
+                            },
+                            child: Container(
+                              width: double.infinity,
+                              child: FutureBuilder<Uint8List>(
+                                future: fetchVenueImage(imageId),
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<Uint8List> snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return Image.asset('assets/albany.png',
+                                        fit: BoxFit.fitWidth);
+                                  } else if (snapshot.hasData) {
+                                    return Image.memory(snapshot.data!,
+                                        fit: BoxFit.fitWidth);
+                                  } else {
+                                    return Image.asset('assets/albany.png',
+                                        fit: BoxFit.fitWidth);
+                                  }
+                                },
+                              ),
+                            ),
+                          ),
+                          const Positioned(
+                            bottom: 20,
+                            right: 20,
+                            child: Icon(Icons.edit, color: Colors.white),
+                          ),
+                        ],
                       ),
                     ),
                     leading: IconButton(
                       icon: const CircleAvatar(
-                        backgroundColor:
-                            Colors.white, // Background color of the circle
-                        child: Icon(Icons.arrow_back,
-                            color: Colors.black), // Black arrow icon
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.arrow_back, color: Colors.black),
                       ),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                     actions: <Widget>[
                       IconButton(
                         icon: CircleAvatar(
-                          backgroundColor:
-                              Colors.white, // Background color of the circle
+                          backgroundColor: Colors.white,
                           child: Icon(
                             isHeartFilled
                                 ? Icons.favorite
                                 : Icons.favorite_border,
-                            color: isHeartFilled
-                                ? Colors.red
-                                : Colors.black, // Black heart icon
+                            color: isHeartFilled ? Colors.red : Colors.black,
                           ),
                         ),
                         onPressed: () {
@@ -243,52 +267,45 @@ class _LocationDescriptionState extends State<LocationDescription> {
                             _launchMaps(context, venueAddress);
                           },
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0), // Adjust padding as needed
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
                             child: Row(
                               children: <Widget>[
                                 const Icon(
-                                  Icons.location_on, // Location icon
-                                  color: Colors.grey, // Icon color
-                                  size: 25.0, // Icon size
+                                  Icons.location_on,
+                                  color: Colors.grey,
+                                  size: 25.0,
                                 ),
-                                const SizedBox(
-                                    width:
-                                        8.0), // Spacing between icon and text
+                                const SizedBox(width: 8.0),
                                 Expanded(
                                   child: Text(
-                                    venueAddress, // Place's address
+                                    venueAddress,
                                     style: const TextStyle(
                                       fontSize: 15.0,
                                       fontWeight: FontWeight.normal,
                                       fontFamily: 'Roboto',
                                     ),
-                                    overflow: TextOverflow
-                                        .ellipsis, // Handle text overflow
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ],
                             ),
                           ),
                         ),
-
                         const Padding(
                           padding: EdgeInsets.only(
                               left: 30.0, top: 20.0, right: 4.0, bottom: 4.0),
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              'Next Game', // Your title text here
+                              'Next Game',
                               style: TextStyle(
-                                fontSize:
-                                    15.0, // Adjust the font size as needed
-                                fontWeight: FontWeight
-                                    .bold, // Adjust the font weight as needed
+                                fontSize: 15.0,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ),
-                        // Inside your build method
                         FutureBuilder<Map<String, dynamic>>(
                           future: getNextUpcomingGame(),
                           builder: (context, snapshot) {
@@ -301,8 +318,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
                               return Center(
                                   child: Text('Error: ${snapshot.error}'));
                             }
-
-                            // print('snapshot.data: ${snapshot.data}');
 
                             if (!snapshot.hasData || snapshot.data!.isEmpty) {
                               return Container(
@@ -327,17 +342,16 @@ class _LocationDescriptionState extends State<LocationDescription> {
                               );
                             }
 
-                            // var gameRow = snapshot.data!.first;
                             var gameRow = snapshot.data!;
 
                             // Extract the game details from gameRow
                             var gameId = gameRow['id'];
 
                             return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0), // Add horizontal padding
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
                               child: Container(
-                                height: 310, // Adjust the height as necessary
+                                height: 310,
                                 child: GameTile(
                                   gameID: gameId,
                                   locationID: widget.locationID,
@@ -346,11 +360,9 @@ class _LocationDescriptionState extends State<LocationDescription> {
                             );
                           },
                         ),
-
                         const SizedBox(height: 20),
                         Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20.0), // Increase horizontal padding
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
                           child: ElevatedButton(
                             onPressed: () {
                               Navigator.push(
@@ -364,20 +376,15 @@ class _LocationDescriptionState extends State<LocationDescription> {
                               );
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors
-                                  .black, // Set the button's background color
-                              minimumSize: const Size(double.infinity,
-                                  50), // Button width will be the width of the parent minus padding
+                              backgroundColor: Colors.black,
+                              minimumSize: const Size(double.infinity, 50),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    15), // Less rounded corners
+                                borderRadius: BorderRadius.circular(15),
                               ),
                             ),
                             child: const Text(
                               'See Upcoming Games',
-                              style: TextStyle(
-                                  color:
-                                      Colors.white), // Set text color to white
+                              style: TextStyle(color: Colors.white),
                             ),
                           ),
                         ),
@@ -412,6 +419,68 @@ class _LocationDescriptionState extends State<LocationDescription> {
                 ],
               );
             }));
+  }
+
+  Future<Uint8List> fetchVenueImage(int imageId) async {
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    var imageResponse = await DatabaseServices().getData(
+      '${DatabaseServices().backendUrl}/api/images/$imageId',
+      token,
+    );
+
+    var imageUrl = json.decode(imageResponse.body)['imageData'];
+
+    Uint8List image = base64Decode(imageUrl);
+
+    return image; // Return the URL of the image
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery); // or ImageSource.camera
+
+    if (image != null) {
+      Uint8List imageBytes = await image.readAsBytes();
+
+      String base64Image = base64Encode(imageBytes);
+
+      Map<String, dynamic> imageData = {
+        'imageData': base64Image,
+      };
+
+      String token =
+          await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+      try {
+        var response = await DatabaseServices().postData(
+          '${DatabaseServices().backendUrl}/api/images',
+          token,
+          imageData,
+        );
+
+        var imageResponse = json.decode(response.body);
+
+        var imageID = imageResponse['imageId'];
+
+        var response2 = await DatabaseServices().patchData(
+            '${DatabaseServices().backendUrl}/api/venues/${widget.locationID}',
+            token, {
+          'id': widget.locationID,
+          'imageId': imageID,
+        });
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          print('Image uploaded successfully: ${response.body}');
+        } else {
+          print('Failed to upload image: ${response.statusCode}');
+        }
+      } catch (e) {
+        print('Error uploading image: $e');
+      }
+    }
   }
 
   void _showActionSheet(BuildContext context, String location) {

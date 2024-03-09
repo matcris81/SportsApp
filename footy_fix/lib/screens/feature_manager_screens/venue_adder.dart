@@ -94,11 +94,6 @@ class _AddVenueState extends State<AddVenue> {
                       onSaved: (value) => description = value!,
                     ),
                     const SizedBox(height: 24.0),
-                    _buildCustomButton(
-                      label: 'Add Image',
-                      onPressed: _pickImage,
-                    ),
-                    const SizedBox(height: 24.0),
                     ElevatedButton(
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
@@ -141,72 +136,6 @@ class _AddVenueState extends State<AddVenue> {
         ),
       ),
     );
-  }
-
-  Widget _buildCustomButton(
-      {required String label, required VoidCallback onPressed}) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.black,
-        backgroundColor: Colors.white,
-        textStyle: const TextStyle(
-          fontWeight: FontWeight.bold,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0),
-      ),
-      child: _venueImage == null
-          ? Text(label)
-          : Container(
-              width: double.infinity, // Use the full width of the button
-              height: 60, // Fixed height for the image
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.0),
-                image: DecorationImage(
-                  image: MemoryImage(_venueImage!),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-    );
-  }
-
-  Future<void> _pickImage() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(
-        source: ImageSource.gallery); // or ImageSource.camera
-
-    if (image != null) {
-      Uint8List imageBytes = await image.readAsBytes();
-
-      String base64Image = base64Encode(imageBytes);
-
-      Map<String, dynamic> imageData = {
-        'imageData': base64Image,
-      };
-
-      String token =
-          await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
-      try {
-        var response = await DatabaseServices().postData(
-          '${DatabaseServices().backendUrl}/api/images',
-          token,
-          imageData,
-        );
-
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          print('Image uploaded successfully: ${response.body}');
-        } else {
-          print('Failed to upload image: ${response.statusCode}');
-        }
-      } catch (e) {
-        print('Error uploading image: $e');
-      }
-    }
   }
 
   Widget _buildInvisibleTextField({

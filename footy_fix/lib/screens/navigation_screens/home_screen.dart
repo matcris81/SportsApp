@@ -235,7 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const Padding(
                   padding: EdgeInsets.all(10.0),
                   child: Text(
-                    'Your upcoming games', // NEED TO CHANGE THIS TO BE UPCOMING GAMES INSTEAD OF GAMES USERS HAVE JOINED
+                    'Your upcoming games',
                     style: TextStyle(
                       fontSize: 20, // Adjust the font size as needed
                       fontWeight: FontWeight.bold, // Makes the text bold
