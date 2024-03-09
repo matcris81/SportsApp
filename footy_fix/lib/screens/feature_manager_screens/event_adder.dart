@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:footy_fix/descriptions/game_description.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/screens/feature_manager_screens/select_venues_screen.dart';
@@ -27,6 +29,7 @@ class _AddEventState extends State<AddEvent> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
   int? playersAlreadyJoined;
+  bool _isSubmitting = false; // Add this line
 
   Future<void> _selectTime(BuildContext context) async {
     // Initialize tempPickedTime with the current selectedTime or the current time
@@ -137,9 +140,8 @@ class _AddEventState extends State<AddEvent> {
 
     for (var sportInfo in sportsResponse) {
       if (sportInfo['sportName'] == sport) {
-        // Assuming each sportInfo is a Map with a key 'sportName'
         sportExists = true;
-        sportId = sportInfo['id'].toString(); // Convert id to String if needed
+        sportId = sportInfo['id'].toString();
 
         break;
       }
@@ -315,21 +317,34 @@ class _AddEventState extends State<AddEvent> {
 
                           print('playersAlreadyJoined: $playersAlreadyJoined');
 
-                          await DatabaseServices().postData(
+                          var response = await DatabaseServices().postData(
                               '${DatabaseServices().backendUrl}/api/games',
                               token,
                               game);
 
+                          Map<String, dynamic> gameInfo =
+                              jsonDecode(response.body);
+
                           if (!mounted) return;
 
-                          Navigator.pop(context);
+                          if (!mounted) return;
+                          setState(() {
+                            _isSubmitting = false;
+                          });
+
+                          context.go('/game/${gameInfo['id']}');
                         }
                       },
-                      child: const Text('Submit Event'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
                       ),
+                      child: _isSubmitting
+                          ? const CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            )
+                          : const Text('Submit Event'),
                     ),
                   ],
                 ),

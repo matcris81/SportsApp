@@ -221,9 +221,9 @@ class _GameDescriptionState extends State<GameDescription> {
                       Row(
                         children: <Widget>[
                           const Icon(
-                            Icons.people, // Replace with your time icon
-                            size: 16, // Adjust the size as needed
-                            color: Colors.black, // Adjust the color as needed
+                            Icons.people,
+                            size: 16,
+                            color: Colors.black,
                           ),
                           const SizedBox(width: 10),
                           numberOfPlayers < fakePlayers
@@ -247,9 +247,9 @@ class _GameDescriptionState extends State<GameDescription> {
                       Row(
                         children: <Widget>[
                           const Icon(
-                            Icons.calendar_today, // Replace with your date icon
-                            size: 16, // Adjust the size as needed
-                            color: Colors.black, // Adjust the color as needed
+                            Icons.calendar_today,
+                            size: 16,
+                            color: Colors.black,
                           ),
                           const SizedBox(width: 10),
                           Text(
@@ -266,8 +266,8 @@ class _GameDescriptionState extends State<GameDescription> {
                         children: <Widget>[
                           const Icon(
                             Icons.access_time,
-                            size: 16, // Adjust the size as needed
-                            color: Colors.black, // Adjust the color as needed
+                            size: 16,
+                            color: Colors.black,
                           ),
                           const SizedBox(width: 10),
                           Text(
@@ -284,8 +284,8 @@ class _GameDescriptionState extends State<GameDescription> {
                         children: <Widget>[
                           const Icon(
                             Icons.location_on_outlined,
-                            size: 16, // Adjust the size as needed
-                            color: Colors.black, // Adjust the color as needed
+                            size: 16,
+                            color: Colors.black,
                           ),
                           const SizedBox(width: 10),
                           Text(
@@ -311,11 +311,11 @@ class _GameDescriptionState extends State<GameDescription> {
                         children: <Widget>[
                           Row(
                             children: [
-                              if (players.isNotEmpty)
+                              if (players.isNotEmpty || fakePlayers > 0)
                                 _buildPlayerIconsRow()
                               else
                                 const Text(
-                                  'Be the firs to join',
+                                  'Be the first to join',
                                   style: TextStyle(
                                       fontSize: 14,
                                       color: Colors.grey,
@@ -457,10 +457,10 @@ class _GameDescriptionState extends State<GameDescription> {
   Widget _buildFakePlayerIcon(double leftPosition) {
     return Positioned(
       left: leftPosition,
-      child: CircleAvatar(
-        backgroundColor: Colors.blueGrey, // Differentiate fake players
+      child: const CircleAvatar(
+        backgroundColor: Colors.grey, // You can customize the color
         radius: 20.0,
-        child: Icon(Icons.person_outline, color: Colors.white),
+        child: Icon(Icons.person, color: Colors.white),
       ),
     );
   }

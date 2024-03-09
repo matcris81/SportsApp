@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:footy_fix/screens/checkout_screen.dart';
 import 'package:footy_fix/screens/edit_profile_screen.dart';
 import 'package:footy_fix/screens/past_purchases_screen.dart';
@@ -81,54 +82,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         await _picker.pickImage(source: ImageSource.gallery);
 
                     if (image != null) {
-                      Uint8List imageBytes = await image.readAsBytes();
-                      String base64Image = base64Encode(imageBytes);
+                      // Compress the image
+                      var compressedImage =
+                          await FlutterImageCompress.compressWithFile(
+                        image.path,
+                        minWidth: 120,
+                        minHeight: 120,
+                        quality: 90,
+                      );
 
-                      setState(() {
-                        _profileImage = imageBytes;
-                      });
+                      if (compressedImage != null) {
+                        Uint8List imageBytes = compressedImage;
+                        String base64Image = base64Encode(imageBytes);
 
-                      Map<String, dynamic> imageBody = {
-                        'imageData': base64Image,
-                      };
+                        setState(() {
+                          _profileImage = imageBytes;
+                        });
 
-                      var token = await DatabaseServices()
-                          .authenticateAndGetToken('admin', 'admin');
+                        Map<String, dynamic> imageBody = {
+                          'imageData': base64Image,
+                        };
 
-                      var playerImage = await DatabaseServices().postData(
-                          '${DatabaseServices().backendUrl}/api/player-images',
-                          token,
-                          imageBody);
+                        var token = await DatabaseServices()
+                            .authenticateAndGetToken('admin', 'admin');
+                        var playerImage = await DatabaseServices().postData(
+                            '${DatabaseServices().backendUrl}/api/player-images',
+                            token,
+                            imageBody);
 
-                      Map<String, dynamic> playerImageID =
-                          jsonDecode(playerImage.body);
+                        Map<String, dynamic> playerImageID =
+                            jsonDecode(playerImage.body);
 
-                      Map<String, dynamic> body = {
-                        'id': userID,
-                        'playerImage': {
-                          'id': playerImageID['id'],
-                          'imageData': base64Image
-                        },
-                      };
+                        Map<String, dynamic> body = {
+                          'id': userID,
+                          'playerImage': {
+                            'id': playerImageID['id'],
+                            'imageData': base64Image
+                          },
+                        };
 
-                      var response = await DatabaseServices().patchData(
-                          '${DatabaseServices().backendUrl}/api/players/$userID',
-                          token,
-                          body);
+                        var response = await DatabaseServices().patchData(
+                            '${DatabaseServices().backendUrl}/api/players/$userID',
+                            token,
+                            body);
+                      } else {
+                        print("Image compression failed.");
+                      }
                     }
                   },
                   child: CircleAvatar(
                     radius: 60,
-                    backgroundColor:
-                        Colors.grey, // Background color for the CircleAvatar
+                    backgroundColor: Colors.grey,
                     child: _profileImage != null
                         ? CircleAvatar(
-                            radius:
-                                59, // Slightly smaller to create a border effect
+                            radius: 59,
                             backgroundImage: MemoryImage(_profileImage!),
                           )
                         : const Icon(Icons.person,
-                            size: 60, color: Colors.white), // Default icon
+                            size: 60, color: Colors.white),
                   ),
                 )),
                 const SizedBox(height: 50),

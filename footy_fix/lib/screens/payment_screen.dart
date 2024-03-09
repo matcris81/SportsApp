@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:footy_fix/screens/navigation_screens/home_screen.dart';
+import 'package:footy_fix/screens/start_screens/auth_page.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:pay/pay.dart';
@@ -308,14 +310,41 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     var afterPaymentBalance = balance - widget.price;
 
+    print('afterPaymentBalance: $afterPaymentBalance');
+
     if (afterPaymentBalance < 0) {
       return;
     } else if (afterPaymentBalance >= 0) {
-      var body = {"id": userID, "balance": afterPaymentBalance};
+      var balanceBody = {"amount": widget.price};
 
-      var money = await DatabaseServices().patchData(
-          '${DatabaseServices().backendUrl}/api/players/$userID', token, body);
+      print('balanceBody: $balanceBody');
+
+      var money = await DatabaseServices().patchDataWithoutMap(
+          '${DatabaseServices().backendUrl}/api/players/$userID/balance',
+          token,
+          widget.price);
+
+      var gameBody = {
+        "id": userID,
+        "games": [
+          {
+            "id": widget.gameID,
+          }
+        ],
+      };
+
+      var addGameresult = await DatabaseServices().patchData(
+          '${DatabaseServices().backendUrl}/api/players/$userID',
+          token,
+          gameBody);
     }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AuthPage(),
+      ),
+    );
   }
 
   void payResult(Map<String, dynamic>? result) async {
@@ -368,60 +397,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
       return count++ == 2;
     });
   }
-
-  // void payResult() async {
-  //   print('_selectedPriceIndex: $_selectedPriceIndex');
-  //   double amount = priceOptions[_selectedPriceIndex];
-
-  //   print('amountToSend: $amount');
-
-  //   var token =
-  //       await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
-  //   if (widget.topUp) {
-  //     var topUpBody = {
-  //       "id": userID,
-  //       "balance": amount,
-  //     };
-
-  //     var topupBalance = await DatabaseServices().patchData(
-  //         '${DatabaseServices().backendUrl}/api/players/$userID',
-  //         token,
-  //         topUpBody);
-  //   } else {
-  //     var body = {
-  //       "id": userID,
-  //       "games": [
-  //         {
-  //           "id": widget.gameID,
-  //         }
-  //       ],
-  //     };
-
-  //     DateTime now = DateTime.now().toUtc();
-  //     String formattedDateTime = '${now.toIso8601String().split('.')[0]}Z';
-
-  //     // NEED TO FIGURE OUT HOW TO DO STATUS
-
-  //     var paymentBody = {
-  //       "amount": amount,
-  //       "dateTime": formattedDateTime,
-  //       "status": "COMPLETED",
-  //       "player": {"id": userID}
-  //     };
-
-  //     var addPaymentResult = await DatabaseServices().postData(
-  //         '${DatabaseServices().backendUrl}/api/payments', token, paymentBody);
-
-  //     var addGameresult = await DatabaseServices().patchData(
-  //         '${DatabaseServices().backendUrl}/api/players/$userID', token, body);
-  //   }
-
-  //   int count = 0;
-  //   Navigator.popUntil(context, (route) {
-  //     return count++ == 2;
-  //   });
-  // }
 
   Future<void> getUserId() async {
     String? id = await PreferencesService().getUserId();
