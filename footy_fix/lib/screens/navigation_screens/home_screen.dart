@@ -22,29 +22,39 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String userID = '';
+  double balance = 0.0;
 
   @override
   void initState() {
     super.initState();
     GeolocatorService().determinePosition();
-    _retrieveUserId();
-    getEntity();
+    _retrieveUserIdandBalance();
   }
 
-  Future<void> getEntity() async {
+  Future<double?> getUserBalance(String id) async {
     var token =
         await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    var response = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/players/$id/balance', token);
 
-    var response = await DatabaseServices()
-        .getData('${DatabaseServices().backendUrl}/api/games', token);
-    print('response.bod: ${response.body}');
+    if (response.statusCode == 200) {
+      var balanceJson = jsonDecode(response.body);
+      double balance = balanceJson;
+
+      setState(() {
+        this.balance = balance;
+      });
+    } else {
+      throw Exception('Failed to load balance');
+    }
   }
 
-  Future<void> _retrieveUserId() async {
-    String? fetchedUserId = await PreferencesService().getUserId();
-    if (fetchedUserId != null) {
+  Future<void> _retrieveUserIdandBalance() async {
+    String? userId = await PreferencesService().getUserId();
+    if (userId != null) {
+      getUserBalance(userId);
       setState(() {
-        userID = fetchedUserId;
+        userID = userId;
       });
     }
   }
@@ -109,41 +119,42 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: TextStyle(color: Colors.black, fontSize: 20)),
             centerTitle: true,
             automaticallyImplyLeading: false,
-
-            // Add profile icon on the left
-            leading: IconButton(
-              icon: const Icon(Icons.account_circle, color: Colors.black),
-              iconSize: 30,
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const ProfileScreen()));
-              },
+            leadingWidth: 150,
+            leading: InkWell(
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ProfileScreen())),
+              child: Container(
+                margin: EdgeInsets.only(left: 20),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.account_circle, color: Colors.black, size: 30),
+                    Flexible(
+                      child: Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Text(
+                            '\$${balance.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                            // Continue with the rest of your Text widget properties
+                          )),
+                    ),
+                  ],
+                ),
+              ),
             ),
-
-            // Add bell icon on the right
-            // actions: <Widget>[
-            //   IconButton(
-            //     icon: const Icon(Icons.notifications, color: Colors.black),
-            //     iconSize: 30,
-            //     onPressed: () {
-            //       Navigator.push(
-            //           context,
-            //           MaterialPageRoute(
-            //               builder: (context) => const NotificationScreen()));
-            //     },
-            //   ),
-            // ],
             actions: <Widget>[
               IconButton(
                 icon: const Icon(Icons.logout_outlined, color: Colors.black),
                 iconSize: 30,
                 onPressed: () async {
                   await AuthService().signOut();
-
                   if (!mounted) return;
-
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const LoginPage()),
@@ -153,14 +164,27 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
 
-          backgroundColor: Colors.grey[200], // Set the background color to grey
+          // Add bell icon on the right
+          // actions: <Widget>[
+          //   IconButton(
+          //     icon: const Icon(Icons.notifications, color: Colors.black),
+          //     iconSize: 30,
+          //     onPressed: () {
+          //       Navigator.push(
+          //           context,
+          //           MaterialPageRoute(
+          //               builder: (context) => const NotificationScreen()));
+          //     },
+          //   ),
+          // ],
+
+          backgroundColor: Colors.grey[200],
           body: SingleChildScrollView(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment
-                  .start, // Aligns children to the start of the column
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.all(20.0),
                   child: ElevatedButton(
                     onPressed: () async {
                       Navigator.push(
@@ -184,9 +208,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Text(
                     'Liked Venues',
                     style: TextStyle(
-                      fontSize: 20, // Adjust the font size as needed
-                      fontWeight: FontWeight.bold, // Makes the text bold
-                      color: Colors.black, // Set the color of the text
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -194,7 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   future: fetchLikedVenues(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
+                      return const Center(child: CircularProgressIndicator());
                     }
 
                     if (snapshot.hasError) {
@@ -203,21 +227,29 @@ class _HomeScreenState extends State<HomeScreen> {
                     }
 
                     if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(child: Text('No liked venues found'));
+                      return const Center(child: Text('No liked venues found'));
                     }
 
                     return Container(
-                      height: 150, // Adjust the height as needed
+                      height: 150,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: snapshot.data!.length,
                         itemBuilder: (context, index) {
                           var venue = snapshot.data![index];
+                          int? imageId;
+
+                          if (venue['imageId'] == null) {
+                            print(venue['imageId']);
+                            imageId = -1;
+                          }
+
                           return LocationTile(
                             locationName: venue['venueName'],
                             showDistance: false,
                             showRating: false,
                             opacity: 0.4,
+                            imageId: imageId!,
                             onTap: () {
                               Navigator.push(
                                   context,
@@ -237,9 +269,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Text(
                     'Your upcoming games',
                     style: TextStyle(
-                      fontSize: 20, // Adjust the font size as needed
-                      fontWeight: FontWeight.bold, // Makes the text bold
-                      color: Colors.black, // Set the color of the text
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -253,9 +285,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       return Center(child: Text('Error: ${snapshot.error}'));
                     }
                     if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(
-                          child: Text(
-                              'No upcoming games')); // Display message when the list is empty
+                      return const Center(child: Text('No upcoming games'));
                     }
 
                     return Container(

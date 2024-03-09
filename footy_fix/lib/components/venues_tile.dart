@@ -10,9 +10,9 @@ class LocationTile extends StatelessWidget {
   final Function()? onTap;
   final int rating;
   final double opacity;
-  final bool showDistance; // New flag to control distance display
+  final bool showDistance;
   final bool showRating;
-  final int? imageId;
+  final int imageId;
 
   LocationTile({
     required this.locationName,
@@ -22,7 +22,7 @@ class LocationTile extends StatelessWidget {
     this.showDistance = true,
     this.showRating = true,
     required this.opacity,
-    this.imageId,
+    required this.imageId,
   });
 
   @override
@@ -40,25 +40,26 @@ class LocationTile extends StatelessWidget {
     // }
 
     Future<Uint8List> fetchVenueImageData(int imageId) async {
-      var token =
-          await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
-      print('whats goin on? $imageId');
-
-      var imageResponse = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/images/$imageId',
-        token,
-      );
-
-      var imageData = jsonDecode(imageResponse.body);
-
-      if (imageData['imageData'] != null) {
-        String base64String = imageData['imageData'];
-        Uint8List imageBytes = base64Decode(base64String);
-        return imageBytes;
-      } else {
+      if (imageId == -1) {
         ByteData bytes = await rootBundle.load('assets/standInVenueImage.jpg');
         return bytes.buffer.asUint8List();
+      } else {
+        var token =
+            await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+        var imageResponse = await DatabaseServices().getData(
+          '${DatabaseServices().backendUrl}/api/images/$imageId',
+          token,
+        );
+        var imageData = jsonDecode(imageResponse.body);
+        if (imageData['imageData'] != null) {
+          String base64String = imageData['imageData'];
+          Uint8List imageBytes = base64Decode(base64String);
+          return imageBytes;
+        } else {
+          ByteData bytes =
+              await rootBundle.load('assets/standInVenueImage.jpg');
+          return bytes.buffer.asUint8List();
+        }
       }
     }
 
@@ -75,9 +76,7 @@ class LocationTile extends StatelessWidget {
             alignment: Alignment.bottomLeft,
             children: <Widget>[
               FutureBuilder<Uint8List>(
-                future: imageId != null
-                    ? fetchVenueImageData(imageId!)
-                    : Future.value(null),
+                future: fetchVenueImageData(imageId),
                 builder:
                     (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
                   return Stack(
@@ -102,17 +101,14 @@ class LocationTile extends StatelessWidget {
                         height: 200,
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: Colors.black
-                              .withOpacity(0.5), // Adjust the opacity as needed
+                          color: Colors.black.withOpacity(
+                              opacity), // Adjust the opacity as needed
                         ),
                       ),
-                      // Rest of your Stack content like Text and rating overlay
                     ],
                   );
                 },
               ),
-
-              // Text and rating overlay
               Positioned(
                 left: 8.0,
                 bottom: 8.0,
@@ -136,7 +132,7 @@ class LocationTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                     ),
-                    if (showDistance) // Conditionally display distance
+                    if (showDistance)
                       Text(
                         '${distance.toStringAsFixed(1)} km away',
                         style: const TextStyle(

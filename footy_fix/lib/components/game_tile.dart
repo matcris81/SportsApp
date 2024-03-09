@@ -215,21 +215,15 @@ class GameTile extends StatelessWidget {
                             const SizedBox(height: 4),
                             if (!payment) const Divider(),
                             if (!payment)
-                              playersJoined < fakePlayers
-                                  ? Text(
-                                      '$fakePlayers/$size spots left',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    )
-                                  : Text(
-                                      '$playersJoined/$size spots left',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                              Text(
+                                playersJoined == size
+                                    ? "Full"
+                                    : "${playersJoined < size ? fakePlayers : playersJoined}/$size have joined",
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                           ],
                         ),
                       ),

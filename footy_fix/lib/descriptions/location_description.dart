@@ -1,9 +1,9 @@
 import 'dart:typed_data';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/screens/upcoming_games_screen.dart';
 import 'package:footy_fix/services/database_services.dart';
+import 'package:footy_fix/services/notifications_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:footy_fix/components/game_tile.dart';
 import 'package:image_picker/image_picker.dart';
@@ -11,7 +11,6 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io' show Platform;
 import 'dart:convert';
-import 'package:footy_fix/services/notifications_services.dart';
 
 class LocationDescription extends StatefulWidget {
   final int locationID;
@@ -43,11 +42,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
         '${DatabaseServices().backendUrl}/api/venues/${widget.locationID}',
         token);
 
-    print('Venue: ${response.body}');
-
     var locationDetails = json.decode(response.body);
-
-    print('locationDetails: $locationDetails');
 
     setState(() {
       locationName = locationDetails['venueName'];
@@ -126,7 +121,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
       return {};
     }
 
-    return earliestGame; // Return the earliest game
+    return earliestGame;
   }
 
   Future<Map<String, dynamic>> getLocationDetails() async {
@@ -164,7 +159,9 @@ class _LocationDescriptionState extends State<LocationDescription> {
               var venueRow = snapshot.data!;
               var venueAddress = venueRow['address'];
               var venueDescription = venueRow['description'];
+              print('venueRow: $venueRow');
               var imageId = venueRow['imageId'];
+              imageId ??= -1;
 
               return CustomScrollView(
                 slivers: [
@@ -533,11 +530,9 @@ class _LocationDescriptionState extends State<LocationDescription> {
 
   Future<void> _launchMaps(BuildContext context, String location) async {
     if (Platform.isAndroid) {
-      // Directly launch Google Maps for Android devices
       await _launchURL(
           'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(location)}');
     } else if (Platform.isIOS) {
-      // Show the Cupertino action sheet for iOS devices
       _showActionSheet(context, location);
     }
   }

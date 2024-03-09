@@ -38,9 +38,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     Map<String, dynamic> gameInfo = jsonDecode(response.body);
 
-    print('gameInfo: $gameInfo');
-    print(gameInfo['venueId']);
-
     setState(() {
       isLoading = false;
       price = gameInfo['price'];
@@ -138,6 +135,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                   price: price,
                                   label: "Game Participation Fee",
                                   gameID: widget.gameID,
+                                  topUp: false,
                                 );
                               }),
                             );
