@@ -313,7 +313,20 @@ class _PaymentScreenState extends State<PaymentScreen> {
     print('afterPaymentBalance: $afterPaymentBalance');
 
     if (afterPaymentBalance < 0) {
-      return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Insufficient credit to complete this transaction.',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          margin: EdgeInsets.all(10),
+        ),
+      );
     } else if (afterPaymentBalance >= 0) {
       var balanceBody = {"amount": widget.price};
 
@@ -337,14 +350,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
           '${DatabaseServices().backendUrl}/api/players/$userID',
           token,
           gameBody);
-    }
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const AuthPage(),
-      ),
-    );
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AuthPage(),
+        ),
+      );
+    }
   }
 
   void payResult(Map<String, dynamic>? result) async {

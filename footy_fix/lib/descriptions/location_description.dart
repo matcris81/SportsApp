@@ -70,35 +70,46 @@ class _LocationDescriptionState extends State<LocationDescription> {
   }
 
   void toggleLike() async {
-    String userID = await PreferencesService().getUserId() ?? '';
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
-    var body = {
-      "id": userID,
-      "venues": [
-        {
-          "id": widget.locationID,
-        }
-      ]
-    };
-
-    String url = '${DatabaseServices().backendUrl}/api/players/$userID';
-    if (isHeartFilled) {
-      await DatabaseServices().patchData(
-          '${DatabaseServices().backendUrl}/api/players/remove/$userID',
-          token,
-          body);
-
-      await FirebaseAPI().unsubscribeFromTopic('Venue${widget.locationID}');
-    } else {
-      await DatabaseServices().patchData(url, token, body);
-      await FirebaseAPI().subscribeToTopic('Venue${widget.locationID}');
-    }
-
     setState(() {
       isHeartFilled = !isHeartFilled;
     });
+
+    bool revertChange = false;
+
+    try {
+      String userID = await PreferencesService().getUserId() ?? '';
+      var token =
+          await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+      var body = {
+        "id": userID,
+        "venues": [
+          {"id": widget.locationID}
+        ]
+      };
+
+      if (isHeartFilled) {
+        await DatabaseServices().patchData(
+            '${DatabaseServices().backendUrl}/api/players/$userID',
+            token,
+            body);
+        await FirebaseAPI().subscribeToTopic('Venue${widget.locationID}');
+      } else {
+        await DatabaseServices().patchData(
+            '${DatabaseServices().backendUrl}/api/players/remove/$userID',
+            token,
+            body);
+        await FirebaseAPI().unsubscribeFromTopic('Venue${widget.locationID}');
+      }
+    } catch (error) {
+      revertChange = true;
+    }
+
+    if (revertChange) {
+      setState(() {
+        isHeartFilled = !isHeartFilled;
+        // Show an error message if needed
+      });
+    }
   }
 
   Future<Map<String, dynamic>> getNextUpcomingGame() async {
