@@ -18,7 +18,7 @@ class AddEvent extends StatefulWidget {
 }
 
 class _AddEventState extends State<AddEvent> {
-  final _formKey = GlobalKey<FormState>(); // Add a key for the form
+  final _formKey = GlobalKey<FormState>();
   String locationName = '';
   int locationID = 0;
   String time = '';
@@ -29,14 +29,12 @@ class _AddEventState extends State<AddEvent> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
   int? playersAlreadyJoined;
-  bool _isSubmitting = false; // Add this line
+  bool _isSubmitting = false;
 
   Future<void> _selectTime(BuildContext context) async {
-    // Initialize tempPickedTime with the current selectedTime or the current time
     TimeOfDay? tempPickedTime =
         selectedTime ?? TimeOfDay.fromDateTime(DateTime.now());
 
-    // Show Cupertino Modal Bottom Sheet
     final result = await showModalBottomSheet<TimeOfDay>(
         context: context,
         builder: (BuildContext builder) {
@@ -51,20 +49,16 @@ class _AddEventState extends State<AddEvent> {
                   DateTime.now().day,
                   selectedTime?.hour ?? DateTime.now().hour,
                   selectedTime?.minute ?? DateTime.now().minute),
-              use24hFormat: true, // Use 24 hour format based on your preference
+              use24hFormat: true,
               onDateTimeChanged: (DateTime newDateTime) {
-                // Update tempPickedTime as the user changes the picker's value
                 tempPickedTime = TimeOfDay(
                     hour: newDateTime.hour, minute: newDateTime.minute);
               },
             ),
           );
         });
-
-    // If the modal is dismissed (result == null), then the picker was used and dismissed by tapping outside
     if (!mounted) return;
 
-    // Update the state with the temporary picked time when the modal is dismissed
     if (tempPickedTime != selectedTime) {
       setState(() {
         selectedTime = tempPickedTime;
@@ -73,10 +67,8 @@ class _AddEventState extends State<AddEvent> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    // Store the picked date temporarily
     DateTime tempPickedDate = selectedDate ?? DateTime.now();
 
-    // Show Cupertino Modal Bottom Sheet
     await showModalBottomSheet(
         context: context,
         builder: (BuildContext builder) {
@@ -95,7 +87,6 @@ class _AddEventState extends State<AddEvent> {
           );
         });
 
-    // Once a date is selected and modal is closed, update the state
     if (!mounted) return;
 
     if (tempPickedDate != selectedDate) {
@@ -136,8 +127,6 @@ class _AddEventState extends State<AddEvent> {
 
     List<dynamic> sportsResponse = jsonDecode(sports.body);
 
-    print('sportsResponse: $sportsResponse');
-
     for (var sportInfo in sportsResponse) {
       if (sportInfo['sportName'] == sport) {
         sportExists = true;
@@ -170,7 +159,7 @@ class _AddEventState extends State<AddEvent> {
         title: const Text(
           'Add Event',
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 20,
             fontWeight: FontWeight.w500,
             color: Colors.black,
           ),
@@ -249,13 +238,6 @@ class _AddEventState extends State<AddEvent> {
                       onSaved: (value) => size = int.parse(value!),
                     ),
                     const SizedBox(height: 16.0),
-                    buildCustomButton(
-                      label: selectedDate != null
-                          ? 'Date: ${DateFormat('yyyy-MM-dd').format(selectedDate!)}'
-                          : 'Select Date',
-                      onPressed: () => _selectDate(context),
-                    ),
-                    const SizedBox(height: 16.0),
                     buildInvisibleTextField(
                       label: 'Sport',
                       validator: (value) => value == null || value.isEmpty
@@ -264,12 +246,6 @@ class _AddEventState extends State<AddEvent> {
                       onSaved: (value) => sport = value!,
                     ),
                     const SizedBox(height: 16.0),
-                    buildCustomButton(
-                      label: selectedTime == null
-                          ? 'Select Time'
-                          : 'Time: ${timeOfDayToString(selectedTime!)}',
-                      onPressed: () => _selectTime(context),
-                    ),
                     buildInvisibleTextField(
                       label: 'Players joined',
                       keyboardType: TextInputType.number,
@@ -344,7 +320,7 @@ class _AddEventState extends State<AddEvent> {
                             _isSubmitting = false;
                           });
                           if (!mounted) return;
-                          
+
                           Navigator.pop(context);
 
                           // context.go('/game/${gameInfo['id']}');

@@ -19,7 +19,7 @@ class _SelectVenueState extends State<SelectVenue> {
         title: const Text(
           'Select Venue',
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 20,
             fontWeight: FontWeight.w500,
             color: Colors.black,
           ),

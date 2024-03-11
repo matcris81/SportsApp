@@ -26,7 +26,7 @@ class _AddVenueState extends State<AddVenue> {
         title: const Text(
           'Add Venue',
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 20,
             fontWeight: FontWeight.w500,
             color: Colors.black,
           ),

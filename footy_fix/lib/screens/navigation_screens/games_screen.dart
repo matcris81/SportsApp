@@ -74,7 +74,7 @@ class _GamesScreenState extends State<GamesScreen> {
       body: Column(
         children: [
           SizedBox(
-            height: 60, // Set a fixed height for the date list
+            height: 60,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: _dates.length,
