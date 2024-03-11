@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/components/invisibleTextField.dart';
+import 'package:footy_fix/services/shared_preferences_service.dart';
 
 class AddVenue extends StatefulWidget {
   const AddVenue({Key? key}) : super(key: key);
@@ -17,7 +18,23 @@ class _AddVenueState extends State<AddVenue> {
   String description = '';
   String city = '';
   String suburb = '';
-  Uint8List? _venueImage; // State variable for the venue image
+  Uint8List? _venueImage;
+  String? userId;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getUserId();
+  }
+
+  void getUserId() async {
+    String? userID = await PreferencesService().getUserId();
+
+    setState(() {
+      userId = userID;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +92,6 @@ class _AddVenueState extends State<AddVenue> {
                       onSaved: (value) => suburb = value!,
                     ),
                     const SizedBox(height: 16.0),
-                    // No need for Row for City and Postcode since it's similar to the others
                     buildInvisibleTextField(
                       label: 'City',
                       validator: (value) => value == null || value.isEmpty
@@ -103,7 +119,10 @@ class _AddVenueState extends State<AddVenue> {
                             'venueName': venueName,
                             'address': formattedAddress,
                             'description': description,
+                            'creatorId': userId,
                           };
+
+                          print('newVenue: $newVenue');
 
                           String token = await DatabaseServices()
                               .authenticateAndGetToken('admin', 'admin');
@@ -120,12 +139,12 @@ class _AddVenueState extends State<AddVenue> {
                           Navigator.pop(context);
                         }
                       },
-                      child: Text('Submit',
-                          style: TextStyle(fontWeight: FontWeight.w500)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
                       ),
+                      child: const Text('Submit',
+                          style: TextStyle(fontWeight: FontWeight.w500)),
                     ),
                   ],
                 ),

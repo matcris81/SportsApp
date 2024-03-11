@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:footy_fix/screens/feature_manager_screens/event_adder.dart';
 import 'package:footy_fix/screens/upcoming_games_screen.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/services/notifications_services.dart';
@@ -25,6 +26,7 @@ class LocationDescription extends StatefulWidget {
 class _LocationDescriptionState extends State<LocationDescription> {
   bool isHeartFilled = false;
   String? locationName;
+  bool organizer = false;
 
   @override
   void initState() {
@@ -43,9 +45,19 @@ class _LocationDescriptionState extends State<LocationDescription> {
         token);
 
     var locationDetails = json.decode(response.body);
+    String? creatorId = locationDetails['creatorId'];
+    print('creatorId: $creatorId');
+
+    String userID = await PreferencesService().getUserId() ?? '';
 
     setState(() {
       locationName = locationDetails['venueName'];
+
+      if (creatorId == userID) {
+        setState(() {
+          organizer = true;
+        });
+      }
     });
   }
 
@@ -173,6 +185,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
               print('venueRow: $venueRow');
               var imageId = venueRow['imageId'];
               imageId ??= -1;
+              print('organizer: $organizer');
 
               return CustomScrollView(
                 slivers: [
@@ -185,7 +198,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
                         children: <Widget>[
                           GestureDetector(
                             onTap: () {
-                              _pickImage();
+                              if (organizer) _pickImage();
                             },
                             child: Container(
                               width: double.infinity,
@@ -208,11 +221,12 @@ class _LocationDescriptionState extends State<LocationDescription> {
                               ),
                             ),
                           ),
-                          const Positioned(
-                            bottom: 20,
-                            right: 20,
-                            child: Icon(Icons.edit, color: Colors.white),
-                          ),
+                          if (organizer)
+                            const Positioned(
+                              bottom: 20,
+                              right: 20,
+                              child: Icon(Icons.edit, color: Colors.white),
+                            ),
                         ],
                       ),
                     ),
@@ -300,6 +314,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
                             ),
                           ),
                         ),
+                        const SizedBox(height: 20.0),
                         const Padding(
                           padding: EdgeInsets.only(
                               left: 30.0, top: 20.0, right: 4.0, bottom: 4.0),
@@ -319,7 +334,8 @@ class _LocationDescriptionState extends State<LocationDescription> {
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
+                              return const Center(
+                                  child: CircularProgressIndicator());
                             }
 
                             if (snapshot.hasError) {
@@ -371,37 +387,103 @@ class _LocationDescriptionState extends State<LocationDescription> {
                         const SizedBox(height: 20),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) {
-                                  return UpcomingGamesList(
-                                    locationName: locationName!,
-                                    venueID: widget.locationID,
-                                  );
-                                }),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.black,
-                              minimumSize: const Size(double.infinity, 50),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                            ),
-                            child: const Text(
-                              'See Upcoming Games',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
+                          child: organizer
+                              ? // Check if the user is an organizer
+                              Row(
+                                  children: [
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) {
+                                              return UpcomingGamesList(
+                                                locationName: locationName!,
+                                                venueID: widget.locationID,
+                                              );
+                                            }),
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.black,
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 16.0),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          'See Upcoming Games',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => AddEvent(
+                                                      privateEvent: true,
+                                                      venueName: locationName,
+                                                    )),
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          foregroundColor: Colors.black,
+                                          backgroundColor: Colors.white,
+                                          side: const BorderSide(
+                                              color: Colors.black),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 16.0),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                        child: const Text('Add Game'),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) {
+                                        return UpcomingGamesList(
+                                          locationName: locationName!,
+                                          venueID: widget.locationID,
+                                        );
+                                      }),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.black,
+                                    minimumSize:
+                                        const Size(double.infinity, 40),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 13.0),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'See Upcoming Games',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
                         ),
                         const SizedBox(height: 20.0),
                         const Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: 16.0, vertical: 16.0),
                           child: Text(
-                            "About the venue", // Title text
+                            "About the venue",
                             style: TextStyle(
                               fontSize: 17.0,
                               fontWeight: FontWeight.bold,
@@ -413,7 +495,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
                           padding: const EdgeInsets.only(
                               left: 16.0, right: 16.0, bottom: 50.0),
                           child: Text(
-                            venueDescription, // Description text
+                            venueDescription,
                             style: const TextStyle(
                               fontSize: 14.0,
                               fontWeight: FontWeight.w300,
@@ -442,13 +524,12 @@ class _LocationDescriptionState extends State<LocationDescription> {
 
     Uint8List image = base64Decode(imageUrl);
 
-    return image; // Return the URL of the image
+    return image;
   }
 
   Future<void> _pickImage() async {
     final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(
-        source: ImageSource.gallery); // or ImageSource.camera
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
       Uint8List imageBytes = await image.readAsBytes();

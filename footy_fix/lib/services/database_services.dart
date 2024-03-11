@@ -9,7 +9,6 @@ class DatabaseServices {
 
   Future<http.Response> fetchData(String url) async {
     final response = await http.get(Uri.parse(url));
-    print(response.body);
 
     if (response.statusCode == 200) {
       return response;

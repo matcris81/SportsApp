@@ -46,12 +46,11 @@ class _GameVenueManagerState extends State<GameVenueManager> {
                     MaterialPageRoute(builder: (context) => const AddVenue()));
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black, // Button background color
-                foregroundColor: Colors.blue, // Button text color
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 100,
-                    vertical: 15), // Increased horizontal padding
-                minimumSize: const Size(150, 40), // Minimum size of the button
+                backgroundColor: Colors.black,
+                foregroundColor: Colors.blue,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                minimumSize: const Size(150, 40),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
@@ -62,8 +61,7 @@ class _GameVenueManagerState extends State<GameVenueManager> {
                 style: TextStyle(fontSize: 18),
               ),
             ),
-            const SizedBox(
-                height: 30), // Spacing between the venue and event sections
+            const SizedBox(height: 30),
             const Padding(
               padding: EdgeInsets.only(bottom: 20),
               child: Text(
@@ -74,16 +72,19 @@ class _GameVenueManagerState extends State<GameVenueManager> {
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const AddEvent()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AddEvent(
+                              privateEvent: true,
+                            )));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
                 foregroundColor: Colors.green,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 100,
-                    vertical: 15), // Increased horizontal padding
-                minimumSize: const Size(150, 40), // Minimum size of the button
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                minimumSize: const Size(150, 40),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
