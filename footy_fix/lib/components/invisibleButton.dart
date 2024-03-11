@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 Widget buildCustomButton({
   required String label,
-  required VoidCallback onPressed,
+  VoidCallback? onPressed,
   IconData? icon,
   String? Function(String?)? validator,
 }) {

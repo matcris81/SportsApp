@@ -1,9 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:footy_fix/descriptions/game_description.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/screens/feature_manager_screens/select_venues_screen.dart';
@@ -11,7 +9,11 @@ import 'package:footy_fix/components/invisibleButton.dart';
 import 'package:footy_fix/components/invisibleTextField.dart';
 
 class AddEvent extends StatefulWidget {
-  const AddEvent({Key? key}) : super(key: key);
+  final bool privateEvent;
+  final String? venueName;
+
+  const AddEvent({Key? key, required this.privateEvent, this.venueName})
+      : super(key: key);
 
   @override
   _AddEventState createState() => _AddEventState();
@@ -189,13 +191,16 @@ class _AddEventState extends State<AddEvent> {
                       NeverScrollableScrollPhysics(), // Disables scrolling within the ListView
                   children: <Widget>[
                     const SizedBox(height: 16.0),
-                    buildCustomButton(
-                      label: locationName.isNotEmpty
-                          ? 'Venue: $locationName'
-                          : 'Select Venue',
-                      onPressed: () => navigateAndDisplaySelection(context),
-                      icon: Icons.keyboard_arrow_right,
-                    ),
+                    widget.privateEvent
+                        ? buildCustomButton(label: 'Venue: ${widget.venueName}')
+                        : buildCustomButton(
+                            label: locationName.isNotEmpty
+                                ? 'Venue: $locationName'
+                                : 'Select Venue',
+                            onPressed: () =>
+                                navigateAndDisplaySelection(context),
+                            icon: Icons.keyboard_arrow_right,
+                          ),
                     const SizedBox(height: 16.0),
                     buildCustomButton(
                       label: selectedDate != null
