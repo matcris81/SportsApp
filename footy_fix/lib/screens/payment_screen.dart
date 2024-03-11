@@ -314,10 +314,38 @@ class _PaymentScreenState extends State<PaymentScreen> {
       print('Not enough money');
       return;
     } else if (afterPaymentBalance >= 0) {
+<<<<<<< Updated upstream
       var body = {"id": userID, "balance": afterPaymentBalance};
 
       var money = await DatabaseServices().patchData(
           '${DatabaseServices().backendUrl}/api/players/$userID', token, body);
+=======
+      var money = await DatabaseServices().patchDataWithoutMap(
+          '${DatabaseServices().backendUrl}/api/players/$userID/subtract-balance',
+          token,
+          widget.price);
+
+      var gameBody = {
+        "id": userID,
+        "games": [
+          {
+            "id": widget.gameID,
+          }
+        ],
+      };
+
+      var addGameresult = await DatabaseServices().patchData(
+          '${DatabaseServices().backendUrl}/api/players/$userID',
+          token,
+          gameBody);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AuthPage(),
+        ),
+      );
+>>>>>>> Stashed changes
     }
   }
 
@@ -328,15 +356,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
         await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     if (widget.topUp) {
-      var topUpBody = {
-        "id": userID,
-        "balance": amount,
-      };
+      // var topUpBody = {
+      //   "id": userID,
+      //   "balance": amount,
+      // };
 
-      var topupBalance = await DatabaseServices().patchData(
-          '${DatabaseServices().backendUrl}/api/players/$userID',
+      // var balanceBody = {"amount": widget.price};
+
+      var topupBalance = await DatabaseServices().patchDataWithoutMap(
+          '${DatabaseServices().backendUrl}/api/players/$userID/add-balance',
           token,
-          topUpBody);
+          widget.price);
     } else {
       var body = {
         "id": userID,

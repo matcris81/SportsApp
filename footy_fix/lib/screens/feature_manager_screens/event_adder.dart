@@ -224,7 +224,26 @@ class _AddEventState extends State<AddEvent> {
                       onPressed: () => navigateAndDisplaySelection(context),
                       icon: Icons.keyboard_arrow_right,
                     ),
+<<<<<<< Updated upstream
                     _buildInvisibleTextField(
+=======
+                    const SizedBox(height: 16.0),
+                    buildCustomButton(
+                      label: selectedDate != null
+                          ? 'Date: ${DateFormat('yyyy-MM-dd').format(selectedDate!)}'
+                          : 'Select Date',
+                      onPressed: () => _selectDate(context),
+                    ),
+                    const SizedBox(height: 16.0),
+                    buildCustomButton(
+                      label: selectedTime == null
+                          ? 'Select Time'
+                          : 'Time: ${timeOfDayToString(selectedTime!)}',
+                      onPressed: () => _selectTime(context),
+                    ),
+                    const SizedBox(height: 16.0),
+                    buildInvisibleTextField(
+>>>>>>> Stashed changes
                       label: 'Price',
                       keyboardType:
                           TextInputType.numberWithOptions(decimal: true),
@@ -251,6 +270,7 @@ class _AddEventState extends State<AddEvent> {
                       onSaved: (value) => size = int.parse(value!),
                     ),
                     const SizedBox(height: 16.0),
+<<<<<<< Updated upstream
                     _buildCustomButton(
                       label: selectedDate != null
                           ? 'Date: ${DateFormat('yyyy-MM-dd').format(selectedDate!)}'
@@ -259,6 +279,9 @@ class _AddEventState extends State<AddEvent> {
                     ),
                     const SizedBox(height: 16.0),
                     _buildInvisibleTextField(
+=======
+                    buildInvisibleTextField(
+>>>>>>> Stashed changes
                       label: 'Sport',
                       validator: (value) => value == null || value.isEmpty
                           ? 'Please enter Sport'
@@ -266,6 +289,7 @@ class _AddEventState extends State<AddEvent> {
                       onSaved: (value) => sport = value!,
                     ),
                     const SizedBox(height: 16.0),
+<<<<<<< Updated upstream
                     _buildCustomButton(
                       label: selectedTime == null
                           ? 'Select Time'
@@ -273,6 +297,9 @@ class _AddEventState extends State<AddEvent> {
                       onPressed: () => _selectTime(context),
                     ),
                     _buildInvisibleTextField(
+=======
+                    buildInvisibleTextField(
+>>>>>>> Stashed changes
                       label: 'Players joined',
                       keyboardType: TextInputType.number,
                       validator: (value) {
@@ -339,9 +366,21 @@ class _AddEventState extends State<AddEvent> {
                               token,
                               game);
 
+<<<<<<< Updated upstream
                           if (!mounted) return;
 
                           Navigator.pop(context);
+=======
+                          Map<String, dynamic> gameInfo =
+                              jsonDecode(response.body);
+
+                          setState(() {
+                            _isSubmitting = false;
+                          });
+                          if (!mounted) return;
+
+                          context.go('/game/${gameInfo['id']}');
+>>>>>>> Stashed changes
                         }
                       },
                       child: const Text('Submit Event'),

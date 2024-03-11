@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:footy_fix/screens/feature_manager_screens/event_adder.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:intl/intl.dart';
 import 'dart:io' show Platform;
@@ -13,10 +14,12 @@ import 'package:share_plus/share_plus.dart';
 
 class GameDescription extends StatefulWidget {
   final int gameID;
+  final String? previousScreen;
 
   const GameDescription({
     Key? key,
     required this.gameID,
+    this.previousScreen,
   }) : super(key: key);
 
   @override
@@ -126,7 +129,9 @@ class _GameDescriptionState extends State<GameDescription> {
                     backgroundColor: Colors.white,
                     child: Icon(Icons.arrow_back, color: Colors.black),
                   ),
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
                 ),
               ),
               SliverToBoxAdapter(
