@@ -328,12 +328,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
       );
     } else if (afterPaymentBalance >= 0) {
-      var balanceBody = {"amount": widget.price};
-
-      print('balanceBody: $balanceBody');
-
       var money = await DatabaseServices().patchDataWithoutMap(
-          '${DatabaseServices().backendUrl}/api/players/$userID/balance',
+          '${DatabaseServices().backendUrl}/api/players/$userID/subtract-balance',
           token,
           widget.price);
 
@@ -367,15 +363,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
         await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     if (widget.topUp) {
-      var topUpBody = {
-        "id": userID,
-        "balance": amount,
-      };
+      // var topUpBody = {
+      //   "id": userID,
+      //   "balance": amount,
+      // };
 
-      var topupBalance = await DatabaseServices().patchData(
-          '${DatabaseServices().backendUrl}/api/players/$userID',
+      // var balanceBody = {"amount": widget.price};
+
+      var topupBalance = await DatabaseServices().patchDataWithoutMap(
+          '${DatabaseServices().backendUrl}/api/players/$userID/add-balance',
           token,
-          topUpBody);
+          widget.price);
     } else {
       var body = {
         "id": userID,

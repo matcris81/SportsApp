@@ -207,6 +207,21 @@ class _AddEventState extends State<AddEvent> {
                       onPressed: () => navigateAndDisplaySelection(context),
                       icon: Icons.keyboard_arrow_right,
                     ),
+                    const SizedBox(height: 16.0),
+                    buildCustomButton(
+                      label: selectedDate != null
+                          ? 'Date: ${DateFormat('yyyy-MM-dd').format(selectedDate!)}'
+                          : 'Select Date',
+                      onPressed: () => _selectDate(context),
+                    ),
+                    const SizedBox(height: 16.0),
+                    buildCustomButton(
+                      label: selectedTime == null
+                          ? 'Select Time'
+                          : 'Time: ${timeOfDayToString(selectedTime!)}',
+                      onPressed: () => _selectTime(context),
+                    ),
+                    const SizedBox(height: 16.0),
                     buildInvisibleTextField(
                       label: 'Price',
                       keyboardType:
@@ -325,14 +340,14 @@ class _AddEventState extends State<AddEvent> {
                           Map<String, dynamic> gameInfo =
                               jsonDecode(response.body);
 
-                          if (!mounted) return;
-
-                          if (!mounted) return;
                           setState(() {
                             _isSubmitting = false;
                           });
+                          if (!mounted) return;
+                          
+                          Navigator.pop(context);
 
-                          context.go('/game/${gameInfo['id']}');
+                          // context.go('/game/${gameInfo['id']}');
                         }
                       },
                       style: ElevatedButton.styleFrom(
