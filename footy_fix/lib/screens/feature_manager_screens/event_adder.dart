@@ -1,10 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:footy_fix/descriptions/game_description.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/screens/feature_manager_screens/select_venues_screen.dart';
+import 'package:footy_fix/components/invisibleButton.dart';
+import 'package:footy_fix/components/invisibleTextField.dart';
 
 class AddEvent extends StatefulWidget {
   const AddEvent({Key? key}) : super(key: key);
@@ -25,6 +29,7 @@ class _AddEventState extends State<AddEvent> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
   int? playersAlreadyJoined;
+  bool _isSubmitting = false; // Add this line
 
   Future<void> _selectTime(BuildContext context) async {
     // Initialize tempPickedTime with the current selectedTime or the current time
@@ -135,9 +140,8 @@ class _AddEventState extends State<AddEvent> {
 
     for (var sportInfo in sportsResponse) {
       if (sportInfo['sportName'] == sport) {
-        // Assuming each sportInfo is a Map with a key 'sportName'
         sportExists = true;
-        sportId = sportInfo['id'].toString(); // Convert id to String if needed
+        sportId = sportInfo['id'].toString();
 
         break;
       }
@@ -195,38 +199,14 @@ class _AddEventState extends State<AddEvent> {
                   physics:
                       NeverScrollableScrollPhysics(), // Disables scrolling within the ListView
                   children: <Widget>[
-                    // _buildCustomButton(
-                    //   label: locationName.isNotEmpty
-                    //       ? 'Venue: $locationName'
-                    //       : 'Select Venue',
-                    //   onPressed: () => navigateAndDisplaySelection(context),
-                    //   icon: Icons.keyboard_arrow_right,
-                    // ),
-                    // const SizedBox(height: 16.0),
-                    // _buildCustomButton(
-                    //   label: selectedDate != null
-                    //       ? DateFormat('yyyy-MM-dd').format(selectedDate!)
-                    //       : 'Select Date',
-                    //   onPressed: () => _selectDate(context),
-                    // ),
-                    // const SizedBox(height: 16.0),
-                    // _buildCustomButton(
-                    //   label: selectedTime == null
-                    //       ? 'Select Time'
-                    //       : 'Time: ${timeOfDayToString(selectedTime!)}',
-                    //   onPressed: () => _selectTime(context),
-                    // ),
                     const SizedBox(height: 16.0),
-                    _buildCustomButton(
+                    buildCustomButton(
                       label: locationName.isNotEmpty
                           ? 'Venue: $locationName'
                           : 'Select Venue',
                       onPressed: () => navigateAndDisplaySelection(context),
                       icon: Icons.keyboard_arrow_right,
                     ),
-<<<<<<< Updated upstream
-                    _buildInvisibleTextField(
-=======
                     const SizedBox(height: 16.0),
                     buildCustomButton(
                       label: selectedDate != null
@@ -243,7 +223,6 @@ class _AddEventState extends State<AddEvent> {
                     ),
                     const SizedBox(height: 16.0),
                     buildInvisibleTextField(
->>>>>>> Stashed changes
                       label: 'Price',
                       keyboardType:
                           TextInputType.numberWithOptions(decimal: true),
@@ -257,7 +236,7 @@ class _AddEventState extends State<AddEvent> {
                       onSaved: (value) => price = double.parse(value!),
                     ),
                     const SizedBox(height: 16.0),
-                    _buildInvisibleTextField(
+                    buildInvisibleTextField(
                       label: 'Number of Players',
                       keyboardType: TextInputType.number,
                       validator: (value) {
@@ -270,18 +249,14 @@ class _AddEventState extends State<AddEvent> {
                       onSaved: (value) => size = int.parse(value!),
                     ),
                     const SizedBox(height: 16.0),
-<<<<<<< Updated upstream
-                    _buildCustomButton(
+                    buildCustomButton(
                       label: selectedDate != null
                           ? 'Date: ${DateFormat('yyyy-MM-dd').format(selectedDate!)}'
                           : 'Select Date',
                       onPressed: () => _selectDate(context),
                     ),
                     const SizedBox(height: 16.0),
-                    _buildInvisibleTextField(
-=======
                     buildInvisibleTextField(
->>>>>>> Stashed changes
                       label: 'Sport',
                       validator: (value) => value == null || value.isEmpty
                           ? 'Please enter Sport'
@@ -289,17 +264,13 @@ class _AddEventState extends State<AddEvent> {
                       onSaved: (value) => sport = value!,
                     ),
                     const SizedBox(height: 16.0),
-<<<<<<< Updated upstream
-                    _buildCustomButton(
+                    buildCustomButton(
                       label: selectedTime == null
                           ? 'Select Time'
                           : 'Time: ${timeOfDayToString(selectedTime!)}',
                       onPressed: () => _selectTime(context),
                     ),
-                    _buildInvisibleTextField(
-=======
                     buildInvisibleTextField(
->>>>>>> Stashed changes
                       label: 'Players joined',
                       keyboardType: TextInputType.number,
                       validator: (value) {
@@ -313,7 +284,7 @@ class _AddEventState extends State<AddEvent> {
                           playersAlreadyJoined = int.parse(value!),
                     ),
                     const SizedBox(height: 16.0),
-                    _buildInvisibleTextField(
+                    buildInvisibleTextField(
                       label: 'Description',
                       maxLines: 3,
                       validator: (value) => value == null || value.isEmpty
@@ -361,16 +332,11 @@ class _AddEventState extends State<AddEvent> {
 
                           print('playersAlreadyJoined: $playersAlreadyJoined');
 
-                          await DatabaseServices().postData(
+                          var response = await DatabaseServices().postData(
                               '${DatabaseServices().backendUrl}/api/games',
                               token,
                               game);
 
-<<<<<<< Updated upstream
-                          if (!mounted) return;
-
-                          Navigator.pop(context);
-=======
                           Map<String, dynamic> gameInfo =
                               jsonDecode(response.body);
 
@@ -378,100 +344,28 @@ class _AddEventState extends State<AddEvent> {
                             _isSubmitting = false;
                           });
                           if (!mounted) return;
+                          
+                          Navigator.pop(context);
 
-                          context.go('/game/${gameInfo['id']}');
->>>>>>> Stashed changes
+                          // context.go('/game/${gameInfo['id']}');
                         }
                       },
-                      child: const Text('Submit Event'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
                       ),
+                      child: _isSubmitting
+                          ? const CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            )
+                          : const Text('Submit Event'),
                     ),
                   ],
                 ),
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInvisibleTextField({
-    required String label,
-    int maxLines = 1,
-    TextInputType keyboardType = TextInputType.text,
-    String? Function(String?)? validator,
-    void Function(String?)? onSaved,
-  }) {
-    return TextFormField(
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(
-          color: Colors.black, // Set label color to black
-          fontWeight: FontWeight.w500, // Set font weight
-        ),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide:
-              BorderSide(color: Colors.black), // Set border color to black
-        ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(
-              color: Colors
-                  .black), // Set border color to black when field is focused
-        ),
-      ),
-      style: const TextStyle(
-        fontWeight: FontWeight.w500, // Set font weight for input text
-        color: Colors.black, // Set input text color to black
-      ),
-      keyboardType: keyboardType,
-      maxLines: maxLines,
-      validator: validator,
-      onSaved: onSaved,
-    );
-  }
-
-  Widget _buildCustomButton({
-    required String label,
-    required VoidCallback onPressed,
-    IconData? icon,
-  }) {
-    return Container(
-      decoration: const BoxDecoration(
-        border: Border(
-            bottom:
-                BorderSide(color: Colors.black, width: 1)), // Add bottom border
-      ),
-      child: TextButton(
-        onPressed: onPressed,
-        style: TextButton.styleFrom(
-          foregroundColor: Colors.black,
-          padding: const EdgeInsets.symmetric(
-              vertical: 16.0), // Adjust vertical padding
-          alignment: Alignment.centerLeft,
-          backgroundColor: Colors.transparent,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          minimumSize: const Size(double.infinity, 30), // Minimum button size
-        ).copyWith(
-          foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
-          overlayColor: MaterialStateProperty.all<Color>(Colors.transparent),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.w500,
-                fontSize: 16, // Increase text size
-              ),
-            ),
-            if (icon != null) Icon(icon, color: Colors.black, size: 20),
-          ],
         ),
       ),
     );

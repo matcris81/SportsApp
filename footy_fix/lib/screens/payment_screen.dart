@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:footy_fix/screens/navigation_screens/home_screen.dart';
+import 'package:footy_fix/screens/start_screens/auth_page.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:pay/pay.dart';
@@ -306,20 +308,26 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     var balance = jsonDecode(response.body);
 
-    print('balance: $balance');
+    var afterPaymentBalance = balance - widget.price;
 
-    var afterPaymentBalance = balance['balance'] - widget.price;
+    print('afterPaymentBalance: $afterPaymentBalance');
 
     if (afterPaymentBalance < 0) {
-      print('Not enough money');
-      return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Insufficient credit to complete this transaction.',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          margin: EdgeInsets.all(10),
+        ),
+      );
     } else if (afterPaymentBalance >= 0) {
-<<<<<<< Updated upstream
-      var body = {"id": userID, "balance": afterPaymentBalance};
-
-      var money = await DatabaseServices().patchData(
-          '${DatabaseServices().backendUrl}/api/players/$userID', token, body);
-=======
       var money = await DatabaseServices().patchDataWithoutMap(
           '${DatabaseServices().backendUrl}/api/players/$userID/subtract-balance',
           token,
@@ -345,7 +353,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
           builder: (context) => const AuthPage(),
         ),
       );
->>>>>>> Stashed changes
     }
   }
 
@@ -401,60 +408,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
       return count++ == 2;
     });
   }
-
-  // void payResult() async {
-  //   print('_selectedPriceIndex: $_selectedPriceIndex');
-  //   double amount = priceOptions[_selectedPriceIndex];
-
-  //   print('amountToSend: $amount');
-
-  //   var token =
-  //       await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
-  //   if (widget.topUp) {
-  //     var topUpBody = {
-  //       "id": userID,
-  //       "balance": amount,
-  //     };
-
-  //     var topupBalance = await DatabaseServices().patchData(
-  //         '${DatabaseServices().backendUrl}/api/players/$userID',
-  //         token,
-  //         topUpBody);
-  //   } else {
-  //     var body = {
-  //       "id": userID,
-  //       "games": [
-  //         {
-  //           "id": widget.gameID,
-  //         }
-  //       ],
-  //     };
-
-  //     DateTime now = DateTime.now().toUtc();
-  //     String formattedDateTime = '${now.toIso8601String().split('.')[0]}Z';
-
-  //     // NEED TO FIGURE OUT HOW TO DO STATUS
-
-  //     var paymentBody = {
-  //       "amount": amount,
-  //       "dateTime": formattedDateTime,
-  //       "status": "COMPLETED",
-  //       "player": {"id": userID}
-  //     };
-
-  //     var addPaymentResult = await DatabaseServices().postData(
-  //         '${DatabaseServices().backendUrl}/api/payments', token, paymentBody);
-
-  //     var addGameresult = await DatabaseServices().patchData(
-  //         '${DatabaseServices().backendUrl}/api/players/$userID', token, body);
-  //   }
-
-  //   int count = 0;
-  //   Navigator.popUntil(context, (route) {
-  //     return count++ == 2;
-  //   });
-  // }
 
   Future<void> getUserId() async {
     String? id = await PreferencesService().getUserId();

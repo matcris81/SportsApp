@@ -119,6 +119,26 @@ class AuthService {
   //   }
   // }
 
+  Future<void> updateUserEmail(String newEmail) async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    try {
+      await user?.updateEmail(newEmail);
+      print("Email updated successfully");
+      // Optionally, re-authenticate the user here if needed
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        print(
+            'The user must re-authenticate before this operation can be executed.');
+        // Handle re-authentication
+      } else {
+        print(e.message); // Handle other errors
+      }
+    } catch (e) {
+      print(e); // Handle generic errors
+    }
+  }
+
   Future<void> signOut() async {
     await FirebaseAuth.instance.signOut();
     // Clear local preferences if necessary

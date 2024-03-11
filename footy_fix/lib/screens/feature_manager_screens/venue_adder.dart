@@ -1,8 +1,7 @@
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/database_services.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:footy_fix/components/invisibleTextField.dart';
 
 class AddVenue extends StatefulWidget {
   const AddVenue({Key? key}) : super(key: key);
@@ -52,7 +51,7 @@ class _AddVenueState extends State<AddVenue> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
-                    _buildInvisibleTextField(
+                    buildInvisibleTextField(
                       label: 'Venue Name',
                       validator: (value) => value == null || value.isEmpty
                           ? 'Please enter venue name'
@@ -60,7 +59,7 @@ class _AddVenueState extends State<AddVenue> {
                       onSaved: (value) => venueName = value!,
                     ),
                     const SizedBox(height: 16.0),
-                    _buildInvisibleTextField(
+                    buildInvisibleTextField(
                       label: 'Address',
                       validator: (value) => value == null || value.isEmpty
                           ? 'Please enter Address'
@@ -68,7 +67,7 @@ class _AddVenueState extends State<AddVenue> {
                       onSaved: (value) => address = value!,
                     ),
                     const SizedBox(height: 16.0),
-                    _buildInvisibleTextField(
+                    buildInvisibleTextField(
                       label: 'Suburb',
                       validator: (value) => value == null || value.isEmpty
                           ? 'Please enter Suburb'
@@ -77,7 +76,7 @@ class _AddVenueState extends State<AddVenue> {
                     ),
                     const SizedBox(height: 16.0),
                     // No need for Row for City and Postcode since it's similar to the others
-                    _buildInvisibleTextField(
+                    buildInvisibleTextField(
                       label: 'City',
                       validator: (value) => value == null || value.isEmpty
                           ? 'Please enter City'
@@ -85,7 +84,7 @@ class _AddVenueState extends State<AddVenue> {
                       onSaved: (value) => city = value!,
                     ),
                     const SizedBox(height: 16.0),
-                    _buildInvisibleTextField(
+                    buildInvisibleTextField(
                       label: 'Description',
                       maxLines: 3,
                       validator: (value) => value == null || value.isEmpty
@@ -135,32 +134,6 @@ class _AddVenueState extends State<AddVenue> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildInvisibleTextField({
-    required String label,
-    int maxLines = 1,
-    TextInputType keyboardType = TextInputType.text,
-    String? Function(String?)? validator,
-    void Function(String?)? onSaved,
-  }) {
-    return TextFormField(
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
-        enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.black),
-        ),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.black),
-        ),
-      ),
-      style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black),
-      keyboardType: keyboardType,
-      maxLines: maxLines,
-      validator: validator,
-      onSaved: onSaved,
     );
   }
 }

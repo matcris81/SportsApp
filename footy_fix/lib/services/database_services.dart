@@ -95,6 +95,30 @@ class DatabaseServices {
     }
   }
 
+  Future<http.Response> patchDataWithoutMap(
+      String url, String token, double number) async {
+    String jsonBody = jsonEncode(number);
+    print(Uri.parse(url));
+
+    var response = await http.patch(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonBody,
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return response;
+    } else {
+      throw Exception(
+          'Failed to patch data. Status Code: ${response.statusCode}, '
+          'Response Body: ${response.body}');
+    }
+  }
+
   Future<http.Response> patchData(
       String url, String token, Map<String, dynamic> body) async {
     String jsonBody = jsonEncode(body);

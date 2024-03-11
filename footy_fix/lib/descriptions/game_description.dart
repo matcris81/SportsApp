@@ -49,6 +49,7 @@ class _GameDescriptionState extends State<GameDescription> {
   String? sport;
   int? organizerImageID;
   int fakePlayers = 0;
+  String? organizerPhoneNumber;
 
   @override
   void initState() {
@@ -82,6 +83,7 @@ class _GameDescriptionState extends State<GameDescription> {
         organizer = gameInfo['organizer_username'];
         organizerImageID = gameInfo['organizer_image_id'];
         fakePlayers = gameInfo['fakePlayers'];
+        organizerPhoneNumber = gameInfo['organizer_number'];
 
         DateTime parsedDate = DateTime.parse(date);
         time = DateFormat('HH:mm:ss').format(parsedDate);
@@ -226,9 +228,9 @@ class _GameDescriptionState extends State<GameDescription> {
                       Row(
                         children: <Widget>[
                           const Icon(
-                            Icons.people, // Replace with your time icon
-                            size: 16, // Adjust the size as needed
-                            color: Colors.black, // Adjust the color as needed
+                            Icons.people,
+                            size: 16,
+                            color: Colors.black,
                           ),
                           const SizedBox(width: 10),
                           numberOfPlayers < fakePlayers
@@ -252,9 +254,9 @@ class _GameDescriptionState extends State<GameDescription> {
                       Row(
                         children: <Widget>[
                           const Icon(
-                            Icons.calendar_today, // Replace with your date icon
-                            size: 16, // Adjust the size as needed
-                            color: Colors.black, // Adjust the color as needed
+                            Icons.calendar_today,
+                            size: 16,
+                            color: Colors.black,
                           ),
                           const SizedBox(width: 10),
                           Text(
@@ -271,8 +273,8 @@ class _GameDescriptionState extends State<GameDescription> {
                         children: <Widget>[
                           const Icon(
                             Icons.access_time,
-                            size: 16, // Adjust the size as needed
-                            color: Colors.black, // Adjust the color as needed
+                            size: 16,
+                            color: Colors.black,
                           ),
                           const SizedBox(width: 10),
                           Text(
@@ -289,8 +291,8 @@ class _GameDescriptionState extends State<GameDescription> {
                         children: <Widget>[
                           const Icon(
                             Icons.location_on_outlined,
-                            size: 16, // Adjust the size as needed
-                            color: Colors.black, // Adjust the color as needed
+                            size: 16,
+                            color: Colors.black,
                           ),
                           const SizedBox(width: 10),
                           Text(
@@ -316,11 +318,11 @@ class _GameDescriptionState extends State<GameDescription> {
                         children: <Widget>[
                           Row(
                             children: [
-                              if (players.isNotEmpty)
+                              if (players.isNotEmpty || fakePlayers > 0)
                                 _buildPlayerIconsRow()
                               else
                                 const Text(
-                                  'Be the firs to join',
+                                  'Be the first to join',
                                   style: TextStyle(
                                       fontSize: 14,
                                       color: Colors.grey,
@@ -462,10 +464,10 @@ class _GameDescriptionState extends State<GameDescription> {
   Widget _buildFakePlayerIcon(double leftPosition) {
     return Positioned(
       left: leftPosition,
-      child: CircleAvatar(
-        backgroundColor: Colors.blueGrey, // Differentiate fake players
+      child: const CircleAvatar(
+        backgroundColor: Colors.grey, // You can customize the color
         radius: 20.0,
-        child: Icon(Icons.person_outline, color: Colors.white),
+        child: Icon(Icons.person, color: Colors.white),
       ),
     );
   }
@@ -508,9 +510,34 @@ class _GameDescriptionState extends State<GameDescription> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
+// Assuming you have a FloatingActionButton somewhere in your _buildBottomNavigationBar method or similar
+
           FloatingActionButton(
-            onPressed: () {
-              // Define the action to take when the button is pressed
+            onPressed: () async {
+              if (organizerPhoneNumber != null &&
+                  organizerPhoneNumber!.isNotEmpty) {
+                // Define the Uri for opening the messaging app
+                Uri messageUri = Uri(scheme: 'sms', path: organizerPhoneNumber);
+
+                if (await canLaunchUrl(messageUri)) {
+                  await launchUrl(messageUri);
+                } else {
+                  // This block can be reached if the device cannot send SMS messages or the URL is malformed
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to open messaging app.'),
+                    ),
+                  );
+                }
+              } else {
+                // If the phone number is not available, show a Snackbar
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                        'The organizer does not have a phone number set up.'),
+                  ),
+                );
+              }
             },
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
@@ -520,6 +547,7 @@ class _GameDescriptionState extends State<GameDescription> {
             heroTag: 'messageFAB', // Unique tag for this FAB
             child: const Icon(Icons.message, color: Colors.black),
           ),
+
           const SizedBox(width: 10),
           FloatingActionButton(
             onPressed: () async {
@@ -652,6 +680,8 @@ class _GameDescriptionState extends State<GameDescription> {
     gameInfo['organizer_image_id'] = organizerInfo['playerImage'] != null
         ? organizerInfo['playerImage']['id']
         : null;
+    gameInfo['organizer_number'] = organizerInfo['phoneNumber'];
+    print('organizer number: ${gameInfo['organizer_number']}');
 
     return gameInfo;
   }
