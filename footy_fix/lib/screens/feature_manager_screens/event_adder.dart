@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/screens/feature_manager_screens/select_venues_screen.dart';
@@ -10,9 +11,9 @@ import 'package:footy_fix/components/invisibleTextField.dart';
 
 class AddEvent extends StatefulWidget {
   final bool privateEvent;
-  final String? venueName;
+  final int? venueId;
 
-  const AddEvent({Key? key, required this.privateEvent, this.venueName})
+  const AddEvent({Key? key, required this.privateEvent, this.venueId})
       : super(key: key);
 
   @override
@@ -22,7 +23,7 @@ class AddEvent extends StatefulWidget {
 class _AddEventState extends State<AddEvent> {
   final _formKey = GlobalKey<FormState>();
   String locationName = '';
-  int locationID = 0;
+  int venueID = 0;
   String time = '';
   double price = 0;
   int size = 0;
@@ -112,7 +113,7 @@ class _AddEventState extends State<AddEvent> {
 
     if (result != null) {
       setState(() {
-        locationID = result[0];
+        venueID = result[0];
         locationName = result[1];
       });
     }
@@ -154,6 +155,15 @@ class _AddEventState extends State<AddEvent> {
     return sportId;
   }
 
+  Future<String> fetchVenueName(int venueId) async {
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    var response = await DatabaseServices()
+        .getData('${DatabaseServices().backendUrl}/api/venues/$venueId', token);
+    var venueDetails = json.decode(response.body);
+    return venueDetails['venueName'];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -167,13 +177,12 @@ class _AddEventState extends State<AddEvent> {
           ),
           textAlign: TextAlign.center,
         ),
-        backgroundColor: Colors.white, // Make AppBar background white
-        iconTheme:
-            IconThemeData(color: Colors.black), // Make AppBar back icon black
-        elevation: 0, // Remove shadow
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: Colors.black),
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
         ),
       ),
       body: SingleChildScrollView(
@@ -185,14 +194,31 @@ class _AddEventState extends State<AddEvent> {
               child: Form(
                 key: _formKey,
                 child: ListView(
-                  shrinkWrap:
-                      true, // Ensures the ListView only occupies the space it needs
-                  physics:
-                      NeverScrollableScrollPhysics(), // Disables scrolling within the ListView
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
                   children: <Widget>[
                     const SizedBox(height: 16.0),
-                    widget.privateEvent
-                        ? buildCustomButton(label: 'Venue: ${widget.venueName}')
+                    widget.venueId != null
+                        ? FutureBuilder<String>(
+                            future: fetchVenueName(widget.venueId!),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<String> snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return buildCustomButton(
+                                    label: 'Loading venue...',
+                                    onPressed: () {});
+                              } else if (snapshot.hasError) {
+                                return buildCustomButton(
+                                    label: 'Error loading venue',
+                                    onPressed: () {});
+                              } else {
+                                return buildCustomButton(
+                                  label: 'Venue: ${snapshot.data}',
+                                );
+                              }
+                            },
+                          )
                         : buildCustomButton(
                             label: locationName.isNotEmpty
                                 ? 'Venue: $locationName'
@@ -300,8 +326,14 @@ class _AddEventState extends State<AddEvent> {
                           String? userID =
                               await PreferencesService().getUserId();
 
+                          print('venueId: ${widget.venueId}');
+
+                          if (widget.privateEvent) {
+                            venueID = widget.venueId!;
+                          }
+
                           var game = {
-                            'venueId': locationID,
+                            'venueId': venueID,
                             'sportId': sportID,
                             'gameDate': formattedDate,
                             'description': description,
@@ -326,9 +358,9 @@ class _AddEventState extends State<AddEvent> {
                           });
                           if (!mounted) return;
 
-                          Navigator.pop(context);
+                          // Navigator.pop(context);
 
-                          // context.go('/game/${gameInfo['id']}');
+                          context.go('/game/${gameInfo['id']}');
                         }
                       },
                       style: ElevatedButton.styleFrom(

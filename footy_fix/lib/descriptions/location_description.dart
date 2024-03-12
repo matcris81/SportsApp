@@ -7,6 +7,7 @@ import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/services/notifications_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:footy_fix/components/game_tile.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -15,8 +16,10 @@ import 'dart:convert';
 
 class LocationDescription extends StatefulWidget {
   final int locationID;
+  final bool? justCreated;
 
-  const LocationDescription({Key? key, required this.locationID})
+  const LocationDescription(
+      {Key? key, required this.locationID, this.justCreated})
       : super(key: key);
 
   @override
@@ -231,12 +234,18 @@ class _LocationDescriptionState extends State<LocationDescription> {
                       ),
                     ),
                     leading: IconButton(
-                      icon: const CircleAvatar(
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.arrow_back, color: Colors.black),
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
+                        icon: const CircleAvatar(
+                          backgroundColor: Colors.white,
+                          child: Icon(Icons.arrow_back, color: Colors.black),
+                        ),
+                        onPressed: () {
+                          if (widget.justCreated != null &&
+                              widget.justCreated!) {
+                            context.go('/');
+                          } else {
+                            context.pop();
+                          }
+                        }),
                     actions: <Widget>[
                       IconButton(
                         icon: CircleAvatar(
@@ -388,22 +397,13 @@ class _LocationDescriptionState extends State<LocationDescription> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20.0),
                           child: organizer
-                              ? // Check if the user is an organizer
-                              Row(
+                              ? Row(
                                   children: [
                                     Expanded(
                                       child: ElevatedButton(
                                         onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) {
-                                              return UpcomingGamesList(
-                                                locationName: locationName!,
-                                                venueID: widget.locationID,
-                                              );
-                                            }),
-                                          );
+                                          context.go(
+                                              '/venue/${widget.locationID}/${widget.justCreated}/upcomingGames');
                                         },
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.black,
@@ -424,14 +424,8 @@ class _LocationDescriptionState extends State<LocationDescription> {
                                     Expanded(
                                       child: ElevatedButton(
                                         onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) => AddEvent(
-                                                      privateEvent: true,
-                                                      venueName: locationName,
-                                                    )),
-                                          );
+                                          context.push(
+                                              '/addEvent/true/${widget.locationID}');
                                         },
                                         style: ElevatedButton.styleFrom(
                                           foregroundColor: Colors.black,
@@ -452,15 +446,8 @@ class _LocationDescriptionState extends State<LocationDescription> {
                                 )
                               : ElevatedButton(
                                   onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) {
-                                        return UpcomingGamesList(
-                                          locationName: locationName!,
-                                          venueID: widget.locationID,
-                                        );
-                                      }),
-                                    );
+                                    context.go(
+                                        '/venue/${widget.locationID}/${widget.justCreated}/upcomingGames');
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.black,

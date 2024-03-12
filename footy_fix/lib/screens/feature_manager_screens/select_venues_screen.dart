@@ -35,7 +35,7 @@ class _SelectVenueState extends State<SelectVenue> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(
-              height: 40, // Adjust the height as needed
+              height: 40,
               child: TextField(
                 onChanged: (value) {
                   setState(() {

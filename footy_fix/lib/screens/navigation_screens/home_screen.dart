@@ -2,33 +2,77 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:footy_fix/components/venues_tile.dart';
-import 'package:footy_fix/descriptions/location_description.dart';
-import 'package:footy_fix/screens/start_screens/login_screen.dart';
 import 'package:footy_fix/services/auth_service.dart';
 import 'package:footy_fix/services/geolocator_services.dart';
 import 'package:footy_fix/components/game_tile.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
-import 'package:footy_fix/screens/profile_screen.dart';
-import 'package:footy_fix/screens/notification_screen.dart';
-import 'package:footy_fix/screens/feature_manager_screens/game_venue_manager.dart';
 import 'package:footy_fix/services/database_services.dart';
+import 'package:go_router/go_router.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final int? initialGameId;
+
+  const HomeScreen({Key? key, this.initialGameId}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   String userID = '';
   double balance = 0.0;
+  late AutoScrollController _autoScrollController;
 
   @override
   void initState() {
     super.initState();
+    _autoScrollController = AutoScrollController();
+    WidgetsBinding.instance.addObserver(this);
+    _initAsyncData();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _autoScrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      _initAsyncData();
+    }
+  }
+
+  void _initAsyncData() {
     GeolocatorService().determinePosition();
     _retrieveUserIdandBalance();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.initialGameId != null) {
+        _scrollToPurchasedGame();
+      }
+    });
+  }
+
+  void _scrollToPurchasedGame() async {
+    if (widget.initialGameId != null) {
+      List<Map<String, dynamic>> games = await _loadGamesToList();
+      int targetIndex =
+          games.indexWhere((game) => game['game_id'] == widget.initialGameId);
+
+      if (targetIndex != -1) {
+        _autoScrollController
+            .scrollToIndex(targetIndex,
+                preferPosition: AutoScrollPosition.middle)
+            .then((value) => {})
+            .catchError((error) {
+          print("Scrolling error: $error");
+        });
+      }
+    }
   }
 
   Future<void> getUserBalance(String id) async {
@@ -65,16 +109,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<List<Widget>> buildGameTiles() async {
     List<Map<String, dynamic>> games = await _loadGamesToList();
 
-    if (games.isEmpty) {
-      return []; // Return null if no games are found
-    }
-
-    return games.map((game) {
-      return GameTile(
-        locationID: game['venue_id'],
-        gameID: game['game_id'],
+    return List.generate(games.length, (index) {
+      return AutoScrollTag(
+        key: ValueKey(index),
+        controller: _autoScrollController,
+        index: index,
+        child: GameTile(
+          locationID: games[index]['venue_id'],
+          gameID: games[index]['game_id'],
+        ),
       );
-    }).toList();
+    });
   }
 
   Future<List<Map<String, dynamic>>> _loadGamesToList() async {
@@ -85,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
         '${DatabaseServices().backendUrl}/api/games/by-user/$userID', token);
 
     if (response.statusCode == 404) {
-      return []; // Return null if no games are found
+      return [];
     }
 
     List<dynamic> gamesData = json.decode(response.body);
@@ -124,16 +169,14 @@ class _HomeScreenState extends State<HomeScreen> {
             automaticallyImplyLeading: false,
             leadingWidth: 150,
             leading: InkWell(
-              onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const ProfileScreen())),
+              onTap: () => context.go('/profile'),
               child: Container(
-                margin: EdgeInsets.only(left: 20),
+                margin: const EdgeInsets.only(left: 20),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.account_circle, color: Colors.black, size: 30),
+                    const Icon(Icons.account_circle,
+                        color: Colors.black, size: 30),
                     Flexible(
                       child: Padding(
                           padding: const EdgeInsets.only(left: 8),
@@ -144,7 +187,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
                             ),
-                            // Continue with the rest of your Text widget properties
                           )),
                     ),
                   ],
@@ -158,10 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onPressed: () async {
                   await AuthService().signOut();
                   if (!mounted) return;
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                  );
+                  context.go('/login');
                 },
               ),
             ],
@@ -190,10 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: const EdgeInsets.all(20.0),
                   child: ElevatedButton(
                     onPressed: () async {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const GameVenueManager()));
+                      context.go('/gameVenueManager');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
@@ -254,11 +290,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             opacity: 0.4,
                             imageId: imageId!,
                             onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => LocationDescription(
-                                          locationID: venue['id'])));
+                              context.go('/venue/${venue['id']}/false');
                             },
                           );
                         },
@@ -292,19 +324,31 @@ class _HomeScreenState extends State<HomeScreen> {
                     }
 
                     return Container(
-                      height: 310, // Adjusted height for the container
+                      height: 310,
+                      margin: const EdgeInsets.all(8),
                       child: ListView.builder(
+                        controller: _autoScrollController,
                         scrollDirection: Axis.horizontal,
                         itemCount: snapshot.data!.length,
                         itemBuilder: (context, index) {
                           return Container(
-                            width: 300, // Width of each game tile
+                            width: 300,
                             margin: const EdgeInsets.all(8),
-                            child:
-                                snapshot.data![index], // Each GameTile widget
+                            child: snapshot.data![index],
                           );
                         },
                       ),
+                      // child: ListView.builder(
+                      //   scrollDirection: Axis.horizontal,
+                      //   itemCount: snapshot.data!.length,
+                      //   itemBuilder: (context, index) {
+                      //     return Container(
+                      //       width: 300,
+                      //       margin: const EdgeInsets.all(8),
+                      //       child: snapshot.data![index],
+                      //     );
+                      //   },
+                      // ),
                     );
                   },
                 )

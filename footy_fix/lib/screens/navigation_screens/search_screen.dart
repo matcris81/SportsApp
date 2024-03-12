@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:footy_fix/descriptions/location_description.dart';
 import 'package:footy_fix/services/geolocator_services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:footy_fix/components/venues_tile.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'dart:convert';
 
+import 'package:go_router/go_router.dart';
+
 class SearchScreen extends StatefulWidget {
-  // Constructor to accept a string
   const SearchScreen({Key? key}) : super(key: key);
 
   @override
@@ -39,7 +39,6 @@ class _SearchScreenState extends State<SearchScreen> {
       List<dynamic> venueList = json.decode(result.body);
 
       for (var venue in venueList) {
-        print('venue: $venue');
         int id = venue['id'];
         String venueName = venue['venueName'];
         String address = venue['address'];
@@ -47,7 +46,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
         imageId ??= -1;
 
-        // get address coordinates
         Map<double, double>? coordinates =
             await GeolocatorService().getCoordinatesFromAddress(address);
 
@@ -62,14 +60,12 @@ class _SearchScreenState extends State<SearchScreen> {
           distance /= 1000; // Convert to km if necessary
         }
 
-        // Create an inner map with id and address
         Map<String, dynamic> details = {
           'name': venueName,
           'distance': distance,
           'imageId': imageId,
         };
 
-        // Add the inner map to the outer map with the venueName as key
         venues[id.toString()] = details;
       }
     } catch (e) {
@@ -88,15 +84,13 @@ class _SearchScreenState extends State<SearchScreen> {
         title: const Text('Search',
             style: TextStyle(color: Colors.black, fontSize: 20)),
         centerTitle: true,
-        automaticallyImplyLeading:
-            false, // This line removes the default back button
+        automaticallyImplyLeading: false,
       ),
       backgroundColor: Colors.grey[200],
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start, // Align title to the left
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-              // Use Expanded to fill the remaining space with the FutureBuilder
               child: FutureBuilder<Map<String, Map<String, dynamic>>>(
             future: _itemsFuture,
             builder: (context, snapshot) {
@@ -121,13 +115,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         opacity: 0.4,
                         imageId: imageId,
                         onTap: () {
-                          Navigator.push(context, MaterialPageRoute(
-                            builder: (context) {
-                              return LocationDescription(
-                                locationID: int.parse(id),
-                              );
-                            },
-                          ));
+                          context.go('/venue/$id/false');
                         },
                       ),
                     );
