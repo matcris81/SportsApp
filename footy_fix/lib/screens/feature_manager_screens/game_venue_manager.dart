@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:footy_fix/screens/feature_manager_screens/event_adder.dart';
-import 'package:footy_fix/screens/feature_manager_screens/venue_adder.dart';
+import 'package:go_router/go_router.dart';
 
 class GameVenueManager extends StatefulWidget {
   const GameVenueManager({Key? key}) : super(key: key);
@@ -42,8 +41,7 @@ class _GameVenueManagerState extends State<GameVenueManager> {
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const AddVenue()));
+                context.go('/gameVenueManager/addVenue');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
@@ -72,12 +70,7 @@ class _GameVenueManagerState extends State<GameVenueManager> {
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const AddEvent(
-                              privateEvent: true,
-                            )));
+                context.go('/gameVenueManager/addEvent/false');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,

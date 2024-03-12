@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/components/invisibleTextField.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
+import 'package:go_router/go_router.dart';
 
 class AddVenue extends StatefulWidget {
   const AddVenue({Key? key}) : super(key: key);
@@ -23,7 +25,6 @@ class _AddVenueState extends State<AddVenue> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getUserId();
   }
@@ -51,7 +52,7 @@ class _AddVenueState extends State<AddVenue> {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
@@ -132,11 +133,11 @@ class _AddVenueState extends State<AddVenue> {
                               token,
                               newVenue);
 
-                          print('response.body: ${response.body}');
-
+                          var venueResponse = jsonDecode(response.body);
+                          var venueId = venueResponse['id'];
                           if (!mounted) return;
 
-                          Navigator.pop(context);
+                          context.push('/venue/$venueId/true');
                         }
                       },
                       style: ElevatedButton.styleFrom(

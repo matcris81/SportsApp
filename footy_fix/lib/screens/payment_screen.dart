@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:footy_fix/screens/navigation_screens/home_screen.dart';
-import 'package:footy_fix/screens/start_screens/auth_page.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pay/pay.dart';
 import 'package:footy_fix/payment_config.dart';
 import 'dart:io' show Platform;
@@ -27,8 +26,8 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  final _formKey = GlobalKey<FormState>(); // Add a key for the form
-  int _selectedPriceIndex = -1; // Initial state, no selection
+  final _formKey = GlobalKey<FormState>();
+  int _selectedPriceIndex = -1;
   late List<double> priceOptions = [widget.price, 25, 50];
   String os = Platform.operatingSystem;
   late PaymentItem _paymentItem;
@@ -40,6 +39,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
   void initState() {
     super.initState();
     getUserId();
+    _selectedPriceIndex = widget.topUp ? -1 : 0;
+
     // _paymentItems = [
     //   PaymentItem(
     //     label: widget.label,
@@ -75,7 +76,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
         ),
       ),
       body: Padding(
@@ -347,17 +348,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
           token,
           gameBody);
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const AuthPage(),
-        ),
-      );
+      context.go('/home/${widget.gameID}');
     }
   }
 
   void payResult(Map<String, dynamic>? result) async {
     double amount = priceOptions[_selectedPriceIndex];
+    print('Pay amount: $amount');
 
     var token =
         await DatabaseServices().authenticateAndGetToken('admin', 'admin');
@@ -374,6 +371,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
           '${DatabaseServices().backendUrl}/api/players/$userID/add-balance',
           token,
           widget.price);
+
+      context.go('/');
     } else {
       var body = {
         "id": userID,
@@ -401,12 +400,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
       var addGameresult = await DatabaseServices().patchData(
           '${DatabaseServices().backendUrl}/api/players/$userID', token, body);
+      context.go('/home/${widget.gameID}');
     }
-
-    int count = 0;
-    Navigator.popUntil(context, (route) {
-      return count++ == 2;
-    });
   }
 
   Future<void> getUserId() async {
@@ -461,7 +456,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   onPressed: () {
                     Map<String, dynamic> result = {};
                     payResult(result);
-                    Navigator.pop(context);
+                    // Navigator.pop(context);
+                    if (widget.topUp) {
+                      context.go('/');
+                    } else {
+                      context.go('/home/${widget.gameID}');
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,

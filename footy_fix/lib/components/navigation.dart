@@ -10,9 +10,10 @@ import 'package:footy_fix/screens/navigation_screens/more_info.dart';
 // import 'package:footy_fix/screens/'
 
 class NavBar extends StatefulWidget {
-  static const String routeName = '/navbar'; // Define the route name
+  static const String routeName = '/navbar';
+  final int? gameId;
 
-  const NavBar({Key? key}) : super(key: key);
+  const NavBar({Key? key, this.gameId}) : super(key: key);
 
   @override
   State<NavBar> createState() => _NavBarState();
@@ -36,7 +37,9 @@ class _NavBarState extends State<NavBar> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> widgetOptions = <Widget>[
-      const HomeScreen(),
+      HomeScreen(
+        initialGameId: widget.gameId,
+      ),
       const GamesScreen(),
       const SearchScreen(),
       const ProfileScreen(),

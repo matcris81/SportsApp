@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/screens/feature_manager_screens/event_adder.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'dart:io' show Platform;
 import 'package:url_launcher/url_launcher.dart';
@@ -510,29 +511,24 @@ class _GameDescriptionState extends State<GameDescription> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-// Assuming you have a FloatingActionButton somewhere in your _buildBottomNavigationBar method or similar
-
           FloatingActionButton(
             onPressed: () async {
               if (organizerPhoneNumber != null &&
                   organizerPhoneNumber!.isNotEmpty) {
-                // Define the Uri for opening the messaging app
                 Uri messageUri = Uri(scheme: 'sms', path: organizerPhoneNumber);
 
                 if (await canLaunchUrl(messageUri)) {
                   await launchUrl(messageUri);
                 } else {
-                  // This block can be reached if the device cannot send SMS messages or the URL is malformed
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text('Failed to open messaging app.'),
                     ),
                   );
                 }
               } else {
-                // If the phone number is not available, show a Snackbar
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
+                  const SnackBar(
                     content: Text(
                         'The organizer does not have a phone number set up.'),
                   ),
@@ -544,10 +540,9 @@ class _GameDescriptionState extends State<GameDescription> {
               borderRadius: BorderRadius.circular(30.0),
               side: const BorderSide(color: Colors.white, width: 2),
             ),
-            heroTag: 'messageFAB', // Unique tag for this FAB
+            heroTag: 'messageFAB',
             child: const Icon(Icons.message, color: Colors.black),
           ),
-
           const SizedBox(width: 10),
           FloatingActionButton(
             onPressed: () async {
@@ -559,24 +554,17 @@ class _GameDescriptionState extends State<GameDescription> {
               borderRadius: BorderRadius.circular(30.0),
               side: const BorderSide(color: Colors.white, width: 2),
             ),
-            heroTag: 'shareFAB', // Unique tag for this FAB
+            heroTag: 'shareFAB',
             child: const Icon(Icons.ios_share, color: Colors.black),
           ),
           const SizedBox(width: 10),
           Container(
-            width: 200, // Set a specific width for the button
+            width: 200,
             child: ElevatedButton(
               onPressed: isLoading || isFull || userAlreadyJoined
                   ? null
                   : () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CheckoutScreen(
-                            gameID: widget.gameID,
-                          ),
-                        ),
-                      );
+                      context.go('/game/${widget.gameID}/checkout');
                     },
               style: ElevatedButton.styleFrom(
                 backgroundColor:

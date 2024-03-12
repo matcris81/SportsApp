@@ -3,37 +3,74 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/components/game_tile.dart';
 import 'package:footy_fix/services/database_services.dart';
+import 'package:go_router/go_router.dart';
 
 class UpcomingGamesList extends StatefulWidget {
   final int venueID;
-  final String locationName;
 
-  const UpcomingGamesList(
-      {Key? key, required this.venueID, this.locationName = ''})
-      : super(key: key);
+  const UpcomingGamesList({Key? key, required this.venueID}) : super(key: key);
 
   @override
   _UpcomingGamesListState createState() => _UpcomingGamesListState();
 }
 
 class _UpcomingGamesListState extends State<UpcomingGamesList> {
+  Future<String> fetchVenueName() async {
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    var venueNameResponse = await DatabaseServices().getData(
+        '${DatabaseServices().backendUrl}/api/venues/${widget.venueID}', token);
+
+    print('venue reponse: ${venueNameResponse.body}');
+
+    var venueName = jsonDecode(venueNameResponse.body)['venueName'];
+    return venueName;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          '${widget.locationName} Upcoming Games',
-          style: const TextStyle(
-              fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black),
-          textAlign: TextAlign.center,
+        title: FutureBuilder<String>(
+          future: fetchVenueName(),
+          builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Text(
+                'Loading...',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black),
+                textAlign: TextAlign.center,
+              );
+            } else if (snapshot.hasError) {
+              return const Text(
+                'Error loading name',
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black),
+                textAlign: TextAlign.center,
+              );
+            } else {
+              return Text(
+                '${snapshot.data} Upcoming Games',
+                style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black),
+                textAlign: TextAlign.center,
+              );
+            }
+          },
         ),
         leading: IconButton(
           icon: const CircleAvatar(
-            backgroundColor: Colors.white, // Background color of the circle
-            child:
-                Icon(Icons.arrow_back, color: Colors.black), // Black arrow icon
+            backgroundColor: Colors.white,
+            child: Icon(Icons.arrow_back, color: Colors.black),
           ),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
         ),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
