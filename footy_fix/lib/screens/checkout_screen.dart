@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:flutter/material.dart';
 import 'package:footy_fix/components/game_tile.dart';
-import 'package:footy_fix/screens/payment_screen.dart';
 import 'package:go_router/go_router.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -128,21 +126,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       child: SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
-                            context.go(
-                                '/game/${widget.gameID}/checkout/payment/$price/false');
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(builder: (context) {
-                            //     return PaymentScreen(
-                            //       price: price,
-                            //       label: "Game Participation Fee",
-                            //       gameID: widget.gameID,
-                            //       topUp: false,
-                            //     );
-                            //   }),
-                            // );
-                          },
+                          onPressed: isLoading
+                              ? null
+                              : () {
+                                  context.go(
+                                      '/game/${widget.gameID}/checkout/payment/$price/false');
+                                },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.black,
                             foregroundColor: Colors.white,

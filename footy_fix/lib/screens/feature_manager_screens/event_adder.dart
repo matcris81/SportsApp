@@ -31,7 +31,6 @@ class _AddEventState extends State<AddEvent> {
   String description = '';
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
-  int? playersAlreadyJoined;
   bool _isSubmitting = false;
 
   Future<void> _selectTime(BuildContext context) async {
@@ -278,20 +277,6 @@ class _AddEventState extends State<AddEvent> {
                     ),
                     const SizedBox(height: 16.0),
                     buildInvisibleTextField(
-                      label: 'Players joined',
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value == null || value.isEmpty)
-                          return 'Please enter Number of Players that have joined';
-                        if (int.tryParse(value) == null)
-                          return 'Please enter a valid number';
-                        return null;
-                      },
-                      onSaved: (value) =>
-                          playersAlreadyJoined = int.parse(value!),
-                    ),
-                    const SizedBox(height: 16.0),
-                    buildInvisibleTextField(
                       label: 'Description',
                       maxLines: 3,
                       validator: (value) => value == null || value.isEmpty
@@ -340,10 +325,7 @@ class _AddEventState extends State<AddEvent> {
                             'size': size,
                             'price': price,
                             'organizer': {'id': userID},
-                            'fakePlayers': playersAlreadyJoined,
                           };
-
-                          print('playersAlreadyJoined: $playersAlreadyJoined');
 
                           var response = await DatabaseServices().postData(
                               '${DatabaseServices().backendUrl}/api/games',

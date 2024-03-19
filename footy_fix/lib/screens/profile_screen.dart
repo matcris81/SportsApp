@@ -73,7 +73,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             return ListView(
               padding: const EdgeInsets.all(16.0),
               children: <Widget>[
-                const SizedBox(height: 30), // Spacer
+                const SizedBox(height: 30),
                 Center(
                     child: GestureDetector(
                   onTap: () async {
@@ -82,7 +82,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         await _picker.pickImage(source: ImageSource.gallery);
 
                     if (image != null) {
-                      // Compress the image
                       var compressedImage =
                           await FlutterImageCompress.compressWithFile(
                         image.path,

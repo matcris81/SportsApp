@@ -42,14 +42,13 @@ class _LoginPageState extends State<LoginPage> {
       var credential = await AuthService().signInWithEmailPassword(
           emailController.text, passwordController.text);
 
-      Navigator.pop(context); // Dismiss the loading dialog
+      Navigator.pop(context);
 
       if (credential == null) {
-        // If credential is null, directly inform the user
         setState(() {
           errorMessage = "Login failed. Please check your email and password.";
         });
-        return; // Exit the function
+        return;
       }
 
       if (!mounted) return;
@@ -63,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
         MaterialPageRoute(builder: (context) => const NavBar()),
       );
     } on FirebaseAuthException catch (e) {
-      Navigator.pop(context); // Dismiss the loading dialog
+      Navigator.pop(context);
 
       String newErrorMessage = "An error occurred. Please try again later.";
       if (e.code == 'user-not-found') {
@@ -127,6 +126,7 @@ class _LoginPageState extends State<LoginPage> {
         "email": email,
         "username": email,
         "password": "password",
+        "isFake": false,
       };
 
       var result = await DatabaseServices().postData(
