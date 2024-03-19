@@ -110,9 +110,13 @@ class _AddEventState extends State<AddEvent> {
       MaterialPageRoute(builder: (context) => const SelectVenue()),
     );
 
+    print('result: ${result[0]}');
+
     if (result != null) {
+      print('result 2: $result');
       setState(() {
         venueID = result[0];
+        print('venueId: $venueID');
         locationName = result[1];
       });
     }
@@ -194,7 +198,7 @@ class _AddEventState extends State<AddEvent> {
                 key: _formKey,
                 child: ListView(
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   children: <Widget>[
                     const SizedBox(height: 16.0),
                     widget.venueId != null
@@ -287,6 +291,7 @@ class _AddEventState extends State<AddEvent> {
                     const SizedBox(height: 24.0),
                     ElevatedButton(
                       onPressed: () async {
+                        print('widget.venueId: ${widget.venueId}');
                         if (_formKey.currentState!.validate()) {
                           _formKey.currentState!.save();
 
@@ -317,6 +322,8 @@ class _AddEventState extends State<AddEvent> {
                             venueID = widget.venueId!;
                           }
 
+                          print('venueID: $venueID');
+
                           var game = {
                             'venueId': venueID,
                             'sportId': sportID,
@@ -326,6 +333,8 @@ class _AddEventState extends State<AddEvent> {
                             'price': price,
                             'organizer': {'id': userID},
                           };
+
+                          print('game: $game');
 
                           var response = await DatabaseServices().postData(
                               '${DatabaseServices().backendUrl}/api/games',

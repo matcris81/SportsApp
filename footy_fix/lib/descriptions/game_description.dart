@@ -48,7 +48,6 @@ class _GameDescriptionState extends State<GameDescription> {
   bool userAlreadyJoined = false;
   String? sport;
   int? organizerImageID;
-  int fakePlayers = 0;
   String? organizerPhoneNumber;
 
   @override
@@ -80,7 +79,6 @@ class _GameDescriptionState extends State<GameDescription> {
         var date = gameInfo['gameDate'];
         organizer = gameInfo['organizer_username'];
         organizerImageID = gameInfo['organizer_image_id'];
-        fakePlayers = gameInfo['fakePlayers'];
         organizerPhoneNumber = gameInfo['organizer_number'];
 
         DateTime parsedDate = DateTime.parse(date);
@@ -232,21 +230,21 @@ class _GameDescriptionState extends State<GameDescription> {
                             color: Colors.black,
                           ),
                           const SizedBox(width: 10),
-                          numberOfPlayers < fakePlayers
-                              ? Text(
-                                  '$fakePlayers/$size spots left',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                )
-                              : Text(
-                                  '$numberOfPlayers/$size spots left',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                          // numberOfPlayers < fakePlayers
+                          //     ? Text(
+                          //         '$fakePlayers/$size spots left',
+                          //         style: const TextStyle(
+                          //           fontSize: 14,
+                          //           fontWeight: FontWeight.bold,
+                          //         ),
+                          //       )
+                          Text(
+                            '$numberOfPlayers/$size spots left',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -325,7 +323,7 @@ class _GameDescriptionState extends State<GameDescription> {
                             Expanded(
                               child: Row(
                                 children: [
-                                  if (players.isNotEmpty || fakePlayers > 0)
+                                  if (players.isNotEmpty)
                                     _buildPlayerIconsRow()
                                   else
                                     const Text(
