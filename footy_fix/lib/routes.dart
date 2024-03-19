@@ -43,6 +43,14 @@ final GoRouter appRoutes = GoRouter(
               );
             },
             routes: <RouteBase>[
+              // GoRoute(
+              //   path: 'gamePlayers',
+              //   builder: (BuildContext context, GoRouterState state) {
+              //     return GameDescription(
+              //       gameID: id,
+              //     );
+              //   },
+              // ),
               GoRoute(
                 path: 'checkout',
                 builder: (BuildContext context, GoRouterState state) {

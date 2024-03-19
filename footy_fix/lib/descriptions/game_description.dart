@@ -3,13 +3,12 @@ import 'dart:typed_data';
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:footy_fix/screens/feature_manager_screens/event_adder.dart';
+import 'package:footy_fix/screens/game_players_screen.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'dart:io' show Platform;
 import 'package:url_launcher/url_launcher.dart';
-import 'package:footy_fix/screens/checkout_screen.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -43,8 +42,8 @@ class _GameDescriptionState extends State<GameDescription> {
   var venueName;
   List<String> imageUrls = [];
   List<dynamic> players = [];
-  static const String defaultImageUrl =
-      'https://example.com/default-avatar.jpg';
+  // static const String defaultImageUrl =
+  //     'https://example.com/default-avatar.jpg';
   String? organizer;
   bool userAlreadyJoined = false;
   String? sport;
@@ -70,8 +69,6 @@ class _GameDescriptionState extends State<GameDescription> {
       numberOfPlayers = players.length;
 
       checkIfUserAlreadyJoined(players, id!);
-
-      print('gameInfo: $gameInfo');
 
       setState(() {
         userID = id;
@@ -166,6 +163,7 @@ class _GameDescriptionState extends State<GameDescription> {
                                     if (snapshot.connectionState ==
                                             ConnectionState.done &&
                                         snapshot.hasData) {
+                                      print('organizer: ${snapshot.data}');
                                       Map<String, dynamic> imageData =
                                           jsonDecode(snapshot.data!);
                                       Uint8List imageBytes =
@@ -185,7 +183,6 @@ class _GameDescriptionState extends State<GameDescription> {
                                   },
                                 )
                               : const CircleAvatar(
-                                  // This is the fallback if the organizerImageID is null
                                   backgroundColor: Colors.grey,
                                   radius: 20.0,
                                   child:
@@ -193,11 +190,12 @@ class _GameDescriptionState extends State<GameDescription> {
                                 ),
                           SizedBox(width: 10), // Adjust spacing as needed
                           Text(
-                            ' Hosted by $organizer',
+                            'Hosted by $organizer',
                             style: const TextStyle(
                               fontSize: 18,
                               color: Colors.black,
                             ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
@@ -314,24 +312,39 @@ class _GameDescriptionState extends State<GameDescription> {
                             fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Row(
-                            children: [
-                              if (players.isNotEmpty || fakePlayers > 0)
-                                _buildPlayerIconsRow()
-                              else
-                                const Text(
-                                  'Be the first to join',
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                      fontStyle: FontStyle.italic),
-                                ),
-                            ],
-                          ),
-                        ],
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return GamePlayers(players: players);
+                          }));
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  if (players.isNotEmpty || fakePlayers > 0)
+                                    _buildPlayerIconsRow()
+                                  else
+                                    const Text(
+                                      'Be the first to join',
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey,
+                                          fontStyle: FontStyle.italic),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            const Icon(
+                              Icons.arrow_forward_ios,
+                              color: Colors.grey,
+                              size: 16,
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 30),
                       Container(
@@ -383,12 +396,9 @@ class _GameDescriptionState extends State<GameDescription> {
     int maxIconsToShow = 10;
     double overlap = 20.0;
 
-    // Start with an empty list of icon widgets
     List<Widget> iconWidgets = [];
 
-    // Ensure the total number of player icons (real + fake) doesn't exceed maxIconsToShow
     int realPlayersToShow = min(numberOfPlayers, maxIconsToShow);
-    int fakePlayersToShow = maxIconsToShow - realPlayersToShow;
 
     // Add icons for real players
     for (int i = 0; i < realPlayersToShow; i++) {
@@ -399,13 +409,6 @@ class _GameDescriptionState extends State<GameDescription> {
         // If a real player doesn't have an image, use the default icon
         iconWidget = _buildDefaultPlayerIcon(i * (40.0 - overlap));
       }
-      iconWidgets.add(iconWidget);
-    }
-
-    // Fill the remaining slots with fake player icons
-    for (int i = 0; i < fakePlayersToShow; i++) {
-      Widget iconWidget =
-          _buildFakePlayerIcon((realPlayersToShow + i) * (40.0 - overlap));
       iconWidgets.add(iconWidget);
     }
 
@@ -640,8 +643,6 @@ class _GameDescriptionState extends State<GameDescription> {
     var result = await DatabaseServices().getData(
         '${DatabaseServices().backendUrl}/api/players/$organizerID', token);
 
-    print('organizerID: ${result.body}');
-
     return jsonDecode(result.body);
   }
 
@@ -669,7 +670,6 @@ class _GameDescriptionState extends State<GameDescription> {
         ? organizerInfo['playerImage']['id']
         : null;
     gameInfo['organizer_number'] = organizerInfo['phoneNumber'];
-    print('organizer number: ${gameInfo['organizer_number']}');
 
     return gameInfo;
   }

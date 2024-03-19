@@ -30,6 +30,7 @@ class GameTile extends StatelessWidget {
         token);
 
     var playerCount = json.decode(playerCountResponse.body);
+    print('playerCount: $playerCount');
 
     Map<String, dynamic> gameDetails = json.decode(result.body);
 
@@ -91,7 +92,7 @@ class GameTile extends StatelessWidget {
         }
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const SizedBox(
-              height: 200, child: Center(child: const Text('Loading...')));
+              height: 200, child: Center(child: Text('Loading...')));
         }
 
         var gameDetails = snapshot.data!;
@@ -148,8 +149,8 @@ class GameTile extends StatelessWidget {
                             ),
                           ),
                           Positioned(
-                            top: 65, // Adjust the position as needed
-                            right: 8, // Adjust the position as needed
+                            top: 65,
+                            right: 8,
                             child: Container(
                               padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
@@ -157,10 +158,9 @@ class GameTile extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: const Icon(
-                                Icons
-                                    .sports_soccer, // Use the appropriate Icons value
-                                size: 16, // Size of the icon
-                                color: Colors.white, // Color of the icon
+                                Icons.sports_soccer,
+                                size: 16,
+                                color: Colors.white,
                               ),
                             ),
                           ),
@@ -218,7 +218,7 @@ class GameTile extends StatelessWidget {
                               Text(
                                 playersJoined == size
                                     ? "Full"
-                                    : "${playersJoined < size ? fakePlayers : playersJoined}/$size have joined",
+                                    : "$playersJoined/$size have joined",
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
@@ -243,12 +243,14 @@ class GameTile extends StatelessWidget {
                                 foregroundColor: Colors.white,
                                 minimumSize: const Size.fromHeight(50),
                                 backgroundColor:
-                                    hasJoined ? Colors.grey : Colors.black,
+                                    hasJoined || playersJoined == size
+                                        ? Colors.grey
+                                        : Colors.black,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
                                 ),
                               ),
-                              onPressed: hasJoined
+                              onPressed: hasJoined || playersJoined == size
                                   ? null
                                   : () {
                                       Navigator.push(
@@ -259,9 +261,11 @@ class GameTile extends StatelessWidget {
                                                     gameID: gameID,
                                                   )));
                                     },
-                              child: Text(hasJoined
-                                  ? 'Joined'
-                                  : 'Join for \$${price.toStringAsFixed(2)}'),
+                              child: Text(playersJoined == size
+                                  ? 'Game Full'
+                                  : hasJoined
+                                      ? 'Joined'
+                                      : 'Join for \$${price.toStringAsFixed(2)}'),
                             ),
                           ),
                         ),

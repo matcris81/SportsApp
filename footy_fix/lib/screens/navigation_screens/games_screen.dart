@@ -51,7 +51,6 @@ class _GamesScreenState extends State<GamesScreen> {
 
     print('response body: ${response.body}');
 
-    // Check the response status and decode the body
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {

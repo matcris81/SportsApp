@@ -15,7 +15,7 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -39,7 +39,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
       String userID = userCredential.user!.uid;
 
-      addPlayer(userID, emailController.text);
+      addPlayer(userID, emailController.text, usernameController.text);
 
       if (!mounted) return;
       Navigator.pop(context);
@@ -54,14 +54,14 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  void addPlayer(String userID, String? email) async {
+  void addPlayer(String userID, String? email, String? username) async {
     var token =
         await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var userMap = {
       "id": userID,
       "email": email,
-      "username": email,
+      "username": username,
       "password": "password",
     };
 
@@ -80,8 +80,8 @@ class _RegisterPageState extends State<RegisterPage> {
           },
         ),
         //title: Text('Register'),
-        backgroundColor: Colors.grey[300], // Adjust the color as needed
-        elevation: 0, // Remove shadow if desired
+        backgroundColor: Colors.grey[300],
+        elevation: 0,
       ),
       backgroundColor: Colors.grey[300],
       body: SafeArea(
@@ -101,8 +101,8 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 25),
 
                 MyTextField(
-                  controller: firstNameController,
-                  hintText: 'First Name',
+                  controller: usernameController,
+                  hintText: 'Username',
                   obscureText: false,
                 ),
 
