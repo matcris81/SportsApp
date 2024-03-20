@@ -23,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   String userID = '';
   double balance = 0.0;
   late AutoScrollController _autoScrollController;
+  late Future<List<Widget>> _gameTilesFuture;
 
   @override
   void initState() {
@@ -30,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _autoScrollController = AutoScrollController();
     WidgetsBinding.instance.addObserver(this);
     _initAsyncData();
+    _gameTilesFuture = buildGameTiles();
   }
 
   @override
@@ -279,7 +281,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           int? imageId;
 
                           if (venue['imageId'] == null) {
-                            print(venue['imageId']);
                             imageId = -1;
                           }
 
@@ -311,7 +312,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   ),
                 ),
                 FutureBuilder<List<Widget>>(
-                  future: buildGameTiles(),
+                  future: _gameTilesFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());

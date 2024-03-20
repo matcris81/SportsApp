@@ -348,6 +348,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
           token,
           gameBody);
 
+      PreferencesService().saveIntToList(widget.gameID!, 'gamesJoined');
+
       context.go('/home/${widget.gameID}');
     }
   }
@@ -401,7 +403,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
       var addGameresult = await DatabaseServices().patchData(
           '${DatabaseServices().backendUrl}/api/players/$userID', token, body);
 
-      print('addGameresult: ${addGameresult.body}');
+      await PreferencesService().saveIntToList(widget.gameID!, 'gamesJoined');
+
       context.go('/home/${widget.gameID}');
     }
   }
