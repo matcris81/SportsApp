@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/services/geolocator_services.dart';
 import 'package:footy_fix/screens/start_screens/login_screen.dart';
 import 'package:footy_fix/components/navigation.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
@@ -43,6 +47,10 @@ class _AuthPageState extends State<AuthPage> {
     // Start location updates
     _geolocatorService.startPeriodicLocationUpdates(const Duration(minutes: 5));
 
+    print('before');
+    _updateSharedPreferencesInBackground(user.uid);
+    print('after');
+
     // Navigate to NavBar
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Navigator.of(context).push(
@@ -51,6 +59,42 @@ class _AuthPageState extends State<AuthPage> {
     });
 
     return const Center(child: CircularProgressIndicator());
+  }
+
+  void _updateSharedPreferencesInBackground(String userId) async {
+    var token =
+        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    try {
+      var gamesResponse = await DatabaseServices().getData(
+          '${DatabaseServices().backendUrl}/api/games/by-user/$userId', token);
+
+      var gamesJson = jsonDecode(gamesResponse.body);
+
+      if (gamesJson is List) {
+        List<int> gameIdList =
+            gamesJson.map<int>((game) => game['id'] as int).toList();
+        await PreferencesService().saveList(gameIdList, 'gamesJoined');
+        print('gameIds: $gameIdList');
+      }
+
+      var venueResponse = await DatabaseServices().getData(
+          '${DatabaseServices().backendUrl}/api/players/$userId/venues', token);
+
+      var venueJson = jsonDecode(venueResponse.body);
+      print('venueJson: $venueJson');
+
+      if (venueJson is List) {
+        List<int> venueIdList =
+            venueJson.map<int>((venue) => venue['id'] as int).toList();
+        await PreferencesService().saveList(venueIdList, 'likedVenues');
+        print('venueIdList: $venueIdList');
+      }
+
+      // await _sharedPreferencesService.updatePreferences(data);
+    } catch (e) {
+      // Handle any errors appropriately
+    }
   }
 
   void _updateUserLocation() {
