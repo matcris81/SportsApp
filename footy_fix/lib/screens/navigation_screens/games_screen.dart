@@ -36,20 +36,31 @@ class _GamesScreenState extends State<GamesScreen> {
 
   Future<List<dynamic>> _getGamesForDay(String day) async {
     // Parse the day string to DateTime and format it as yyyy-MM-dd
-    DateTime dateTime = DateTime.parse(day);
-    String formattedDate =
-        "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
+    DateTime selectedDate = DateTime.parse(day);
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
 
-    // Authenticate and get the token
-    // var token =
-    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // Check if the selectedDate is today
+    bool isToday = selectedDate.year == now.year &&
+        selectedDate.month == now.month &&
+        selectedDate.day == now.day;
 
-    // Make the API call
-    var response = await DatabaseServices().getData(
-      '${DatabaseServices().backendUrl}/api/games/by-date?date=$formattedDate',
-    );
+    String endpoint;
 
-    print('response body: ${response.body}');
+    if (isToday) {
+      // If it's today, use the endpoint that considers the current time
+      endpoint = "/api/games/by-date-time-asc?date=$formattedDate";
+    } else {
+      // For any other day, just use the date
+      endpoint = "/api/games/by-date?date=$formattedDate";
+    }
+
+    print('Fetching games from: $endpoint');
+
+    var response = await DatabaseServices()
+        .getData('${DatabaseServices().backendUrl}$endpoint');
+
+    print('Response body: ${response.body}');
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
