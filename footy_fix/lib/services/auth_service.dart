@@ -28,6 +28,25 @@ class AuthService {
     }
   }
 
+  Future<String?> getFreshToken() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print("No user logged in.");
+      return null;
+    }
+
+    try {
+      String? token = await user.getIdToken(true);
+
+      await PreferencesService().saveToken(token!);
+
+      return token;
+    } catch (e) {
+      print("Error getting fresh token: $e");
+      return null;
+    }
+  }
+
   Future<UserCredential?> signInWithEmailPassword(
       String email, String password) async {
     FirebaseAuth auth = FirebaseAuth.instance;
