@@ -103,12 +103,11 @@ class _SelectVenueState extends State<SelectVenue> {
   }
 
   Future<Map<int, String>> getData() async {
-    String token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // String token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
-    var response = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/venues',
-        token); // Replace with your API endpoint
+    var response = await DatabaseServices()
+        .getData('${DatabaseServices().backendUrl}/api/venues');
 
     print('response.body: ${response.body}');
 

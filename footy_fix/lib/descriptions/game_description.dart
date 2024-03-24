@@ -475,13 +475,12 @@ class _GameDescriptionState extends State<GameDescription> {
   }
 
   Future<String?> fetchImageData(String playerImageId) async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     try {
       var response = await DatabaseServices().getData(
-          '${DatabaseServices().backendUrl}/api/player-images/$playerImageId',
-          token);
+          '${DatabaseServices().backendUrl}/api/player-images/$playerImageId');
 
       if (response.statusCode == 200) {
         return response.body;
@@ -595,11 +594,11 @@ class _GameDescriptionState extends State<GameDescription> {
   Future<String?> getSport(int sportId) async {
     String? sport;
 
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var response = await DatabaseServices()
-        .getData('${DatabaseServices().backendUrl}/api/sports/$sportId', token);
+        .getData('${DatabaseServices().backendUrl}/api/sports/$sportId');
 
     Map<String, dynamic> sports = jsonDecode(response.body);
 
@@ -622,12 +621,11 @@ class _GameDescriptionState extends State<GameDescription> {
   Future<List<dynamic>> getPlayers() async {
     List<dynamic> players = [];
 
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var result = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/games/${widget.gameID}/get-players',
-        token);
+        '${DatabaseServices().backendUrl}/api/games/${widget.gameID}/get-players');
 
     players = jsonDecode(result.body);
 
@@ -635,11 +633,11 @@ class _GameDescriptionState extends State<GameDescription> {
   }
 
   Future<Map<String, dynamic>> getOrganizerInfo(String organizerID) async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
-    var result = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/players/$organizerID', token);
+    var result = await DatabaseServices()
+        .getData('${DatabaseServices().backendUrl}/api/players/$organizerID');
 
     return jsonDecode(result.body);
   }
@@ -647,11 +645,11 @@ class _GameDescriptionState extends State<GameDescription> {
   Future<Map<dynamic, dynamic>> getGameInfo() async {
     Map gameInfo = {};
 
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
-    var result = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/games/${widget.gameID}', token);
+    var result = await DatabaseServices()
+        .getData('${DatabaseServices().backendUrl}/api/games/${widget.gameID}');
 
     Map<String, dynamic> gameDetails = jsonDecode(result.body);
 
@@ -673,11 +671,11 @@ class _GameDescriptionState extends State<GameDescription> {
   }
 
   Future<Map<String, dynamic>> getVenueInfo(int venueID) async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var result = await DatabaseServices()
-        .getData('${DatabaseServices().backendUrl}/api/venues/$venueID', token);
+        .getData('${DatabaseServices().backendUrl}/api/venues/$venueID');
 
     Map<String, dynamic> venueInfo = jsonDecode(result.body);
 

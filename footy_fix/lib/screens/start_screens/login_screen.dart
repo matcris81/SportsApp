@@ -114,11 +114,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void addUserifDoesntExist(String userID, String? email) async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var response = await DatabaseServices()
-        .getData('${DatabaseServices().backendUrl}/api/players/$userID', token);
+        .getData('${DatabaseServices().backendUrl}/api/players/$userID');
 
     if (response.statusCode == 404) {
       var userMap = {
@@ -129,8 +129,8 @@ class _LoginPageState extends State<LoginPage> {
         "isFake": false,
       };
 
-      var result = await DatabaseServices().postData(
-          '${DatabaseServices().backendUrl}/api/players', token, userMap);
+      var result = await DatabaseServices()
+          .postData('${DatabaseServices().backendUrl}/api/players', userMap);
     }
   }
 

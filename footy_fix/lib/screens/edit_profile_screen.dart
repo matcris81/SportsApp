@@ -200,12 +200,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 ? _selectedGender
                                 : null;
 
-                            var token = await DatabaseServices()
-                                .authenticateAndGetToken('admin', 'admin');
+                            // var token = await DatabaseServices()
+                            //     .authenticateAndGetToken('admin', 'admin');
 
                             var response = await DatabaseServices().patchData(
                                 '${DatabaseServices().backendUrl}/api/players/$userID',
-                                token,
+                                // token,
                                 data);
 
                             Navigator.pop(context);

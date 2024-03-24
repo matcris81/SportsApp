@@ -44,12 +44,10 @@ class LocationTile extends StatelessWidget {
         ByteData bytes = await rootBundle.load('assets/standInVenueImage.jpg');
         return bytes.buffer.asUint8List();
       } else {
-        var token =
-            await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-        var imageResponse = await DatabaseServices().getData(
-          '${DatabaseServices().backendUrl}/api/images/$imageId',
-          token,
-        );
+        // var token =
+        //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+        var imageResponse = await DatabaseServices()
+            .getData('${DatabaseServices().backendUrl}/api/images/$imageId');
         var imageData = jsonDecode(imageResponse.body);
         if (imageData['imageData'] != null) {
           String base64String = imageData['imageData'];

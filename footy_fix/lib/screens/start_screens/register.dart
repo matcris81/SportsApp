@@ -55,8 +55,8 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void addPlayer(String userID, String? email, String? username) async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var userMap = {
       "id": userID,
@@ -65,8 +65,8 @@ class _RegisterPageState extends State<RegisterPage> {
       "password": "password",
     };
 
-    var result = await DatabaseServices().postData(
-        '${DatabaseServices().backendUrl}/api/players', token, userMap);
+    var result = await DatabaseServices()
+        .postData('${DatabaseServices().backendUrl}/api/players', userMap);
   }
 
   @override

@@ -9,13 +9,12 @@ class GamePlayers extends StatelessWidget {
   GamePlayers({Key? key, required this.players}) : super(key: key);
 
   Future<String?> fetchImageData(String playerImageId) async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     try {
       var response = await DatabaseServices().getData(
-          '${DatabaseServices().backendUrl}/api/player-images/$playerImageId',
-          token);
+          '${DatabaseServices().backendUrl}/api/player-images/$playerImageId');
 
       if (response.statusCode == 200) {
         return response.body;

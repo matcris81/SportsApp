@@ -125,11 +125,11 @@ class _AddEventState extends State<AddEvent> {
   Future<String?> getSportInfo(String sport) async {
     bool sportExists = false;
     String? sportId;
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var sports = await DatabaseServices()
-        .getData('${DatabaseServices().backendUrl}/api/sports', token);
+        .getData('${DatabaseServices().backendUrl}/api/sports');
 
     List<dynamic> sportsResponse = jsonDecode(sports.body);
 
@@ -147,8 +147,8 @@ class _AddEventState extends State<AddEvent> {
         'sportName': sport,
       };
 
-      var response = await DatabaseServices().postData(
-          '${DatabaseServices().backendUrl}/api/sports', token, sportBody);
+      var response = await DatabaseServices()
+          .postData('${DatabaseServices().backendUrl}/api/sports', sportBody);
 
       Map<String, dynamic> sportInfo = jsonDecode(response.body);
 
@@ -159,10 +159,10 @@ class _AddEventState extends State<AddEvent> {
   }
 
   Future<String> fetchVenueName(int venueId) async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
     var response = await DatabaseServices()
-        .getData('${DatabaseServices().backendUrl}/api/venues/$venueId', token);
+        .getData('${DatabaseServices().backendUrl}/api/venues/$venueId');
     var venueDetails = json.decode(response.body);
     return venueDetails['venueName'];
   }
@@ -308,8 +308,8 @@ class _AddEventState extends State<AddEvent> {
                           String formattedDate =
                               formatter.format(combinedDateTime);
 
-                          var token = await DatabaseServices()
-                              .authenticateAndGetToken('admin', 'admin');
+                          // var token = await DatabaseServices()
+                          //     .authenticateAndGetToken('admin', 'admin');
 
                           var sportID = await getSportInfo(sport);
 
@@ -338,7 +338,7 @@ class _AddEventState extends State<AddEvent> {
 
                           var response = await DatabaseServices().postData(
                               '${DatabaseServices().backendUrl}/api/games',
-                              token,
+                              // token,
                               game);
 
                           Map<String, dynamic> gameInfo =

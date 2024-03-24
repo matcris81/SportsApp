@@ -40,12 +40,11 @@ class _LocationDescriptionState extends State<LocationDescription> {
   }
 
   Future<void> getVenueData() async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var response = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/venues/${widget.locationID}',
-        token);
+        '${DatabaseServices().backendUrl}/api/venues/${widget.locationID}');
 
     var locationDetails = json.decode(response.body);
     String? creatorId = locationDetails['creatorId'];
@@ -68,12 +67,11 @@ class _LocationDescriptionState extends State<LocationDescription> {
     String userID = await PreferencesService().getUserId() ?? '';
     bool liked = false;
 
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var response = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/players/$userID/likes-venue/${widget.locationID}',
-        token);
+        '${DatabaseServices().backendUrl}/api/players/$userID/likes-venue/${widget.locationID}');
 
     if (response.body == "true") {
       liked = true;
@@ -93,8 +91,8 @@ class _LocationDescriptionState extends State<LocationDescription> {
 
     try {
       String userID = await PreferencesService().getUserId() ?? '';
-      var token =
-          await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+      // var token =
+      //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
       var body = {
         "id": userID,
         "venues": [
@@ -105,13 +103,13 @@ class _LocationDescriptionState extends State<LocationDescription> {
       if (isHeartFilled) {
         await DatabaseServices().patchData(
             '${DatabaseServices().backendUrl}/api/players/$userID',
-            token,
+            // token,
             body);
         await FirebaseAPI().subscribeToTopic('Venue${widget.locationID}');
       } else {
         await DatabaseServices().patchData(
             '${DatabaseServices().backendUrl}/api/players/remove/$userID',
-            token,
+            // token,
             body);
         await FirebaseAPI().unsubscribeFromTopic('Venue${widget.locationID}');
       }
@@ -128,12 +126,11 @@ class _LocationDescriptionState extends State<LocationDescription> {
   }
 
   Future<Map<String, dynamic>> getNextUpcomingGame() async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var response = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/games/earliest-by-venue?venueId=${widget.locationID}',
-        token);
+        '${DatabaseServices().backendUrl}/api/games/earliest-by-venue?venueId=${widget.locationID}');
 
     if (response.statusCode == 404) {
       // throw Exception('No games');
@@ -151,12 +148,11 @@ class _LocationDescriptionState extends State<LocationDescription> {
   }
 
   Future<Map<String, dynamic>> getLocationDetails() async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var result = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/venues/${widget.locationID}',
-        token);
+        '${DatabaseServices().backendUrl}/api/venues/${widget.locationID}');
 
     var locationDetails = json.decode(result.body);
 
@@ -499,12 +495,11 @@ class _LocationDescriptionState extends State<LocationDescription> {
   }
 
   Future<Uint8List> fetchVenueImage(int imageId) async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var imageResponse = await DatabaseServices().getData(
       '${DatabaseServices().backendUrl}/api/images/$imageId',
-      token,
     );
 
     var imageUrl = json.decode(imageResponse.body)['imageData'];
@@ -527,13 +522,12 @@ class _LocationDescriptionState extends State<LocationDescription> {
         'imageData': base64Image,
       };
 
-      String token =
-          await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+      // String token =
+      //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
       try {
         var response = await DatabaseServices().postData(
           '${DatabaseServices().backendUrl}/api/images',
-          token,
           imageData,
         );
 
@@ -543,10 +537,10 @@ class _LocationDescriptionState extends State<LocationDescription> {
 
         var response2 = await DatabaseServices().patchData(
             '${DatabaseServices().backendUrl}/api/venues/${widget.locationID}',
-            token, {
-          'id': widget.locationID,
-          'imageId': imageID,
-        });
+            {
+              'id': widget.locationID,
+              'imageId': imageID,
+            });
 
         if (response.statusCode == 200 || response.statusCode == 201) {
           print('Image uploaded successfully: ${response.body}');

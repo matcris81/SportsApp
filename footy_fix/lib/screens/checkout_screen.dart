@@ -29,11 +29,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   void getGameInfo() async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
-    var response = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/games/${widget.gameID}', token);
+    var response = await DatabaseServices()
+        .getData('${DatabaseServices().backendUrl}/api/games/${widget.gameID}');
 
     Map<String, dynamic> gameInfo = jsonDecode(response.body);
 

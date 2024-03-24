@@ -1,11 +1,15 @@
+import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert'; // for using jsonEncode and jsonDecode
+import 'dart:convert';
+
+import 'package:image_picker/image_picker.dart'; // for using jsonEncode and jsonDecode
 
 class DatabaseServices {
   // String backendUrl = 'http://10.0.2.2:4242';
-  // String backendUrl = 'http://localhost:4242';
+  String backendUrl = 'http://localhost:4242';
   // String backendUrl = 'http://192.168.3.11:4242';
-  String backendUrl = 'https://kaido.tk/backend/';
+  // String backendUrl = 'https://kaido.tk/backend/';
+  // late String firebaseToken;
 
   Future<http.Response> fetchData(String url) async {
     final response = await http.get(Uri.parse(url));
@@ -17,67 +21,76 @@ class DatabaseServices {
     }
   }
 
-  Future<String> authenticateAndGetToken(
-      String username, String password) async {
-    var url = Uri.parse('https://kaido.tk/backend/api/authenticate');
-    // var url = Uri.parse('http://localhost:4242/api/authenticate');
+  // Future<String> authenticateAndGetToken(
+  //     String username, String password) async {
+  //   // var url = Uri.parse('https://kaido.tk/backend/api/authenticate');
+  //   var url = Uri.parse('http://localhost:4242/api/authenticate');
 
-    // var url = Uri.parse('http://192.168.3.11:4242/api/authenticate');
+  //   // var url = Uri.parse('http://192.168.3.11:4242/api/authenticate');
 
-    // var url = Uri.parse('http://10.0.2.2:4242/api/authenticate');
+  //   // var url = Uri.parse('http://10.0.2.2:4242/api/authenticate');
 
-    var response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: jsonEncode({
-        'username': username,
-        'password': password,
-        'rememberMe': false,
-      }),
-    );
+  //   var response = await http.post(
+  //     url,
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       'Accept': 'application/json',
+  //     },
+  //     body: jsonEncode({
+  //       'username': username,
+  //       'password': password,
+  //       'rememberMe': false,
+  //     }),
+  //   );
 
-    if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(response.body);
-      String jwtToken = jsonResponse['id_token'];
-      return jwtToken;
-    } else {
-      throw Exception('Failed to authenticate');
-    }
-  }
+  //   if (response.statusCode == 200) {
+  //     var jsonResponse = jsonDecode(response.body);
+  //     String jwtToken = jsonResponse['id_token'];
+  //     return jwtToken;
+  //   } else {
+  //     throw Exception('Failed to authenticate');
+  //   }
+  // }
 
-  Future<http.Response> postData(
-      String url, String token, Map<String, dynamic> body) async {
-    String jsonBody = jsonEncode(body);
+  // Future<String> getToken() async {
+  //   // var url = Uri.parse('https://kaido.tk/backend/api/authenticate');
+  //   var url = Uri.parse('http://localhost:4242/api/authenticate');
 
-    var response = await http.post(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonBody,
-    );
+  //   var firebaseToken = await PreferencesService().retrieveToken();
 
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      return response;
-    } else {
-      throw Exception(
-          'Failed to post data. Status Code: ${response.statusCode}, '
-          'Response Body: ${response.body}');
-    }
-  }
+  //   // var url = Uri.parse('http://192.168.3.11:4242/api/authenticate');
 
-  Future<http.Response> getData(String url, String token) async {
+  //   // var url = Uri.parse('http://10.0.2.2:4242/api/authenticate');
+
+  //   var response = await http.post(url, headers: {
+  //     'Content-Type': 'application/json',
+  //     'Accept': 'application/json',
+  //     // 'Authorization': 'Bearer $firebaseToken',
+  //     'Authorization': '$firebaseToken',
+  //   });
+
+  //   print('response.statusCode: ${response.statusCode}');
+
+  //   if (response.statusCode == 200) {
+  //     var jsonResponse = jsonDecode(response.body);
+  //     String jwtToken = jsonResponse['id_token'];
+  //     return jwtToken;
+  //   } else {
+  //     throw Exception('Failed to authenticate');
+  //   }
+  // }
+
+  Future<http.Response> getData(String url) async {
+    var firebaseToken = await PreferencesService().retrieveToken();
+
+    print('firebaseToken: $firebaseToken');
+
     var response = await http.get(
       Uri.parse(url),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
+        'Authorization': '$firebaseToken',
       },
     );
 
@@ -94,8 +107,36 @@ class DatabaseServices {
     }
   }
 
-  Future<http.Response> patchDataWithoutMap(
-      String url, String token, double number) async {
+  Future<http.Response> postData(String url, Map<String, dynamic> body) async {
+    var firebaseToken = await PreferencesService().retrieveToken();
+    print('firebaseToken: $firebaseToken');
+
+    String jsonBody = jsonEncode(body);
+
+    var response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': firebaseToken!,
+      },
+      body: jsonBody,
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return response;
+    } else {
+      throw Exception(
+          'Failed to post data. Status Code: ${response.statusCode}, '
+          'Response Body: ${response.body}');
+    }
+  }
+
+  Future<http.Response> patchDataWithoutMap(String url, double number) async {
+    var firebaseToken = await PreferencesService().retrieveToken();
+
+    print('firebaseToken: $firebaseToken');
+
     String jsonBody = jsonEncode(number);
     print(Uri.parse(url));
 
@@ -104,7 +145,7 @@ class DatabaseServices {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
+        'Authorization': firebaseToken!,
       },
       body: jsonBody,
     );
@@ -118,8 +159,11 @@ class DatabaseServices {
     }
   }
 
-  Future<http.Response> patchData(
-      String url, String token, Map<String, dynamic> body) async {
+  Future<http.Response> patchData(String url, Map<String, dynamic> body) async {
+    var firebaseToken = await PreferencesService().retrieveToken();
+
+    print('firebaseToken: $firebaseToken');
+
     String jsonBody = jsonEncode(body);
     print(Uri.parse(url));
 
@@ -128,7 +172,7 @@ class DatabaseServices {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
+        'Authorization': firebaseToken!,
       },
       body: jsonBody,
     );
@@ -142,13 +186,17 @@ class DatabaseServices {
     }
   }
 
-  Future<http.Response> deleteData(String url, String token) async {
+  Future<http.Response> deleteData(String url) async {
+    var firebaseToken = await PreferencesService().retrieveToken();
+
+    print('firebaseToken: $firebaseToken');
+
     var response = await http.delete(
       Uri.parse(url),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
+        'Authorization': firebaseToken!,
       },
     );
 

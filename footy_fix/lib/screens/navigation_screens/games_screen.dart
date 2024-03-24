@@ -41,13 +41,13 @@ class _GamesScreenState extends State<GamesScreen> {
         "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
 
     // Authenticate and get the token
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     // Make the API call
     var response = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/games/by-date?date=$formattedDate',
-        token);
+      '${DatabaseServices().backendUrl}/api/games/by-date?date=$formattedDate',
+    );
 
     print('response body: ${response.body}');
 

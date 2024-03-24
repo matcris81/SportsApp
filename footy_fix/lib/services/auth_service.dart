@@ -1,3 +1,4 @@
+import 'package:footy_fix/services/database_services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -14,6 +15,11 @@ class AuthService {
         email: email,
         password: password,
       );
+
+      var token = await auth.currentUser!.getIdToken(true);
+      // print(token.runtimeType);
+
+      await PreferencesService().saveToken(token!);
 
       return userCredential;
     } on FirebaseAuthException {
@@ -32,7 +38,12 @@ class AuthService {
         password: password,
       );
 
-      await auth.currentUser!.getIdToken(true);
+      var token = await auth.currentUser!.getIdToken(true);
+      // print(token.runtimeType);
+
+      await PreferencesService().saveToken(token!);
+
+      // print('token: $token');
 
       return userCredential;
     } catch (e) {
@@ -45,6 +56,7 @@ class AuthService {
     try {
       // Begin interactive sign-in process
       final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
+      print('gUser: $gUser');
 
       // If user cancelled the Google sign-in process, gUser will be null
       if (gUser == null) {
@@ -65,6 +77,10 @@ class AuthService {
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
       print('Google Sign-In successful, User UID: ${userCredential.user?.uid}');
+
+      final String? token = await userCredential.user?.getIdToken();
+
+      await PreferencesService().saveToken(token!);
 
       // store userID locally
 
@@ -92,6 +108,10 @@ class AuthService {
 
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
+
+      final String? token = await userCredential.user?.getIdToken();
+
+      await PreferencesService().saveToken(token!);
 
       return userCredential;
     } catch (error) {

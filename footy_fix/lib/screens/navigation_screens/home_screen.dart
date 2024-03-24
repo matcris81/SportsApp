@@ -78,10 +78,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Future<void> getUserBalance(String id) async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-    var response = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/players/$id/balance', token);
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+
+    // var response = await DatabaseServices().getData(
+    //     '${DatabaseServices().backendUrl}/api/players/$id/balance', token);
+
+    var response = await DatabaseServices()
+        .getData('${DatabaseServices().backendUrl}/api/players/$id/balance');
 
     if (response.statusCode == 200) {
       print('balance: ${response.body}');
@@ -125,11 +129,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Future<List<Map<String, dynamic>>> _loadGamesToList() async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
-    var response = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/games/by-user/$userID', token);
+    // var response = await DatabaseServices().getData(
+    //     '${DatabaseServices().backendUrl}/api/games/by-user/$userID', token);
+
+    print('userID: $userID');
+
+    String? userId = await PreferencesService().getUserId();
+
+    var response = await DatabaseServices()
+        .getData('${DatabaseServices().backendUrl}/api/games/by-user/$userId');
+
+    print('response body: ${response.body}');
 
     if (response.statusCode == 404) {
       return [];
@@ -143,11 +156,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Future<List<Map<String, dynamic>>> fetchLikedVenues() async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
-    var response = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/players/$userID/venues', token);
+    // var response = await DatabaseServices().getData(
+    //     '${DatabaseServices().backendUrl}/api/players/$userID/venues', token);
+
+    var response = await DatabaseServices()
+        .getData('${DatabaseServices().backendUrl}/api/players/$userID/venues');
 
     if (response.statusCode == 200) {
       List<dynamic> venuesData = json.decode(response.body);

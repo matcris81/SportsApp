@@ -16,11 +16,11 @@ class UpcomingGamesList extends StatefulWidget {
 
 class _UpcomingGamesListState extends State<UpcomingGamesList> {
   Future<String> fetchVenueName() async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var venueNameResponse = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/venues/${widget.venueID}', token);
+        '${DatabaseServices().backendUrl}/api/venues/${widget.venueID}');
 
     print('venue reponse: ${venueNameResponse.body}');
 
@@ -116,11 +116,11 @@ class _UpcomingGamesListState extends State<UpcomingGamesList> {
   Future<List<Map<String, dynamic>>> fetchGamesByVenue(int venueID) async {
     List<Map<String, dynamic>> gamesList = [];
 
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var response = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/games/by-venue/$venueID', token);
+        '${DatabaseServices().backendUrl}/api/games/by-venue/$venueID');
 
     var games = jsonDecode(response.body);
 
