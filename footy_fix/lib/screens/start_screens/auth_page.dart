@@ -28,6 +28,7 @@ class _AuthPageState extends State<AuthPage> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.active) {
             User? user = snapshot.data;
+            print('User: $user');
             return user == null
                 ? const LoginPage()
                 : _handleAuthenticatedUser(user);
@@ -44,12 +45,9 @@ class _AuthPageState extends State<AuthPage> {
     // Update location
     _updateUserLocation();
 
-    // Start location updates
     _geolocatorService.startPeriodicLocationUpdates(const Duration(minutes: 5));
 
-    print('before');
     _updateSharedPreferencesInBackground(user.uid);
-    print('after');
 
     // Navigate to NavBar
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -62,36 +60,29 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   void _updateSharedPreferencesInBackground(String userId) async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     try {
       var gamesResponse = await DatabaseServices().getData(
-          '${DatabaseServices().backendUrl}/api/games/by-user/$userId', token);
-
+          '${DatabaseServices().backendUrl}/api/games/by-user/$userId');
       var gamesJson = jsonDecode(gamesResponse.body);
 
       if (gamesJson is List) {
         List<int> gameIdList =
             gamesJson.map<int>((game) => game['id'] as int).toList();
         await PreferencesService().saveList(gameIdList, 'gamesJoined');
-        print('gameIds: $gameIdList');
       }
 
       var venueResponse = await DatabaseServices().getData(
-          '${DatabaseServices().backendUrl}/api/players/$userId/venues', token);
-
+          '${DatabaseServices().backendUrl}/api/players/$userId/venues');
       var venueJson = jsonDecode(venueResponse.body);
-      print('venueJson: $venueJson');
 
       if (venueJson is List) {
         List<int> venueIdList =
             venueJson.map<int>((venue) => venue['id'] as int).toList();
         await PreferencesService().saveList(venueIdList, 'likedVenues');
-        print('venueIdList: $venueIdList');
       }
-
-      // await _sharedPreferencesService.updatePreferences(data);
     } catch (e) {
       // Handle any errors appropriately
     }

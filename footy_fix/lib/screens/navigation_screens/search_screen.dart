@@ -30,11 +30,11 @@ class _SearchScreenState extends State<SearchScreen> {
     Map<String, Map<String, dynamic>> venues = {};
 
     try {
-      String token =
-          await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+      // String token =
+      //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
       var result = await DatabaseServices()
-          .getData('${DatabaseServices().backendUrl}/api/venues', token);
+          .getData('${DatabaseServices().backendUrl}/api/venues');
 
       List<dynamic> venueList = json.decode(result.body);
 

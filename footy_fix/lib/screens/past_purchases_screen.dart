@@ -16,12 +16,11 @@ class _PastPurchasesScreenState extends State<PastPurchasesScreen> {
     List<dynamic> playerData = [];
     var userID = await PreferencesService().getUserId();
 
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var response = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/payments/user-purchases/$userID',
-        token);
+        '${DatabaseServices().backendUrl}/api/payments/user-purchases/$userID');
 
     playerData = jsonDecode(response.body);
 

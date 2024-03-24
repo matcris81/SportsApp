@@ -19,15 +19,14 @@ class GameTile extends StatelessWidget {
       : super(key: key);
 
   Future<Map<String, dynamic>> fetchGameDetails(int gameId) async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var result = await DatabaseServices()
-        .getData('${DatabaseServices().backendUrl}/api/games/$gameId', token);
+        .getData('${DatabaseServices().backendUrl}/api/games/$gameId');
 
     var playerCountResponse = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/games/$gameId/players-count',
-        token);
+        '${DatabaseServices().backendUrl}/api/games/$gameId/players-count');
 
     var playerCount = json.decode(playerCountResponse.body);
     print('playerCount: $playerCount');
@@ -285,11 +284,11 @@ class GameTile extends StatelessWidget {
   }
 
   Future<String> fetchVenueName(int venueId) async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var result = await DatabaseServices()
-        .getData('${DatabaseServices().backendUrl}/api/venues/$venueId', token);
+        .getData('${DatabaseServices().backendUrl}/api/venues/$venueId');
 
     Map<String, dynamic> resultJson = jsonDecode(result.body);
 

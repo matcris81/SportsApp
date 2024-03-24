@@ -301,11 +301,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Future<void> processCreditPayment() async {
     print('Pay with Credit');
 
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var response = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/players/$userID/balance', token);
+        '${DatabaseServices().backendUrl}/api/players/$userID/balance');
 
     var balance = jsonDecode(response.body);
 
@@ -331,7 +331,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     } else if (afterPaymentBalance >= 0) {
       var money = await DatabaseServices().patchDataWithoutMap(
           '${DatabaseServices().backendUrl}/api/players/$userID/subtract-balance',
-          token,
+          // token,
           widget.price);
 
       var gameBody = {
@@ -345,7 +345,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
       var addGameresult = await DatabaseServices().patchData(
           '${DatabaseServices().backendUrl}/api/players/$userID',
-          token,
+          // token,
           gameBody);
 
       PreferencesService().saveIntToList(widget.gameID!, 'gamesJoined');
@@ -358,8 +358,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
     double amount = priceOptions[_selectedPriceIndex];
     print('Pay amount: $amount');
 
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     if (widget.topUp) {
       // var topUpBody = {
@@ -371,7 +371,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
       var topupBalance = await DatabaseServices().patchDataWithoutMap(
           '${DatabaseServices().backendUrl}/api/players/$userID/add-balance',
-          token,
+          // token,
           widget.price);
 
       context.go('/');
@@ -398,10 +398,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
       };
 
       var addPaymentResult = await DatabaseServices().postData(
-          '${DatabaseServices().backendUrl}/api/payments', token, paymentBody);
+          '${DatabaseServices().backendUrl}/api/payments', paymentBody);
 
       var addGameresult = await DatabaseServices().patchData(
-          '${DatabaseServices().backendUrl}/api/players/$userID', token, body);
+          '${DatabaseServices().backendUrl}/api/players/$userID', body);
 
       await PreferencesService().saveIntToList(widget.gameID!, 'gamesJoined');
 

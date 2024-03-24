@@ -26,7 +26,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     getUserID();
-    playerDataFuture = getPlayerData(); // Fetch player data once
+    playerDataFuture = getPlayerData();
   }
 
   @override
@@ -102,11 +102,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           'imageData': base64Image,
                         };
 
-                        var token = await DatabaseServices()
-                            .authenticateAndGetToken('admin', 'admin');
+                        // var token = await DatabaseServices()
+                        //     .authenticateAndGetToken('admin', 'admin');
                         var playerImage = await DatabaseServices().postData(
                             '${DatabaseServices().backendUrl}/api/player-images',
-                            token,
+                            // token,
                             imageBody);
 
                         Map<String, dynamic> playerImageID =
@@ -122,7 +122,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                         var response = await DatabaseServices().patchData(
                             '${DatabaseServices().backendUrl}/api/players/$userID',
-                            token,
+                            // token,
                             body);
                       } else {
                         print("Image compression failed.");
@@ -274,11 +274,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     print('userID: $userID');
 
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     var response = await DatabaseServices()
-        .getData('${DatabaseServices().backendUrl}/api/players/$userID', token);
+        .getData('${DatabaseServices().backendUrl}/api/players/$userID');
 
     playerData = jsonDecode(response.body);
     print('response.body: ${response.body}');
@@ -291,11 +291,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<Uint8List> getPlayerImage(int imageId) async {
-    var token =
-        await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+    // var token =
+    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
-    var response = await DatabaseServices().getData(
-        '${DatabaseServices().backendUrl}/api/player-images/$imageId', token);
+    var response = await DatabaseServices()
+        .getData('${DatabaseServices().backendUrl}/api/player-images/$imageId');
 
     String image = jsonDecode(response.body)['imageData'];
 

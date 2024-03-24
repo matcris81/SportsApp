@@ -1,3 +1,4 @@
+import 'package:footy_fix/services/database_services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -32,7 +33,12 @@ class AuthService {
         password: password,
       );
 
-      await auth.currentUser!.getIdToken(true);
+      var token = await auth.currentUser!.getIdToken(true);
+      // print(token.runtimeType);
+
+      await PreferencesService().saveToken(token!);
+
+      // print('token: $token');
 
       return userCredential;
     } catch (e) {
@@ -45,6 +51,7 @@ class AuthService {
     try {
       // Begin interactive sign-in process
       final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
+      print('gUser: $gUser');
 
       // If user cancelled the Google sign-in process, gUser will be null
       if (gUser == null) {
