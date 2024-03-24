@@ -16,6 +16,11 @@ class AuthService {
         password: password,
       );
 
+      var token = await auth.currentUser!.getIdToken(true);
+      // print(token.runtimeType);
+
+      await PreferencesService().saveToken(token!);
+
       return userCredential;
     } on FirebaseAuthException {
       // Handle error
@@ -73,6 +78,10 @@ class AuthService {
           await FirebaseAuth.instance.signInWithCredential(credential);
       print('Google Sign-In successful, User UID: ${userCredential.user?.uid}');
 
+      final String? token = await userCredential.user?.getIdToken();
+
+      await PreferencesService().saveToken(token!);
+
       // store userID locally
 
       return userCredential;
@@ -99,6 +108,10 @@ class AuthService {
 
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
+
+      final String? token = await userCredential.user?.getIdToken();
+
+      await PreferencesService().saveToken(token!);
 
       return userCredential;
     } catch (error) {

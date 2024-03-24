@@ -60,9 +60,6 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   void _updateSharedPreferencesInBackground(String userId) async {
-    // var token =
-    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
     try {
       var gamesResponse = await DatabaseServices().getData(
           '${DatabaseServices().backendUrl}/api/games/by-user/$userId');
