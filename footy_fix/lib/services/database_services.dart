@@ -12,8 +12,6 @@ class DatabaseServices {
   Future<http.Response> getData(String url) async {
     var firebaseToken = await PreferencesService().retrieveToken();
 
-    print('firebaseToken: $firebaseToken');
-
     var response = await http.get(
       Uri.parse(url),
       headers: {
@@ -41,7 +39,6 @@ class DatabaseServices {
 
   Future<http.Response> postData(String url, Map<String, dynamic> body) async {
     var firebaseToken = await PreferencesService().retrieveToken();
-    print('firebaseToken: $firebaseToken');
 
     String jsonBody = jsonEncode(body);
 
@@ -100,8 +97,6 @@ class DatabaseServices {
   Future<http.Response> patchData(String url, Map<String, dynamic> body) async {
     var firebaseToken = await PreferencesService().retrieveToken();
 
-    print('firebaseToken: $firebaseToken');
-
     String jsonBody = jsonEncode(body);
     print(Uri.parse(url));
 
@@ -129,8 +124,6 @@ class DatabaseServices {
 
   Future<http.Response> deleteData(String url) async {
     var firebaseToken = await PreferencesService().retrieveToken();
-
-    print('firebaseToken: $firebaseToken');
 
     var response = await http.delete(
       Uri.parse(url),

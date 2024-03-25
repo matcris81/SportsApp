@@ -13,6 +13,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:io' show Platform;
 import 'dart:convert';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 class LocationDescription extends StatefulWidget {
   final int locationID;
@@ -30,19 +31,68 @@ class _LocationDescriptionState extends State<LocationDescription> {
   bool isHeartFilled = false;
   String? locationName;
   bool organizer = false;
+  Future<Map<String, dynamic>>? venueDetailsFuture;
 
   @override
   void initState() {
     super.initState();
-    checkIfLiked();
+    venueDetailsFuture = getLocationDetails();
     getNextUpcomingGame();
     getVenueData();
+    checkIfLiked();
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      Uint8List? compressedImageBytes =
+          await FlutterImageCompress.compressWithFile(
+        image.path,
+        minWidth: 640,
+        minHeight: 480,
+        quality: 70,
+      );
+
+      if (compressedImageBytes != null) {
+        setState(() {
+          currentImage =
+              Image.memory(compressedImageBytes, fit: BoxFit.fitWidth);
+        });
+
+        String base64Image = base64Encode(compressedImageBytes);
+        Map<String, dynamic> imageData = {'imageData': base64Image};
+
+        try {
+          var response = await DatabaseServices().postData(
+            '${DatabaseServices().backendUrl}/api/images',
+            imageData,
+          );
+
+          if (response.statusCode == 200 || response.statusCode == 201) {
+            var imageResponse = json.decode(response.body);
+            var imageID = imageResponse['imageId'];
+
+            await DatabaseServices().patchData(
+              '${DatabaseServices().backendUrl}/api/venues/${widget.locationID}',
+              {'id': widget.locationID, 'imageId': imageID},
+            );
+          } else {
+            throw Exception('Failed to upload image');
+          }
+        } catch (e) {
+          setState(() {
+            currentImage =
+                Image.asset('assets/albany.png', fit: BoxFit.fitWidth);
+          });
+          print('Error during image upload or venue update: $e');
+        }
+      }
+    }
   }
 
   Future<void> getVenueData() async {
-    // var token =
-    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
     var response = await DatabaseServices().getData(
         '${DatabaseServices().backendUrl}/api/venues/${widget.locationID}');
 
@@ -67,9 +117,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
     String userID = await PreferencesService().getUserId() ?? '';
     bool liked = false;
 
-    // var token =
-    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
     var response = await DatabaseServices().getData(
         '${DatabaseServices().backendUrl}/api/players/$userID/likes-venue/${widget.locationID}');
 
@@ -83,52 +130,42 @@ class _LocationDescriptionState extends State<LocationDescription> {
   }
 
   void toggleLike() async {
+    bool newIsHeartFilled = !isHeartFilled;
+
     setState(() {
-      isHeartFilled = !isHeartFilled;
+      isHeartFilled = newIsHeartFilled;
     });
 
-    bool revertChange = false;
+    String userID = await PreferencesService().getUserId() ?? '';
+    var body = {
+      "id": userID,
+      "venues": [
+        {"id": widget.locationID}
+      ]
+    };
 
     try {
-      String userID = await PreferencesService().getUserId() ?? '';
-      // var token =
-      //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-      var body = {
-        "id": userID,
-        "venues": [
-          {"id": widget.locationID}
-        ]
-      };
-
-      if (isHeartFilled) {
+      if (newIsHeartFilled) {
         await DatabaseServices().patchData(
-            '${DatabaseServices().backendUrl}/api/players/$userID',
-            // token,
-            body);
+            '${DatabaseServices().backendUrl}/api/players/$userID', body);
         await FirebaseAPI().subscribeToTopic('Venue${widget.locationID}');
       } else {
+        // If the heart is not filled, send the unlike to the server.
         await DatabaseServices().patchData(
             '${DatabaseServices().backendUrl}/api/players/remove/$userID',
-            // token,
             body);
         await FirebaseAPI().unsubscribeFromTopic('Venue${widget.locationID}');
       }
     } catch (error) {
-      revertChange = true;
-    }
-
-    if (revertChange) {
+      // If there is an error, revert the heart to its original state.
       setState(() {
-        isHeartFilled = !isHeartFilled;
-        // Show an error message if needed
+        isHeartFilled = !newIsHeartFilled;
       });
+      // Optionally show an error message.
     }
   }
 
   Future<Map<String, dynamic>> getNextUpcomingGame() async {
-    // var token =
-    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
     var response = await DatabaseServices().getData(
         '${DatabaseServices().backendUrl}/api/games/earliest-by-venue?venueId=${widget.locationID}');
 
@@ -148,9 +185,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
   }
 
   Future<Map<String, dynamic>> getLocationDetails() async {
-    // var token =
-    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
     var result = await DatabaseServices().getData(
         '${DatabaseServices().backendUrl}/api/venues/${widget.locationID}');
 
@@ -169,7 +203,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
     return Scaffold(
         backgroundColor: Colors.grey[300],
         body: FutureBuilder<Map<String, dynamic>>(
-            future: getLocationDetails(),
+            future: venueDetailsFuture,
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
@@ -495,9 +529,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
   }
 
   Future<Uint8List> fetchVenueImage(int imageId) async {
-    // var token =
-    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
     var imageResponse = await DatabaseServices().getData(
       '${DatabaseServices().backendUrl}/api/images/$imageId',
     );
@@ -507,50 +538,6 @@ class _LocationDescriptionState extends State<LocationDescription> {
     Uint8List image = base64Decode(imageUrl);
 
     return image;
-  }
-
-  Future<void> _pickImage() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-
-    if (image != null) {
-      Uint8List imageBytes = await image.readAsBytes();
-
-      String base64Image = base64Encode(imageBytes);
-
-      Map<String, dynamic> imageData = {
-        'imageData': base64Image,
-      };
-
-      // String token =
-      //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
-      try {
-        var response = await DatabaseServices().postData(
-          '${DatabaseServices().backendUrl}/api/images',
-          imageData,
-        );
-
-        var imageResponse = json.decode(response.body);
-
-        var imageID = imageResponse['imageId'];
-
-        var response2 = await DatabaseServices().patchData(
-            '${DatabaseServices().backendUrl}/api/venues/${widget.locationID}',
-            {
-              'id': widget.locationID,
-              'imageId': imageID,
-            });
-
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          print('Image uploaded successfully: ${response.body}');
-        } else {
-          print('Failed to upload image: ${response.statusCode}');
-        }
-      } catch (e) {
-        print('Error uploading image: $e');
-      }
-    }
   }
 
   void _showActionSheet(BuildContext context, String location) {
