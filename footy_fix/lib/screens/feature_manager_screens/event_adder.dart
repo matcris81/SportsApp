@@ -159,12 +159,75 @@ class _AddEventState extends State<AddEvent> {
   }
 
   Future<String> fetchVenueName(int venueId) async {
-    // var token =
-    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
     var response = await DatabaseServices()
         .getData('${DatabaseServices().backendUrl}/api/venues/$venueId');
     var venueDetails = json.decode(response.body);
     return venueDetails['venueName'];
+  }
+
+  Future<void> _selectNumberOfPlayers(BuildContext context) async {
+    int tempSelectedSize = size;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 200,
+          child: CupertinoPicker(
+            magnification: 1.22,
+            backgroundColor: Colors.white,
+            itemExtent: 32,
+            children: List<Widget>.generate(20, (int index) {
+              return Center(
+                child: Text('${index + 1}'),
+              );
+            }),
+            onSelectedItemChanged: (int value) {
+              tempSelectedSize = value + 1;
+            },
+          ),
+        );
+      },
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      size = tempSelectedSize;
+    });
+  }
+
+  Future<void> _selectPrice(BuildContext context) async {
+    double tempSelectedPrice = price;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 200,
+          child: CupertinoPicker(
+            magnification: 1.22,
+            backgroundColor: Colors.white,
+            itemExtent: 32, // height of each item
+            children: List<Widget>.generate(100, (int index) {
+              return Center(
+                child: Text('\$${index + 1}'),
+              );
+            }),
+            onSelectedItemChanged: (int value) {
+              tempSelectedPrice = value +
+                  1.0; // Adjusting for index starting at 0, assuming prices start at $1
+            },
+          ),
+        );
+      },
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      price = tempSelectedPrice;
+    });
   }
 
   @override
@@ -245,31 +308,17 @@ class _AddEventState extends State<AddEvent> {
                       onPressed: () => _selectTime(context),
                     ),
                     const SizedBox(height: 16.0),
-                    buildInvisibleTextField(
-                      label: 'Price',
-                      keyboardType:
-                          TextInputType.numberWithOptions(decimal: true),
-                      validator: (value) {
-                        if (value == null || value.isEmpty)
-                          return 'Please enter a price';
-                        if (double.tryParse(value) == null)
-                          return 'Please enter a valid price';
-                        return null;
-                      },
-                      onSaved: (value) => price = double.parse(value!),
+                    buildCustomButton(
+                      label:
+                          selectedTime == null ? 'Price: ' : 'Price: \$$price',
+                      onPressed: () => _selectPrice(context),
                     ),
                     const SizedBox(height: 16.0),
-                    buildInvisibleTextField(
-                      label: 'Number of Players',
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value == null || value.isEmpty)
-                          return 'Please enter Number of Players';
-                        if (int.tryParse(value) == null)
-                          return 'Please enter a valid number';
-                        return null;
-                      },
-                      onSaved: (value) => size = int.parse(value!),
+                    buildCustomButton(
+                      label: selectedTime == null
+                          ? 'Number of Players'
+                          : 'Number of Players: $size',
+                      onPressed: () => _selectNumberOfPlayers(context),
                     ),
                     const SizedBox(height: 16.0),
                     buildInvisibleTextField(
