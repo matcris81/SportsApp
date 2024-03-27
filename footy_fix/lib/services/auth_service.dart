@@ -31,7 +31,7 @@ class AuthService {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       print("No user logged in.");
-      return false; // Indicates that refreshing the token was not possible.
+      return false; 
     }
 
     try {

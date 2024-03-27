@@ -27,27 +27,17 @@ class LocationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // String imagePath = 'assets/$locationName.jpg';
-    // String fallbackImagePath = 'assets/standInVenueImage.jpg';
-
-    // Future<bool> _checkImageExists(String path) async {
-    //   try {
-    //     await rootBundle.load(path);
-    //     return true;
-    //   } catch (_) {
-    //     return false;
-    //   }
-    // }
-
     Future<Uint8List> fetchVenueImageData(int imageId) async {
+      print('imageId: $imageId');
       if (imageId == -1) {
         ByteData bytes = await rootBundle.load('assets/standInVenueImage.jpg');
         return bytes.buffer.asUint8List();
       } else {
-        // var token =
-        //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
+        print('checkcheckcheck');
         var imageResponse = await DatabaseServices()
             .getData('${DatabaseServices().backendUrl}/api/images/$imageId');
+
+        print('image: ${imageResponse.body}');
         var imageData = jsonDecode(imageResponse.body);
         if (imageData['imageData'] != null) {
           String base64String = imageData['imageData'];

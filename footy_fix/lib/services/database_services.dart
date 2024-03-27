@@ -3,23 +3,11 @@ import 'package:footy_fix/services/shared_preferences_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:image_picker/image_picker.dart'; // for using jsonEncode and jsonDecode
-
 class DatabaseServices {
   // String backendUrl = 'http://10.0.2.2:4242';
   String backendUrl = 'http://localhost:4242';
   // String backendUrl = 'http://192.168.3.11:4242';
   // String backendUrl = 'https://kaido.tk/backend/';
-
-  Future<http.Response> fetchData(String url) async {
-    final response = await http.get(Uri.parse(url));
-
-    if (response.statusCode == 200) {
-      return response;
-    } else {
-      throw Exception('Failed to load data');
-    }
-  }
 
   Future<http.Response> getData(String url) async {
     var firebaseToken = await PreferencesService().retrieveToken();
