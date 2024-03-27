@@ -7,7 +7,7 @@ class DatabaseServices {
   // String backendUrl = 'http://10.0.2.2:4242';
   // String backendUrl = 'http://localhost:4242';
   // String backendUrl = 'http://192.168.3.11:4242';
-  String backendUrl = 'https://kaido.tk/backend/';
+  String backendUrl = 'https://kaido.tk/backend';
 
   Future<http.Response> getData(String url) async {
     var firebaseToken = await PreferencesService().retrieveToken();
