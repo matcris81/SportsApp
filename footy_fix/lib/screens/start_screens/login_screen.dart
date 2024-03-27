@@ -18,7 +18,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  // text editing controllers
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
@@ -42,27 +41,35 @@ class _LoginPageState extends State<LoginPage> {
       var credential = await AuthService().signInWithEmailPassword(
           emailController.text, passwordController.text);
 
-      Navigator.pop(context);
+      // Check if the widget is still mounted before popping the dialog
+      if (mounted) {
+        Navigator.pop(context);
+      }
 
       if (credential == null) {
+        // Check if the widget is still mounted before calling setState
+        if (!mounted) return;
         setState(() {
           errorMessage = "Login failed. Please check your email and password.";
         });
         return;
       }
 
-      if (!mounted) return;
-
       var uid = credential.user!.uid;
       await PreferencesService().saveUserId(uid);
       addUserifDoesntExist(uid, emailController.text);
 
+      // Check again before navigating
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const NavBar()),
       );
     } on FirebaseAuthException catch (e) {
-      Navigator.pop(context);
+      // Ensure the context is still valid before attempting to pop the dialog
+      if (mounted) {
+        Navigator.pop(context);
+      }
 
       String newErrorMessage = "An error occurred. Please try again later.";
       if (e.code == 'user-not-found') {
@@ -71,6 +78,8 @@ class _LoginPageState extends State<LoginPage> {
         newErrorMessage = 'Wrong password provided.';
       }
 
+      // Safeguard setState with mounted check
+      if (!mounted) return;
       setState(() {
         errorMessage = newErrorMessage;
       });
@@ -114,9 +123,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void addUserifDoesntExist(String userID, String? email) async {
-    // var token =
-    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
     var response = await DatabaseServices()
         .getData('${DatabaseServices().backendUrl}/api/players/$userID');
 

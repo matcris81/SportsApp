@@ -22,6 +22,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String userID = '';
   Future<Map<String, dynamic>>? playerDataFuture;
 
+  Future<void> _refreshProfileData() async {
+    setState(() {
+      playerDataFuture = getPlayerData();
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -70,183 +76,188 @@ class _ProfileScreenState extends State<ProfileScreen> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             var playerData = snapshot.data as Map<String, dynamic>;
-            return ListView(
-              padding: const EdgeInsets.all(16.0),
-              children: <Widget>[
-                const SizedBox(height: 30),
-                Center(
-                    child: GestureDetector(
-                  onTap: () async {
-                    final ImagePicker _picker = ImagePicker();
-                    final XFile? image =
-                        await _picker.pickImage(source: ImageSource.gallery);
+            return RefreshIndicator(
+              onRefresh: _refreshProfileData,
+              child: ListView(
+                padding: const EdgeInsets.all(16.0),
+                children: <Widget>[
+                  const SizedBox(height: 30),
+                  Center(
+                      child: GestureDetector(
+                    onTap: () async {
+                      final ImagePicker _picker = ImagePicker();
+                      final XFile? image =
+                          await _picker.pickImage(source: ImageSource.gallery);
 
-                    if (image != null) {
-                      var compressedImage =
-                          await FlutterImageCompress.compressWithFile(
-                        image.path,
-                        minWidth: 120,
-                        minHeight: 120,
-                        quality: 90,
-                      );
+                      if (image != null) {
+                        var compressedImage =
+                            await FlutterImageCompress.compressWithFile(
+                          image.path,
+                          minWidth: 120,
+                          minHeight: 120,
+                          quality: 90,
+                        );
 
-                      if (compressedImage != null) {
-                        Uint8List imageBytes = compressedImage;
-                        String base64Image = base64Encode(imageBytes);
+                        if (compressedImage != null) {
+                          Uint8List imageBytes = compressedImage;
+                          String base64Image = base64Encode(imageBytes);
 
-                        setState(() {
-                          _profileImage = imageBytes;
-                        });
+                          setState(() {
+                            _profileImage = imageBytes;
+                          });
 
-                        Map<String, dynamic> imageBody = {
-                          'imageData': base64Image,
-                        };
+                          Map<String, dynamic> imageBody = {
+                            'imageData': base64Image,
+                          };
 
-                        // var token = await DatabaseServices()
-                        //     .authenticateAndGetToken('admin', 'admin');
-                        var playerImage = await DatabaseServices().postData(
-                            '${DatabaseServices().backendUrl}/api/player-images',
-                            // token,
-                            imageBody);
+                          var playerImage = await DatabaseServices().postData(
+                              '${DatabaseServices().backendUrl}/api/player-images',
+                              // token,
+                              imageBody);
 
-                        Map<String, dynamic> playerImageID =
-                            jsonDecode(playerImage.body);
+                          Map<String, dynamic> playerImageID =
+                              jsonDecode(playerImage.body);
 
-                        Map<String, dynamic> body = {
-                          'id': userID,
-                          'playerImage': {
-                            'id': playerImageID['id'],
-                            'imageData': base64Image
-                          },
-                        };
+                          Map<String, dynamic> body = {
+                            'id': userID,
+                            'playerImage': {
+                              'id': playerImageID['id'],
+                              'imageData': base64Image
+                            },
+                          };
 
-                        var response = await DatabaseServices().patchData(
-                            '${DatabaseServices().backendUrl}/api/players/$userID',
-                            // token,
-                            body);
-                      } else {
-                        print("Image compression failed.");
+                          var response = await DatabaseServices().patchData(
+                              '${DatabaseServices().backendUrl}/api/players/$userID',
+                              body);
+                        } else {
+                          print("Image compression failed.");
+                        }
                       }
-                    }
-                  },
-                  child: CircleAvatar(
-                    radius: 60,
-                    backgroundColor: Colors.grey,
-                    child: _profileImage != null
-                        ? CircleAvatar(
-                            radius: 59,
-                            backgroundImage: MemoryImage(_profileImage!),
-                          )
-                        : const Icon(Icons.person,
-                            size: 60, color: Colors.white),
+                    },
+                    child: CircleAvatar(
+                      radius: 60,
+                      backgroundColor: Colors.grey,
+                      child: _profileImage != null
+                          ? CircleAvatar(
+                              radius: 59,
+                              backgroundImage: MemoryImage(_profileImage!),
+                            )
+                          : const Icon(Icons.person,
+                              size: 60, color: Colors.white),
+                    ),
+                  )),
+                  const SizedBox(height: 50),
+                  ListTile(
+                    leading: const Icon(Icons.email),
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        const Text(
+                          'Email:',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                        Text(
+                          '${playerData['email'] ?? '-'}',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.normal,
+                              color: Colors.grey),
+                        ),
+                      ],
+                    ),
                   ),
-                )),
-                const SizedBox(height: 50),
-                ListTile(
-                  leading: const Icon(Icons.email),
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      const Text(
-                        'Email:',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.black),
-                      ),
-                      Text(
-                        '${playerData['email'] ?? '-'}',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.normal, color: Colors.grey),
-                      ),
-                    ],
+                  ListTile(
+                    leading: const Icon(Icons.calendar_today),
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        const Text(
+                          'Date of Birth:',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                        Text(
+                          '${playerData['dob'] ?? '-'}',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.normal,
+                              color: Colors.grey),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.calendar_today),
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      const Text(
-                        'Date of Birth:',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.black),
-                      ),
-                      Text(
-                        '${playerData['dob'] ?? '-'}',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.normal, color: Colors.grey),
-                      ),
-                    ],
+                  ListTile(
+                    leading: const Icon(Icons.email),
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        const Text(
+                          'Gender:',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                        Text(
+                          '${playerData['gender'] ?? '-'}',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.normal,
+                              color: Colors.grey),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.email),
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      const Text(
-                        'Gender:',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.black),
-                      ),
-                      Text(
-                        '${playerData['gender'] ?? '-'}',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.normal, color: Colors.grey),
-                      ),
-                    ],
+                  ListTile(
+                    leading: const Icon(Icons.calendar_today),
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        const Text(
+                          'Phone:',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                        Text(
+                          '${playerData['phoneNumber'] ?? '-'}',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.normal,
+                              color: Colors.grey),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.calendar_today),
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      const Text(
-                        'Phone:',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.black),
-                      ),
-                      Text(
-                        '${playerData['phoneNumber'] ?? '-'}',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.normal, color: Colors.grey),
-                      ),
-                    ],
+                  const SizedBox(height: 30),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const PaymentScreen(
+                                    price: 10.0,
+                                    topUp: true,
+                                  )));
+                      print("Top Up button pressed!");
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.green,
+                    ),
+                    child: const Text('Top Up Balance'),
                   ),
-                ),
-                const SizedBox(height: 30),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const PaymentScreen(
-                                  price: 10.0,
-                                  topUp: true,
-                                )));
-                    print("Top Up button pressed!");
-                  },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.green,
+                  const SizedBox(height: 30),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const PastPurchasesScreen()));
+                    },
+                    child: Text('Past Purchases'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                    ),
                   ),
-                  child: const Text('Top Up Balance'),
-                ),
-                const SizedBox(height: 30),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const PastPurchasesScreen()));
-                  },
-                  child: Text('Past Purchases'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                  ),
-                ),
-              ],
+                ],
+              ),
             );
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
@@ -274,9 +285,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     print('userID: $userID');
 
-    // var token =
-    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
     var response = await DatabaseServices()
         .getData('${DatabaseServices().backendUrl}/api/players/$userID');
 
@@ -291,9 +299,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<Uint8List> getPlayerImage(int imageId) async {
-    // var token =
-    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
     var response = await DatabaseServices()
         .getData('${DatabaseServices().backendUrl}/api/player-images/$imageId');
 

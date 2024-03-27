@@ -1,4 +1,3 @@
-import 'package:footy_fix/services/database_services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -28,22 +27,24 @@ class AuthService {
     }
   }
 
-  Future<String?> getFreshToken() async {
+  Future<bool> getFreshToken() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       print("No user logged in.");
-      return null;
+      return false; 
     }
 
     try {
       String? token = await user.getIdToken(true);
-
-      await PreferencesService().saveToken(token!);
-
-      return token;
+      if (token != null) {
+        await PreferencesService().saveToken(token);
+        return true; // Token refreshed successfully.
+      }
+      print("Failed to refresh token: Token is null.");
+      return false;
     } catch (e) {
       print("Error getting fresh token: $e");
-      return null;
+      return false;
     }
   }
 
