@@ -125,9 +125,6 @@ class _AddVenueState extends State<AddVenue> {
 
                           print('newVenue: $newVenue');
 
-                          // String token = await DatabaseServices()
-                          //     .authenticateAndGetToken('admin', 'admin');
-
                           var response = await DatabaseServices().postData(
                               '${DatabaseServices().backendUrl}/api/venues',
                               newVenue);

@@ -19,9 +19,6 @@ class GameTile extends StatelessWidget {
       : super(key: key);
 
   Future<Map<String, dynamic>> fetchGameDetails(int gameId) async {
-    // var token =
-    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
     var result = await DatabaseServices()
         .getData('${DatabaseServices().backendUrl}/api/games/$gameId');
 
@@ -42,26 +39,11 @@ class GameTile extends StatelessWidget {
   }
 
   Future<bool> hasPlayerJoined(String gameID) async {
-    var userID = await PreferencesService().getUserId();
-
     var gamesJoined = await PreferencesService().getIntList('gamesJoined');
 
     if (gamesJoined.contains(int.parse(gameID))) {
       return true;
     }
-    // var token =
-    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-    // var result = await DatabaseServices().getData(
-    //     '${DatabaseServices().backendUrl}/api/games/$gameID/get-players',
-    //     token);
-    // List<dynamic> players = json.decode(result.body);
-
-    // for (var player in players) {
-    //   var playerId = player['id'];
-    //   if (playerId == userID) {
-    //     return true;
-    //   }
-    // }
 
     return false;
   }
@@ -109,7 +91,6 @@ class GameTile extends StatelessWidget {
             DateFormat('MMM').format(dateTime).toUpperCase();
         var time = DateFormat('HH:mm:ss').format(dateTime);
         var playersJoined = gameDetails['playerCount'];
-        var fakePlayers = gameDetails['fakePlayers'];
         var size = gameDetails['size'];
         var price = gameDetails['price'];
 
@@ -284,9 +265,6 @@ class GameTile extends StatelessWidget {
   }
 
   Future<String> fetchVenueName(int venueId) async {
-    // var token =
-    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
     var result = await DatabaseServices()
         .getData('${DatabaseServices().backendUrl}/api/venues/$venueId');
 

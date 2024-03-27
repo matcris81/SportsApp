@@ -94,10 +94,27 @@ class DatabaseServices {
       },
     );
 
+    print('getData called for URL: $url at ${DateTime.now()}');
+
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return response;
     } else if (response.statusCode == 404) {
       return http.Response('Resource not found', 404);
+<<<<<<< Updated upstream
+=======
+    } else if (response.statusCode == 401) {
+      print('Received 401 Unauthorized response');
+      bool refreshSuccess = await AuthService().getFreshToken();
+      if (refreshSuccess) {
+        // The token was refreshed successfully, retry the request.
+        return getData(url);
+      } else {
+        // Token refresh failed, or no user is logged in. Do not retry.
+        print('Token refresh failed or no user logged in, not retrying.');
+        return http.Response(
+            'Unauthorized - Token refresh failed or no user logged in.', 401);
+      }
+>>>>>>> Stashed changes
     } else {
       print('Failed to get data. Status Code: ${response.statusCode}, '
           'Response Body: ${response.body}');
@@ -125,6 +142,21 @@ class DatabaseServices {
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return response;
+<<<<<<< Updated upstream
+=======
+    } else if (response.statusCode == 401) {
+      print('Received 401 Unauthorized response');
+      bool refreshSuccess = await AuthService().getFreshToken();
+      if (refreshSuccess) {
+        // The token was refreshed successfully, retry the request.
+        return getData(url);
+      } else {
+        // Token refresh failed, or no user is logged in. Do not retry.
+        print('Token refresh failed or no user logged in, not retrying.');
+        return http.Response(
+            'Unauthorized - Token refresh failed or no user logged in.', 401);
+      }
+>>>>>>> Stashed changes
     } else {
       throw Exception(
           'Failed to post data. Status Code: ${response.statusCode}, '
@@ -152,6 +184,21 @@ class DatabaseServices {
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return response;
+<<<<<<< Updated upstream
+=======
+    } else if (response.statusCode == 401) {
+      print('Received 401 Unauthorized response');
+      bool refreshSuccess = await AuthService().getFreshToken();
+      if (refreshSuccess) {
+        // The token was refreshed successfully, retry the request.
+        return getData(url);
+      } else {
+        // Token refresh failed, or no user is logged in. Do not retry.
+        print('Token refresh failed or no user logged in, not retrying.');
+        return http.Response(
+            'Unauthorized - Token refresh failed or no user logged in.', 401);
+      }
+>>>>>>> Stashed changes
     } else {
       throw Exception(
           'Failed to patch data. Status Code: ${response.statusCode}, '
@@ -179,6 +226,21 @@ class DatabaseServices {
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return response;
+<<<<<<< Updated upstream
+=======
+    } else if (response.statusCode == 401) {
+      print('Received 401 Unauthorized response');
+      bool refreshSuccess = await AuthService().getFreshToken();
+      if (refreshSuccess) {
+        // The token was refreshed successfully, retry the request.
+        return getData(url);
+      } else {
+        // Token refresh failed, or no user is logged in. Do not retry.
+        print('Token refresh failed or no user logged in, not retrying.');
+        return http.Response(
+            'Unauthorized - Token refresh failed or no user logged in.', 401);
+      }
+>>>>>>> Stashed changes
     } else {
       throw Exception(
           'Failed to patch data. Status Code: ${response.statusCode}, '
@@ -202,6 +264,21 @@ class DatabaseServices {
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return response;
+<<<<<<< Updated upstream
+=======
+    } else if (response.statusCode == 401) {
+      print('Received 401 Unauthorized response');
+      bool refreshSuccess = await AuthService().getFreshToken();
+      if (refreshSuccess) {
+        // The token was refreshed successfully, retry the request.
+        return getData(url);
+      } else {
+        // Token refresh failed, or no user is logged in. Do not retry.
+        print('Token refresh failed or no user logged in, not retrying.');
+        return http.Response(
+            'Unauthorized - Token refresh failed or no user logged in.', 401);
+      }
+>>>>>>> Stashed changes
     } else {
       throw Exception(
           'Failed to delete data. Status Code: ${response.statusCode}, '

@@ -1,8 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:footy_fix/screens/feature_manager_screens/event_adder.dart';
-import 'package:footy_fix/screens/upcoming_games_screen.dart';
 import 'package:footy_fix/services/database_services.dart';
 import 'package:footy_fix/services/notifications_services.dart';
 import 'package:footy_fix/services/shared_preferences_service.dart';

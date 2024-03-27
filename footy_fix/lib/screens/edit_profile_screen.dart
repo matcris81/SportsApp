@@ -165,7 +165,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       const SizedBox(height: 16.0),
                       _buildInvisibleTextField(
                         label: 'Phone',
-                        maxLines: 3,
+                        maxLines: 1,
+                        keyboardType: TextInputType.number,
                         onSaved: (value) {
                           if (value != null && value.isNotEmpty) {
                             phone = int.parse(value);
@@ -199,9 +200,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             data['gender'] = _selectedGender != 'None'
                                 ? _selectedGender
                                 : null;
-
-                            // var token = await DatabaseServices()
-                            //     .authenticateAndGetToken('admin', 'admin');
 
                             var response = await DatabaseServices().patchData(
                                 '${DatabaseServices().backendUrl}/api/players/$userID',

@@ -23,13 +23,15 @@ class _RegisterPageState extends State<RegisterPage> {
       TextEditingController();
 
   void registerUser() async {
+    if (passwordController.text != confirmPasswordController.text) {
+      _showErrorDialog("Passwords do not match.");
+      return;
+    }
+
     showDialog(
       context: context,
-      builder: (context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
     try {
@@ -38,26 +40,24 @@ class _RegisterPageState extends State<RegisterPage> {
               emailController.text, passwordController.text);
 
       String userID = userCredential.user!.uid;
-
       addPlayer(userID, emailController.text, usernameController.text);
 
       if (!mounted) return;
       Navigator.pop(context);
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginPage()),
-      );
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => const LoginPage()));
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
-      print('Error during registration: ${e.message}');
+
+      if (e.code == 'email-already-in-use') {
+        _showErrorDialog("This email is already in use.");
+      } else {
+        _showErrorDialog("An error occurred. Please try again later.");
+      }
     }
   }
 
   void addPlayer(String userID, String? email, String? username) async {
-    // var token =
-    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
     var userMap = {
       "id": userID,
       "email": email,
@@ -67,6 +67,51 @@ class _RegisterPageState extends State<RegisterPage> {
 
     var result = await DatabaseServices()
         .postData('${DatabaseServices().backendUrl}/api/players', userMap);
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20), // Rounded corners for dialog
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.error_outline, color: Colors.red), // Error icon
+            SizedBox(width: 10),
+            Text("Registration Error"),
+          ],
+        ),
+        titleTextStyle: const TextStyle(
+          color: Colors.redAccent, // Custom title text color
+          fontWeight: FontWeight.bold, // Bold title text
+          fontSize: 18, // Title text size
+        ),
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: Colors.black54, // Custom content text color
+            fontSize: 16, // Content text size
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.redAccent, // Button text color
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30), // Rounded button
+              ),
+            ),
+            child: const Text("OK"),
+            onPressed: () => Navigator.of(context).pop(), // Close the dialog
+          ),
+        ],
+        actionsAlignment: MainAxisAlignment.center, // Center the action button
+        backgroundColor: Colors.white, // Dialog background color
+      ),
+    );
   }
 
   @override

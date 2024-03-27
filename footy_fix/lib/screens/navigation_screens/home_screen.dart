@@ -156,14 +156,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Future<List<Map<String, dynamic>>> fetchLikedVenues() async {
+<<<<<<< Updated upstream
     // var token =
     //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
     // var response = await DatabaseServices().getData(
     //     '${DatabaseServices().backendUrl}/api/players/$userID/venues', token);
+=======
+    String? userId = await PreferencesService().getUserId();
+>>>>>>> Stashed changes
 
     var response = await DatabaseServices()
-        .getData('${DatabaseServices().backendUrl}/api/players/$userID/venues');
+        .getData('${DatabaseServices().backendUrl}/api/players/$userId/venues');
 
     if (response.statusCode == 200) {
       List<dynamic> venuesData = json.decode(response.body);
