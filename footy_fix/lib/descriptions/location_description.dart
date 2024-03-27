@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -196,6 +197,27 @@ class _LocationDescriptionState extends State<LocationDescription> {
     fit: BoxFit.fitWidth,
   );
 
+  Future<double> calculateExpandedHeight(Uint8List imageData) {
+    Image image = Image.memory(imageData);
+    Completer<Size> completer = Completer<Size>();
+    image.image.resolve(const ImageConfiguration()).addListener(
+      ImageStreamListener((ImageInfo image, bool _) {
+        var myImage = image.image;
+        Size size = Size(myImage.width.toDouble(), myImage.height.toDouble());
+        completer.complete(size);
+      }),
+    );
+
+    return completer.future.then((size) {
+      // Assuming you want to maintain a width:height ratio of your image
+      double screenWidth = MediaQuery.of(context).size.width;
+      double desiredHeight = screenWidth * (size.height / size.width);
+      return desiredHeight;
+    }).catchError((error) {
+      return 200.0; // Fallback height
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -233,6 +255,7 @@ class _LocationDescriptionState extends State<LocationDescription> {
                             },
                             child: Container(
                               width: double.infinity,
+                              height: double.infinity,
                               child: FutureBuilder<Uint8List>(
                                 future: fetchVenueImage(imageId),
                                 builder: (BuildContext context,
@@ -240,13 +263,16 @@ class _LocationDescriptionState extends State<LocationDescription> {
                                   if (snapshot.connectionState ==
                                       ConnectionState.waiting) {
                                     return Image.asset('assets/albany.png',
-                                        fit: BoxFit.fitWidth);
+                                        // fit: BoxFit.fitWidth
+                                        fit: BoxFit.fill);
                                   } else if (snapshot.hasData) {
                                     return Image.memory(snapshot.data!,
-                                        fit: BoxFit.fitWidth);
+                                        // fit: BoxFit.fitWidth
+                                        fit: BoxFit.fill);
                                   } else {
                                     return Image.asset('assets/albany.png',
-                                        fit: BoxFit.fitWidth);
+                                        // fit: BoxFit.fitWidth
+                                        fit: BoxFit.fill);
                                   }
                                 },
                               ),
