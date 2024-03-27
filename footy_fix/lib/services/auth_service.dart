@@ -27,8 +27,6 @@ class AuthService {
     }
   }
 
-<<<<<<< Updated upstream
-=======
   Future<bool> getFreshToken() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) {
@@ -50,7 +48,6 @@ class AuthService {
     }
   }
 
->>>>>>> Stashed changes
   Future<UserCredential?> signInWithEmailPassword(
       String email, String password) async {
     FirebaseAuth auth = FirebaseAuth.instance;
