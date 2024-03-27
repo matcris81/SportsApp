@@ -301,9 +301,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Future<void> processCreditPayment() async {
     print('Pay with Credit');
 
-    // var token =
-    //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
-
     var response = await DatabaseServices().getData(
         '${DatabaseServices().backendUrl}/api/players/$userID/balance');
 
@@ -361,7 +358,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
     // var token =
     //     await DatabaseServices().authenticateAndGetToken('admin', 'admin');
 
+    print('result status: ${result!['status']}');
+
     if (widget.topUp) {
+      // String? userId = await PreferencesService().getUserId();
+
+      double amountToTopUp = priceOptions[_selectedPriceIndex];
       // var topUpBody = {
       //   "id": userID,
       //   "balance": amount,
@@ -369,10 +371,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
       // var balanceBody = {"amount": widget.price};
 
+      print('amountToTopUp: $amountToTopUp');
+
+      // var body = {
+      //   "amount": amountToTopUp,
+      // };
+
       var topupBalance = await DatabaseServices().patchDataWithoutMap(
           '${DatabaseServices().backendUrl}/api/players/$userID/add-balance',
-          // token,
-          widget.price);
+          amount);
 
       context.go('/');
     } else {
