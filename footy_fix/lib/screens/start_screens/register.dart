@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:footy_fix/components/my_textfield.dart';
+import 'package:footy_fix/components/navigation.dart';
 import 'package:footy_fix/components/register_button.dart';
 import 'package:footy_fix/components/square_tile.dart';
 import 'package:footy_fix/screens/start_screens/login_screen.dart';
@@ -42,10 +43,13 @@ class _RegisterPageState extends State<RegisterPage> {
       String userID = userCredential.user!.uid;
       addPlayer(userID, emailController.text, usernameController.text);
 
+      // Sign out immediately after registration
+      await FirebaseAuth.instance.signOut();
+
       if (!mounted) return;
-      Navigator.pop(context);
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => const LoginPage()));
+      // Navigator.pop(context);
+      // Navigator.pushReplacement(
+      //     context, MaterialPageRoute(builder: (context) => const NavBar()));
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
 
